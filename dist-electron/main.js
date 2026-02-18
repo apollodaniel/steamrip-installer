@@ -8735,6 +8735,8 @@ createExeca(mapScriptAsync, {}, deepScriptOptions, setScriptSync);
 getIpcExport();
 const HEROIC_CONFIG_PATH = path$f.join(app.getPath("home"), ".config", "heroic");
 const HEROIC_TOOLS_PATH = path$f.join(HEROIC_CONFIG_PATH, "tools");
+const HEROIC_GAMES_CONFIG_PATH = path$f.join(HEROIC_CONFIG_PATH, "GamesConfig");
+const SIDELOAD_LIBRARY_PATH = path$f.join(HEROIC_CONFIG_PATH, "sideload_apps", "library.json");
 async function getRunners() {
   const runners = [];
   const toolsPath = HEROIC_TOOLS_PATH;
@@ -8773,7 +8775,6 @@ async function getRunners() {
   }
   return runners;
 }
-const SIDELOAD_LIBRARY_PATH = path$f.join(HEROIC_CONFIG_PATH, "sideload_apps", "library.json");
 async function moveGameFolder(sourcePath, gameName) {
   const gamesDir = path$f.join(app.getPath("home"), "Games");
   await fs$1.ensureDir(gamesDir);
@@ -8799,36 +8800,13 @@ async function moveGameFolder(sourcePath, gameName) {
   return { status: "moved", path: destPath };
 }
 async function addToHeroic(gameName, gamePath, executablePath, runner, pfxPath) {
-  const entry = {
-    title: gameName,
-    appName: `Sideload-${gameName.replace(/\s+/g, "_")}-${Date.now()}`,
-    install: {
-      version: "1.0.0",
-      executable: executablePath,
-      // Full path usually preferred?
-      workingDir: gamePath,
-      platform: "windows"
-    },
-    runner: runner.path,
-    // Full path to runner binary
-    wineVersion: {
-      bin: runner.path,
-      name: runner.name,
-      type: runner.type
-      // winetricks?
-    },
-    pfx: pfxPath
-  };
-  let library = { games: [] };
-  try {
-    if (await fs$1.pathExists(SIDELOAD_LIBRARY_PATH)) {
-      library = await fs$1.readJson(SIDELOAD_LIBRARY_PATH);
-    }
-  } catch {
-  }
-  library.games.push(entry);
+  const library = await readSideloadLibrary();
+  const appName = pickAppName(library.games, gameName, gamePath, executablePath);
+  const entry = buildSideloadEntry(appName, gameName, gamePath, executablePath);
+  const updatedGames = upsertSideloadGame(library.games, entry, gameName, gamePath, executablePath);
   await fs$1.ensureDir(path$f.dirname(SIDELOAD_LIBRARY_PATH));
-  await fs$1.writeJson(SIDELOAD_LIBRARY_PATH, library, { spaces: 2 });
+  await fs$1.writeJson(SIDELOAD_LIBRARY_PATH, { games: updatedGames }, { spaces: 2 });
+  await writeHeroicGameConfig(appName, runner, pfxPath);
 }
 async function runExecutable(executablePath, runner, pfxPath, onOutput) {
   var _a2;
@@ -8865,6 +8843,173 @@ async function runExecutable(executablePath, runner, pfxPath, onOutput) {
 }
 function isErrnoException(error) {
   return typeof error === "object" && error !== null && "code" in error;
+}
+async function readSideloadLibrary() {
+  try {
+    if (!await fs$1.pathExists(SIDELOAD_LIBRARY_PATH)) {
+      return { games: [] };
+    }
+    const library = await fs$1.readJson(SIDELOAD_LIBRARY_PATH);
+    if (!isRecord(library) || !Array.isArray(library.games)) {
+      return { games: [] };
+    }
+    return { games: library.games };
+  } catch {
+    return { games: [] };
+  }
+}
+function buildSideloadEntry(appName, gameName, gamePath, executablePath) {
+  return {
+    runner: "sideload",
+    app_name: appName,
+    title: gameName,
+    install: {
+      executable: executablePath,
+      platform: "windows",
+      is_dlc: false,
+      install_path: gamePath
+    },
+    folder_name: path$f.dirname(executablePath),
+    art_cover: HEROIC_DEFAULT_ART_URL,
+    art_square: HEROIC_DEFAULT_ART_URL,
+    is_installed: true,
+    canRunOffline: true
+  };
+}
+const HEROIC_DEFAULT_ART_URL = "https://raw.githubusercontent.com/Heroic-Games-Launcher/HeroicGamesLauncher/main/src/frontend/assets/heroic_card.jpg";
+function upsertSideloadGame(games, entry, gameName, gamePath, executablePath) {
+  const updated = [];
+  let inserted = false;
+  for (const game of games) {
+    if (matchesSideloadEntry(game, gameName, gamePath, executablePath)) {
+      if (!inserted) {
+        updated.push(entry);
+        inserted = true;
+      }
+      continue;
+    }
+    updated.push(game);
+  }
+  if (!inserted) {
+    updated.push(entry);
+  }
+  return updated;
+}
+function pickAppName(games, gameName, gamePath, executablePath) {
+  const used = /* @__PURE__ */ new Set();
+  let matchedAppName = null;
+  for (const game of games) {
+    const appName = readAppName(game);
+    if (appName) {
+      used.add(appName);
+    }
+    if (matchesSideloadEntry(game, gameName, gamePath, executablePath) && appName) {
+      matchedAppName = appName;
+    }
+  }
+  if (matchedAppName) {
+    return matchedAppName;
+  }
+  const base = buildAppNameBase(gameName);
+  if (!used.has(base)) {
+    return base;
+  }
+  let suffix = 2;
+  while (used.has(`${base}-${suffix}`)) {
+    suffix += 1;
+  }
+  return `${base}-${suffix}`;
+}
+function buildAppNameBase(gameName) {
+  const slug = gameName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return `steamrip-${slug || "game"}`;
+}
+function readAppName(game) {
+  const record = asRecord(game);
+  if (!record) {
+    return null;
+  }
+  const appName = readString(record, "app_name") ?? readString(record, "appName");
+  return appName ?? null;
+}
+function matchesSideloadEntry(game, gameName, gamePath, executablePath) {
+  const record = asRecord(game);
+  if (!record) {
+    return false;
+  }
+  const install = asRecord(record.install);
+  const title = readString(record, "title");
+  const existingExecutable = install ? readString(install, "executable") : null;
+  const folderName = readString(record, "folder_name");
+  const workingDir = install ? readString(install, "workingDir") : null;
+  const executableMatches = existingExecutable ? pathsEqual(existingExecutable, executablePath) : false;
+  const folderMatches = (folderName ? pathsEqual(folderName, gamePath) : false) || (workingDir ? pathsEqual(workingDir, gamePath) : false);
+  const titleMatches = title === gameName;
+  return executableMatches || titleMatches && folderMatches;
+}
+function pathsEqual(left, right) {
+  return path$f.resolve(left) === path$f.resolve(right);
+}
+async function writeHeroicGameConfig(appName, runner, pfxPath) {
+  const gameConfigPath = path$f.join(HEROIC_GAMES_CONFIG_PATH, `${appName}.json`);
+  const currentConfig = await readJsonObject(gameConfigPath);
+  const currentAppConfig = asRecord(currentConfig[appName]) ?? {};
+  const wineVersion = await toHeroicWineVersion(runner);
+  const nextConfig = {
+    ...currentConfig,
+    [appName]: {
+      ...currentAppConfig,
+      wineVersion,
+      winePrefix: pfxPath
+    },
+    version: "v0",
+    explicit: true
+  };
+  await fs$1.ensureDir(HEROIC_GAMES_CONFIG_PATH);
+  await fs$1.writeJson(gameConfigPath, nextConfig, { spaces: 2 });
+}
+async function toHeroicWineVersion(runner) {
+  if (runner.type === "proton") {
+    return {
+      bin: runner.path,
+      name: runner.name,
+      type: "proton"
+    };
+  }
+  const version = {
+    bin: runner.path,
+    name: runner.name,
+    type: "wine"
+  };
+  const wineserverPath = path$f.join(path$f.dirname(runner.path), "wineserver");
+  if (await fs$1.pathExists(wineserverPath)) {
+    version.wineserver = wineserverPath;
+  }
+  return version;
+}
+async function readJsonObject(filePath) {
+  try {
+    if (!await fs$1.pathExists(filePath)) {
+      return {};
+    }
+    const parsed = await fs$1.readJson(filePath);
+    return asRecord(parsed) ?? {};
+  } catch {
+    return {};
+  }
+}
+function asRecord(value) {
+  if (!isRecord(value)) {
+    return null;
+  }
+  return value;
+}
+function isRecord(value) {
+  return typeof value === "object" && value !== null;
+}
+function readString(record, key) {
+  const value = record[key];
+  return typeof value === "string" ? value : null;
 }
 function setupHandlers() {
   ipcMain.handle("get-runners", async () => {
