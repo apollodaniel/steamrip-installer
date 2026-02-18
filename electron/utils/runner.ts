@@ -13,6 +13,8 @@ const HEROIC_CONFIG_PATH = path.join(app.getPath('home'), '.config', 'heroic');
 const HEROIC_TOOLS_PATH = path.join(HEROIC_CONFIG_PATH, 'tools');
 const HEROIC_GAMES_CONFIG_PATH = path.join(HEROIC_CONFIG_PATH, 'GamesConfig');
 const SIDELOAD_LIBRARY_PATH = path.join(HEROIC_CONFIG_PATH, 'sideload_apps', 'library.json');
+const STEAMGRID_SEARCH_API = 'https://steamgrid.usebottles.com/api/search/';
+const ART_FETCH_TIMEOUT_MS = 5000;
 
 interface HeroicWineVersion {
   bin: string;
@@ -127,10 +129,13 @@ export async function moveGameFolder(sourcePath: string, gameName: string): Prom
 }
 
 export async function addToHeroic(gameName: string, gamePath: string, executablePath: string, runner: Runner, pfxPath: string) {
+  const parsedTitle = parseGameTitle(gameName);
+  const displayTitle = parsedTitle || gameName;
+  const artUrl = await fetchHeroicArt(displayTitle);
   const library = await readSideloadLibrary();
-  const appName = pickAppName(library.games, gameName, gamePath, executablePath);
-  const entry = buildSideloadEntry(appName, gameName, gamePath, executablePath);
-  const updatedGames = upsertSideloadGame(library.games, entry, gameName, gamePath, executablePath);
+  const appName = pickAppName(library.games, displayTitle, gamePath, executablePath);
+  const entry = buildSideloadEntry(appName, displayTitle, gamePath, executablePath, artUrl);
+  const updatedGames = upsertSideloadGame(library.games, entry, displayTitle, gamePath, executablePath);
 
   await fs.ensureDir(path.dirname(SIDELOAD_LIBRARY_PATH));
   await fs.writeJson(SIDELOAD_LIBRARY_PATH, { games: updatedGames }, { spaces: 2 });
@@ -210,6 +215,7 @@ function buildSideloadEntry(
   gameName: string,
   gamePath: string,
   executablePath: string,
+  artUrl: string,
 ): HeroicSideloadGame {
   return {
     runner: 'sideload',
@@ -222,8 +228,8 @@ function buildSideloadEntry(
       install_path: gamePath,
     },
     folder_name: path.dirname(executablePath),
-    art_cover: HEROIC_DEFAULT_ART_URL,
-    art_square: HEROIC_DEFAULT_ART_URL,
+    art_cover: artUrl,
+    art_square: artUrl,
     is_installed: true,
     canRunOffline: true,
   };
@@ -418,4 +424,125 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function readString(record: Record<string, unknown>, key: string): string | null {
   const value = record[key];
   return typeof value === 'string' ? value : null;
+}
+
+async function fetchHeroicArt(gameTitle: string): Promise<string> {
+  if (!gameTitle) {
+    return HEROIC_DEFAULT_ART_URL;
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), ART_FETCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`${STEAMGRID_SEARCH_API}${encodeURIComponent(gameTitle)}`, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      return HEROIC_DEFAULT_ART_URL;
+    }
+
+    const body = await response.text();
+    const parsed = tryParseJson(body);
+    if (typeof parsed === 'string' && isLikelyUrl(parsed)) {
+      return parsed;
+    }
+
+    if (isRecord(parsed)) {
+      const image = readString(parsed, 'url') ?? readString(parsed, 'image');
+      if (image && isLikelyUrl(image)) {
+        return image;
+      }
+    }
+
+    return HEROIC_DEFAULT_ART_URL;
+  } catch {
+    return HEROIC_DEFAULT_ART_URL;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function parseGameTitle(rawName: string): string {
+  let value = rawName.trim();
+  value = value.replace(/\.(zip|rar|7z|iso)$/i, ' ');
+  value = value.replace(/[_]+/g, ' ');
+  value = value.replace(/[.-]+/g, ' ');
+
+  value = value.replace(/\[([^\]]*)\]|\(([^)]*)\)|\{([^}]*)\}/g, (
+    _match,
+    squareGroup: string | undefined,
+    roundGroup: string | undefined,
+    curlyGroup: string | undefined,
+  ) => {
+    const group = squareGroup ?? roundGroup ?? curlyGroup ?? '';
+    return hasReleaseNoise(group) ? ' ' : ` ${group} `;
+  });
+
+  value = value.replace(RELEASE_NOISE_RE, ' ');
+  value = value.replace(/\b(com|net|org|info)\b/gi, ' ');
+
+  value = expandCommonEditions(value);
+  value = value.replace(/\s+/g, ' ').trim();
+  return toTitleCase(value);
+}
+
+const RELEASE_NOISE_RE =
+  /\b(steamrip|fitgirl|repack|dodi|elamigos|gog[-\s]?games?|xatab|portable|pre[-\s]?installed|crack(?:ed)?|rune|tenoke|codex|empress|goldberg|build|v\d+)\b/gi;
+const RELEASE_NOISE_CHECK_RE =
+  /\b(steamrip|fitgirl|repack|dodi|elamigos|gog[-\s]?games?|xatab|portable|pre[-\s]?installed|crack(?:ed)?|rune|tenoke|codex|empress|goldberg|build|v\d+)\b/i;
+
+function hasReleaseNoise(text: string): boolean {
+  return RELEASE_NOISE_CHECK_RE.test(text);
+}
+
+function expandCommonEditions(text: string): string {
+  return text
+    .replace(/\bGOTY\b/gi, 'Game of the Year Edition')
+    .replace(/\bDE\b/gi, 'Definitive Edition')
+    .replace(/\bDC\b/gi, "Director's Cut")
+    .replace(/\bEE\b/gi, 'Enhanced Edition')
+    .replace(/\bJE\b/gi, 'Juggernaut Edition')
+    .replace(/\bULT(?:IMATE)?\b/gi, 'Ultimate Edition');
+}
+
+function toTitleCase(text: string): string {
+  const words = text.split(' ').filter(Boolean);
+  const smallWords = new Set(['a', 'an', 'and', 'as', 'at', 'for', 'in', 'of', 'on', 'or', 'the', 'to', 'with']);
+
+  return words
+    .map((word, index) => {
+      if (/^\d+$/.test(word)) {
+        return word;
+      }
+
+      if (/^[ivxlcdm]+$/i.test(word)) {
+        return word.toUpperCase();
+      }
+
+      const lower = word.toLowerCase();
+      if (index > 0 && smallWords.has(lower)) {
+        return lower;
+      }
+
+      if (/^[a-z]{2,3}$/i.test(word) && !smallWords.has(lower)) {
+        return lower.toUpperCase();
+      }
+
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(' ');
+}
+
+function tryParseJson(value: string): unknown {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function isLikelyUrl(value: string): boolean {
+  return /^https?:\/\/\S+/i.test(value);
 }
