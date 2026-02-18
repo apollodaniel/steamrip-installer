@@ -28,6 +28,7 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
+    title: 'SteamRIP Installer',
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
@@ -68,6 +69,7 @@ app.on('activate', () => {
 import { setupHandlers } from './handlers'
 
 app.whenReady().then(() => {
+  app.setName('SteamRIP Installer')
   setupHandlers()
   createWindow()
 })
