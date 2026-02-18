@@ -4,7 +4,7 @@ interface Props {
   Path: string;
 }
 
-export default function StepFinish({ Path }: Props) {
+export const StepFinish = ({ Path }: Props) => {
   const handleOpenHeroic = async () => {
     try {
       await window.api.openHeroic();
@@ -39,4 +39,4 @@ export default function StepFinish({ Path }: Props) {
       </div>
     </div>
   );
-}
+};

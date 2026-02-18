@@ -1,77 +1,69 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
+import { StepSelection } from "./StepSelection";
+import { StepConfig } from "./StepConfig";
+import { StepInstall } from "./StepInstall";
+import { StepFinish } from "./StepFinish";
 import { GameInfo, Runner } from "../types";
-import StepSelection from "./StepSelection.tsx";
-import StepConfig from "./StepConfig.tsx";
-import StepInstall from "./StepInstall.tsx";
-import StepFinish from "./StepFinish.tsx";
 
-export default function Wizard() {
+export const Wizard = () => {
   const [step, setStep] = useState(1);
-  const [gameData, setGameData] = useState<GameInfo | null>(null);
+  const [gameInfo, setGameInfo] = useState<GameInfo | null>(null);
+  const [selectedExecutable, setSelectedExecutable] = useState("");
   const [selectedRunner, setSelectedRunner] = useState<Runner | null>(null);
-  const [selectedExecutable, setSelectedExecutable] = useState<string>("");
-  const [runners, setRunners] = useState<Runner[]>([]);
+  const [addToHeroic, setAddToHeroic] = useState(true);
+  const [installedPath, setInstalledPath] = useState("");
 
-  useEffect(() => {
-    // Fetch runners on load
-    window.api.getRunners().then(setRunners).catch(console.error);
+  const handleSelectionNext = useCallback((info: GameInfo) => {
+    setGameInfo(info);
+    if (info.executables.length > 0) {
+      setSelectedExecutable(info.executables[0]);
+    }
+    setStep(2);
   }, []);
 
-  const handleNext = useCallback(() => setStep((s) => s + 1), []);
-  const handleBack = useCallback(() => setStep((s) => s - 1), []);
+  const handleConfigNext = useCallback(
+    (runner: Runner, addHeroic: boolean, exe: string) => {
+      setSelectedRunner(runner);
+      setAddToHeroic(addHeroic);
+      setSelectedExecutable(exe);
+      setStep(3);
+    },
+    [],
+  );
+
+  const handleInstallNext = useCallback((path: string) => {
+    setInstalledPath(path);
+    setStep(4);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col font-sans">
-      <header className="p-4 bg-gray-800 shadow-md flex justify-between items-center">
-        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+    <div className="w-full h-screen bg-gray-900 text-white flex flex-col p-8">
+      <div className="max-w-4xl mx-auto w-full flex-1">
+        <h1 className="text-3xl font-bold mb-8 text-center text-blue-400">
           SteamRIP Installer
         </h1>
-        <div className="text-sm text-gray-400">Step {step} of 4</div>
-      </header>
 
-      <main className="flex-1 p-6 flex flex-col items-center justify-center">
-        <div className="w-full max-w-2xl bg-gray-800 rounded-xl shadow-2xl p-8 border border-gray-700">
-          {step === 1 && (
-            <StepSelection
-              onGameSelected={(data) => {
-                setGameData(data);
-                // Default to first exe if available
-                if (data.executables.length > 0)
-                  setSelectedExecutable(data.executables[0]);
-                handleNext();
-              }}
-            />
+        <div className="glass-panel bg-gray-800/50 rounded-lg p-8 shadow-xl border border-white/10 h-[600px] overflow-hidden relative backdrop-blur-md">
+          {step === 1 && <StepSelection onNext={handleSelectionNext} />}
+
+          {step === 2 && gameInfo && (
+            <StepConfig gameInfo={gameInfo} onNext={handleConfigNext} />
           )}
 
-          {step === 2 && gameData && (
-            <StepConfig
-              gameData={gameData}
-              runners={runners}
-              selectedRunner={selectedRunner}
-              onRunnerSelect={setSelectedRunner}
-              selectedExecutable={selectedExecutable}
-              onExecutableSelect={setSelectedExecutable}
-              onNext={() => {
-                if (selectedRunner && selectedExecutable) handleNext();
-              }}
-              onBack={handleBack}
-            />
-          )}
-
-          {step === 3 && gameData && selectedRunner && (
+          {step === 3 && gameInfo && selectedRunner && (
             <StepInstall
-              gameData={gameData}
-              runner={selectedRunner}
+              gamePath={gameInfo.path}
+              gameName={gameInfo.name}
               executable={selectedExecutable}
-              onFinish={handleNext}
+              runner={selectedRunner}
+              addToHeroicProp={addToHeroic}
+              onNext={handleInstallNext}
             />
           )}
 
-          {step === 4 && (
-            <StepFinish Path={gameData ? `~/Games/${gameData.name}` : ""} />
-          )}
+          {step === 4 && <StepFinish Path={installedPath} />}
         </div>
-      </main>
+      </div>
     </div>
   );
-}
+};

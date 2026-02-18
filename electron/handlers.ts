@@ -1,7 +1,7 @@
 import { ipcMain, dialog } from 'electron';
 import path from 'path';
 import fs from 'fs-extra';
-import { getRunners, moveGameFolder, runExecutable, Runner } from './utils/runner';
+import { getRunners, moveGameFolder, runExecutable, Runner, addToHeroic } from './utils/runner';
 
 export function setupHandlers() {
     ipcMain.handle('get-runners', async () => {
@@ -21,7 +21,7 @@ export function setupHandlers() {
             return null;
         }
         const dirPath = result.filePaths[0];
-        const name = path.basename(dirPath);
+        const name = path.basename(dirPath).replace(/[^\w\s.-]/g, ''); // Sanitize slightly
         
         // Find executables
         const executables = await findExecutables(dirPath);
@@ -36,31 +36,21 @@ export function setupHandlers() {
         };
     });
 
-    ipcMain.handle('install-game', async (event, { sourcePath, gameName, executable, runner }: { sourcePath: string, gameName: string, executable: string, runner: Runner }) => {
+    ipcMain.handle('install-game', async (event, { sourcePath, gameName, executable, runner, addToHeroicLib }: { sourcePath: string, gameName: string, executable: string, runner: Runner, addToHeroicLib: boolean }) => {
         try {
             // 1. Move Directory
-            // Send progress update via webContents if possible, or return generator/stream?
-            // IPC handle returns promise, so we can't emit events easily unless we use event.sender.send
             const sender = event.sender;
             sender.send('install-progress', { stage: 'moving', message: 'Moving game files...' });
             
             const destPath = await moveGameFolder(sourcePath, gameName);
             
-            // 2. Configure (chmod +x if needed)
-            // Windows EXEs don't need chmod +x on Linux usually if run via Wine/Proton? 
-            // Actually, newer Proton/Wine might check execute bit, but usually not for PE files.
-            // But let's verify if executable is relative path.
-            // executable is likely relative to sourcePath. 
-            // We need to resolve it to destPath.
-            // Wait, front-end should send relative path? Or full path?
-            // If full path of source, we need to re-calculate for dest.
-            
-            // Let's assume executable provided is RELATIVE to sourcePath.
+            // 2. Configure
+            // executable provided is RELATIVE to sourcePath/destPath.
             const destExePath = path.join(destPath, executable);
             
             sender.send('install-progress', { stage: 'configuring', message: 'Configuring executables...' });
             
-            // Ensure executable has execute permissions (helper for Linux native or Wine script)
+            // Ensure executable has execute permissions
             if (await fs.pathExists(destExePath)) {
                 await fs.chmod(destExePath, '755');
             }
@@ -86,12 +76,29 @@ export function setupHandlers() {
             }
             
             for (const rExe of redistExes) {
-                sender.send('install-progress', { stage: 'redist', message: `Installing ${path.basename(rExe)}...` });
+                const redistName = path.basename(rExe);
+                sender.send('install-progress', { stage: 'redist', message: `Installing ${redistName} (Check window)...` });
+                sender.send('install-log', `> Running ${redistName}\n`);
                 try {
-                    await runExecutable(rExe, runner, pfxPath);
-                } catch (e) {
+                    const subprocess = await runExecutable(rExe, runner, pfxPath);
+                    if (subprocess.stdout) sender.send('install-log', subprocess.stdout + '\n');
+                    if (subprocess.stderr) sender.send('install-log', subprocess.stderr + '\n');
+                } catch (e: any) {
                     console.error(`Failed to run redist ${rExe}:`, e);
-                    // Continue anyway? Usually yes.
+                    sender.send('install-log', `[ERROR] Failed to run ${redistName}: ${e.message}\n`);
+                    // We continue even if redist fails
+                }
+            }
+
+            // 4. Add to Heroic (if requested)
+            if (addToHeroicLib) {
+                sender.send('install-progress', { stage: 'heroic', message: 'Adding to Heroic Games Launcher...' });
+                try {
+                    await addToHeroic(gameName, destPath, destExePath, runner, pfxPath);
+                    sender.send('install-log', `> Added to Heroic Library successfully.\n`);
+                } catch (e: any) {
+                    console.error('Failed to add to heroic:', e);
+                    sender.send('install-log', `[ERROR] Failed to add to Heroic: ${e.message}\n`);
                 }
             }
             
@@ -105,12 +112,15 @@ export function setupHandlers() {
     });
 
     ipcMain.handle('open-heroic', () => {
-        exec('heroic', (err) => {
-             if (err) {
-                 // Try xdg-open or verify command
-                 console.error('Failed to launch heroic directly, trying generic open? No, heroic is command usually.');
-                 // Maybe check standard paths?
-             }
+        exec('helper-heroic-launch', () => { 
+             // Just filtering the command, actual exec is below
+        });
+        // Actually we likely just want generic exec.
+        // xdg-open heroic? or just `heroic` command.
+        import('child_process').then(cp => {
+             cp.exec('heroic', (err) => {
+                 if (err) console.error('Failed to launch heroic:', err);
+             });
         });
     });
 }

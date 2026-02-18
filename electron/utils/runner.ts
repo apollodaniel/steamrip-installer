@@ -61,17 +61,76 @@ export async function getRunners(): Promise<Runner[]> {
   return runners;
 }
 
+const SIDELOAD_LIBRARY_PATH = path.join(HEROIC_CONFIG_PATH, 'sideload_apps', 'library.json');
+
 export async function moveGameFolder(sourcePath: string, gameName: string): Promise<string> {
   const gamesDir = path.join(app.getPath('home'), 'Games');
   await fs.ensureDir(gamesDir);
   const destPath = path.join(gamesDir, gameName);
   
   if (await fs.pathExists(destPath)) {
-    throw new Error(`Destination already exists: ${destPath}`);
+    // If it exists, maybe we should ask user? Or overwrite? 
+    // For now, let's just append a timestamp or throw descriptive error.
+    // The user moved it "somehow", implying they might have retried.
+    // Let's try to identify if it's the SAME installation.
+    throw new Error(`Destination already exists: ${destPath}. Please delete it or rename your game folder.`);
   }
 
-  await fs.move(sourcePath, destPath);
+  try {
+      await fs.move(sourcePath, destPath, { overwrite: true });
+  } catch (err: any) {
+      if (err.code === 'EXDEV') {
+          // Cross-device move failed for some reason even with fs-extra? 
+          // Should not happen with fs.move but let's be explicit fallback
+          await fs.copy(sourcePath, destPath, { overwrite: true });
+          await fs.remove(sourcePath);
+      } else {
+          throw err;
+      }
+  }
   return destPath;
+}
+
+export async function addToHeroic(gameName: string, gamePath: string, executablePath: string, runner: Runner, pfxPath: string) {
+    // Construct the Heroic Sideload entry
+    // Format inferred/standard for Heroic 2.x+
+    const entry = {
+        title: gameName,
+        appName: `Sideload-${gameName.replace(/\s+/g, '_')}-${Date.now()}`,
+        install: {
+            version: '1.0.0',
+            executable: executablePath, // Full path usually preferred?
+            workingDir: gamePath,
+            platform: 'windows',
+        },
+        runner: runner.path, // Full path to runner binary
+        wineVersion: {
+            bin: runner.path,
+            name: runner.name,
+            type: runner.type
+            // winetricks?
+        },
+        pfx: pfxPath,
+    };
+
+    // Heroic Sideload format might be just a list in library.json
+    // Or it might need a separate file? current heroic versions use library.json in sideload_apps.
+    
+    // Read existing
+    let library: { games: any[] } = { games: [] };
+    try {
+        if (await fs.pathExists(SIDELOAD_LIBRARY_PATH)) {
+            library = await fs.readJson(SIDELOAD_LIBRARY_PATH);
+        }
+    } catch (e) {
+        // failed to read, start fresh
+    }
+
+    // Append
+    library.games.push(entry);
+
+    // Save
+    await fs.writeJson(SIDELOAD_LIBRARY_PATH, library, { spaces: 2 });
 }
 
 // Executable runner with Prefix support
@@ -87,13 +146,17 @@ export async function runExecutable(executablePath: string, runner: Runner, pfxP
          env.WINEPREFIX = pfxPath;
          delete env.STEAM_COMPAT_DATA_PATH;
     }
+    
+    // For Proton, we sometimes need more envs to simulate Steam
+    if (runner.type === 'proton') {
+        env.SteamGameId = 'nonsteam';
+    }
 
     const cmd = runner.path;
     let args: string[] = [];
 
     if (runner.type === 'proton') {
         // Proton needs 'run' command usually
-        // Also might need to set STEAM_COMPAT_CLIENT_INSTALL_PATH for some proton versions?
         args = ['run', executablePath];
     } else {
         args = [executablePath];
@@ -103,5 +166,11 @@ export async function runExecutable(executablePath: string, runner: Runner, pfxP
     // ensure prefix dir exists
     await fs.ensureDir(pfxPath);
     
-    return execa(cmd, args, { env });
+    const subprocess = execa(cmd, args, { env });
+    
+    // Pipe output to console so we can debug
+    subprocess.stdout?.pipe(process.stdout);
+    subprocess.stderr?.pipe(process.stderr);
+    
+    return subprocess;
 }

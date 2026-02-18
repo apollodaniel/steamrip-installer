@@ -1,539 +1,819 @@
-var ac = Object.defineProperty;
-var Cr = (e) => {
-  throw TypeError(e);
+var __defProp = Object.defineProperty;
+var __typeError = (msg) => {
+  throw TypeError(msg);
 };
-var cc = (e, t, n) => t in e ? ac(e, t, { enumerable: !0, configurable: !0, writable: !0, value: n }) : e[t] = n;
-var Ae = (e, t, n) => cc(e, typeof t != "symbol" ? t + "" : t, n), en = (e, t, n) => t.has(e) || Cr("Cannot " + n);
-var p = (e, t, n) => (en(e, t, "read from private field"), n ? n.call(e) : t.get(e)), C = (e, t, n) => t.has(e) ? Cr("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(e) : t.set(e, n), W = (e, t, n, r) => (en(e, t, "write to private field"), r ? r.call(e, n) : t.set(e, n), n), Xe = (e, t, n) => (en(e, t, "access private method"), n);
-import { app as Ue, ipcMain as gt, dialog as lc, BrowserWindow as Go } from "electron";
-import { fileURLToPath as kn } from "node:url";
-import A from "node:path";
-import T from "path";
-import dt from "fs";
-import uc from "constants";
-import fc from "stream";
-import dc from "util";
-import hc from "assert";
-import { ChildProcess as Wo, execFile as mc, spawnSync as pc, spawn as yc } from "node:child_process";
-import { StringDecoder as zo } from "node:string_decoder";
-import { debuglog as wc, stripVTControlCharacters as gc, inspect as Vo, promisify as Ho, callbackify as qe, aborted as Sc } from "node:util";
-import G, { platform as bc, hrtime as qo, execPath as Ec, execArgv as Tc } from "node:process";
-import Yo from "node:tty";
-import $c, { exec as vc } from "child_process";
-import { setTimeout as Jo, scheduler as Ko, setImmediate as Oc } from "node:timers/promises";
-import { constants as $e } from "node:os";
-import { once as Y, addAbortListener as Xo, EventEmitter as Dc, on as Wt, setMaxListeners as Ic } from "node:events";
-import { serialize as xc } from "node:v8";
-import { statSync as Rc, readFileSync as hn, appendFileSync as Pc, writeFileSync as Ac, createWriteStream as Fr, createReadStream as Lr } from "node:fs";
-import { Transform as Cc, getDefaultHighWaterMark as At, Duplex as _n, Writable as jn, Readable as be, PassThrough as Qo } from "node:stream";
-import { Buffer as Bn } from "node:buffer";
-import { finished as we } from "node:stream/promises";
-var Ct = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
-function Zo(e) {
-  return e && e.__esModule && Object.prototype.hasOwnProperty.call(e, "default") ? e.default : e;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
+var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
+var _a, _b, _c, _d, _t, _n, _r, _e, _c_instances, s_fn, i_fn, _streams, _ended, _aborted, _onFinished, _unpipeEvent, _streamPromises, _hupSig, _emitter, _process, _originalProcessEmit, _originalProcessReallyExit, _sigListeners, _loaded, _SignalExit_instances, processReallyExit_fn, processEmit_fn;
+import { app, ipcMain, dialog, BrowserWindow } from "electron";
+import { fileURLToPath } from "node:url";
+import path$g from "node:path";
+import path$f from "path";
+import require$$0$2 from "fs";
+import require$$0 from "constants";
+import require$$0$1 from "stream";
+import require$$4 from "util";
+import require$$5 from "assert";
+import { ChildProcess, execFile, spawnSync as spawnSync$1, spawn as spawn$1 } from "node:child_process";
+import { StringDecoder } from "node:string_decoder";
+import { debuglog, stripVTControlCharacters, inspect, promisify, callbackify, aborted } from "node:util";
+import process$2, { platform as platform$1, hrtime, execPath, execArgv } from "node:process";
+import tty from "node:tty";
+import require$$0$3, { exec } from "child_process";
+import { setTimeout as setTimeout$1, scheduler, setImmediate } from "node:timers/promises";
+import { constants as constants$1 } from "node:os";
+import { once, addAbortListener, EventEmitter, on, setMaxListeners } from "node:events";
+import { serialize } from "node:v8";
+import { statSync, readFileSync as readFileSync$1, appendFileSync, writeFileSync as writeFileSync$1, createWriteStream, createReadStream } from "node:fs";
+import { Transform, getDefaultHighWaterMark, Duplex, Writable, Readable, PassThrough } from "node:stream";
+import { Buffer as Buffer$1 } from "node:buffer";
+import { finished } from "node:stream/promises";
+var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+function getDefaultExportFromCjs(x) {
+  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 }
-var q = {}, L = {};
-L.fromCallback = function(e) {
-  return Object.defineProperty(function(...t) {
-    if (typeof t[t.length - 1] == "function") e.apply(this, t);
-    else
-      return new Promise((n, r) => {
-        t.push((o, i) => o != null ? r(o) : n(i)), e.apply(this, t);
+var fs$j = {};
+var universalify$1 = {};
+universalify$1.fromCallback = function(fn) {
+  return Object.defineProperty(function(...args) {
+    if (typeof args[args.length - 1] === "function") fn.apply(this, args);
+    else {
+      return new Promise((resolve, reject) => {
+        args.push((err, res) => err != null ? reject(err) : resolve(res));
+        fn.apply(this, args);
       });
-  }, "name", { value: e.name });
+    }
+  }, "name", { value: fn.name });
 };
-L.fromPromise = function(e) {
-  return Object.defineProperty(function(...t) {
-    const n = t[t.length - 1];
-    if (typeof n != "function") return e.apply(this, t);
-    t.pop(), e.apply(this, t).then((r) => n(null, r), n);
-  }, "name", { value: e.name });
+universalify$1.fromPromise = function(fn) {
+  return Object.defineProperty(function(...args) {
+    const cb = args[args.length - 1];
+    if (typeof cb !== "function") return fn.apply(this, args);
+    else {
+      args.pop();
+      fn.apply(this, args).then((r) => cb(null, r), cb);
+    }
+  }, "name", { value: fn.name });
 };
-var ue = uc, Fc = process.cwd, It = null, Lc = process.env.GRACEFUL_FS_PLATFORM || process.platform;
+var constants = require$$0;
+var origCwd = process.cwd;
+var cwd = null;
+var platform = process.env.GRACEFUL_FS_PLATFORM || process.platform;
 process.cwd = function() {
-  return It || (It = Fc.call(process)), It;
+  if (!cwd)
+    cwd = origCwd.call(process);
+  return cwd;
 };
 try {
   process.cwd();
-} catch {
+} catch (er) {
 }
-if (typeof process.chdir == "function") {
-  var Mr = process.chdir;
-  process.chdir = function(e) {
-    It = null, Mr.call(process, e);
-  }, Object.setPrototypeOf && Object.setPrototypeOf(process.chdir, Mr);
+if (typeof process.chdir === "function") {
+  var chdir = process.chdir;
+  process.chdir = function(d) {
+    cwd = null;
+    chdir.call(process, d);
+  };
+  if (Object.setPrototypeOf) Object.setPrototypeOf(process.chdir, chdir);
 }
-var Mc = kc;
-function kc(e) {
-  ue.hasOwnProperty("O_SYMLINK") && process.version.match(/^v0\.6\.[0-2]|^v0\.5\./) && t(e), e.lutimes || n(e), e.chown = i(e.chown), e.fchown = i(e.fchown), e.lchown = i(e.lchown), e.chmod = r(e.chmod), e.fchmod = r(e.fchmod), e.lchmod = r(e.lchmod), e.chownSync = s(e.chownSync), e.fchownSync = s(e.fchownSync), e.lchownSync = s(e.lchownSync), e.chmodSync = o(e.chmodSync), e.fchmodSync = o(e.fchmodSync), e.lchmodSync = o(e.lchmodSync), e.stat = a(e.stat), e.fstat = a(e.fstat), e.lstat = a(e.lstat), e.statSync = c(e.statSync), e.fstatSync = c(e.fstatSync), e.lstatSync = c(e.lstatSync), e.chmod && !e.lchmod && (e.lchmod = function(l, f, d) {
-    d && process.nextTick(d);
-  }, e.lchmodSync = function() {
-  }), e.chown && !e.lchown && (e.lchown = function(l, f, d, h) {
-    h && process.nextTick(h);
-  }, e.lchownSync = function() {
-  }), Lc === "win32" && (e.rename = typeof e.rename != "function" ? e.rename : function(l) {
-    function f(d, h, m) {
-      var y = Date.now(), g = 0;
-      l(d, h, function S(E) {
-        if (E && (E.code === "EACCES" || E.code === "EPERM" || E.code === "EBUSY") && Date.now() - y < 6e4) {
-          setTimeout(function() {
-            e.stat(h, function(v, M) {
-              v && v.code === "ENOENT" ? l(d, h, S) : m(E);
-            });
-          }, g), g < 100 && (g += 10);
-          return;
-        }
-        m && m(E);
-      });
-    }
-    return Object.setPrototypeOf && Object.setPrototypeOf(f, l), f;
-  }(e.rename)), e.read = typeof e.read != "function" ? e.read : function(l) {
-    function f(d, h, m, y, g, S) {
-      var E;
-      if (S && typeof S == "function") {
-        var v = 0;
-        E = function(M, K, Q) {
-          if (M && M.code === "EAGAIN" && v < 10)
-            return v++, l.call(e, d, h, m, y, g, E);
-          S.apply(this, arguments);
-        };
-      }
-      return l.call(e, d, h, m, y, g, E);
-    }
-    return Object.setPrototypeOf && Object.setPrototypeOf(f, l), f;
-  }(e.read), e.readSync = typeof e.readSync != "function" ? e.readSync : /* @__PURE__ */ function(l) {
-    return function(f, d, h, m, y) {
-      for (var g = 0; ; )
-        try {
-          return l.call(e, f, d, h, m, y);
-        } catch (S) {
-          if (S.code === "EAGAIN" && g < 10) {
-            g++;
-            continue;
-          }
-          throw S;
-        }
+var polyfills$1 = patch$1;
+function patch$1(fs2) {
+  if (constants.hasOwnProperty("O_SYMLINK") && process.version.match(/^v0\.6\.[0-2]|^v0\.5\./)) {
+    patchLchmod(fs2);
+  }
+  if (!fs2.lutimes) {
+    patchLutimes(fs2);
+  }
+  fs2.chown = chownFix(fs2.chown);
+  fs2.fchown = chownFix(fs2.fchown);
+  fs2.lchown = chownFix(fs2.lchown);
+  fs2.chmod = chmodFix(fs2.chmod);
+  fs2.fchmod = chmodFix(fs2.fchmod);
+  fs2.lchmod = chmodFix(fs2.lchmod);
+  fs2.chownSync = chownFixSync(fs2.chownSync);
+  fs2.fchownSync = chownFixSync(fs2.fchownSync);
+  fs2.lchownSync = chownFixSync(fs2.lchownSync);
+  fs2.chmodSync = chmodFixSync(fs2.chmodSync);
+  fs2.fchmodSync = chmodFixSync(fs2.fchmodSync);
+  fs2.lchmodSync = chmodFixSync(fs2.lchmodSync);
+  fs2.stat = statFix(fs2.stat);
+  fs2.fstat = statFix(fs2.fstat);
+  fs2.lstat = statFix(fs2.lstat);
+  fs2.statSync = statFixSync(fs2.statSync);
+  fs2.fstatSync = statFixSync(fs2.fstatSync);
+  fs2.lstatSync = statFixSync(fs2.lstatSync);
+  if (fs2.chmod && !fs2.lchmod) {
+    fs2.lchmod = function(path2, mode2, cb) {
+      if (cb) process.nextTick(cb);
     };
-  }(e.readSync);
-  function t(l) {
-    l.lchmod = function(f, d, h) {
-      l.open(
-        f,
-        ue.O_WRONLY | ue.O_SYMLINK,
-        d,
-        function(m, y) {
-          if (m) {
-            h && h(m);
+    fs2.lchmodSync = function() {
+    };
+  }
+  if (fs2.chown && !fs2.lchown) {
+    fs2.lchown = function(path2, uid, gid, cb) {
+      if (cb) process.nextTick(cb);
+    };
+    fs2.lchownSync = function() {
+    };
+  }
+  if (platform === "win32") {
+    fs2.rename = typeof fs2.rename !== "function" ? fs2.rename : function(fs$rename) {
+      function rename2(from, to, cb) {
+        var start = Date.now();
+        var backoff = 0;
+        fs$rename(from, to, function CB(er) {
+          if (er && (er.code === "EACCES" || er.code === "EPERM" || er.code === "EBUSY") && Date.now() - start < 6e4) {
+            setTimeout(function() {
+              fs2.stat(to, function(stater, st) {
+                if (stater && stater.code === "ENOENT")
+                  fs$rename(from, to, CB);
+                else
+                  cb(er);
+              });
+            }, backoff);
+            if (backoff < 100)
+              backoff += 10;
             return;
           }
-          l.fchmod(y, d, function(g) {
-            l.close(y, function(S) {
-              h && h(g || S);
+          if (cb) cb(er);
+        });
+      }
+      if (Object.setPrototypeOf) Object.setPrototypeOf(rename2, fs$rename);
+      return rename2;
+    }(fs2.rename);
+  }
+  fs2.read = typeof fs2.read !== "function" ? fs2.read : function(fs$read) {
+    function read(fd, buffer, offset, length, position, callback_) {
+      var callback;
+      if (callback_ && typeof callback_ === "function") {
+        var eagCounter = 0;
+        callback = function(er, _, __) {
+          if (er && er.code === "EAGAIN" && eagCounter < 10) {
+            eagCounter++;
+            return fs$read.call(fs2, fd, buffer, offset, length, position, callback);
+          }
+          callback_.apply(this, arguments);
+        };
+      }
+      return fs$read.call(fs2, fd, buffer, offset, length, position, callback);
+    }
+    if (Object.setPrototypeOf) Object.setPrototypeOf(read, fs$read);
+    return read;
+  }(fs2.read);
+  fs2.readSync = typeof fs2.readSync !== "function" ? fs2.readSync : /* @__PURE__ */ function(fs$readSync) {
+    return function(fd, buffer, offset, length, position) {
+      var eagCounter = 0;
+      while (true) {
+        try {
+          return fs$readSync.call(fs2, fd, buffer, offset, length, position);
+        } catch (er) {
+          if (er.code === "EAGAIN" && eagCounter < 10) {
+            eagCounter++;
+            continue;
+          }
+          throw er;
+        }
+      }
+    };
+  }(fs2.readSync);
+  function patchLchmod(fs22) {
+    fs22.lchmod = function(path2, mode2, callback) {
+      fs22.open(
+        path2,
+        constants.O_WRONLY | constants.O_SYMLINK,
+        mode2,
+        function(err, fd) {
+          if (err) {
+            if (callback) callback(err);
+            return;
+          }
+          fs22.fchmod(fd, mode2, function(err2) {
+            fs22.close(fd, function(err22) {
+              if (callback) callback(err2 || err22);
             });
           });
         }
       );
-    }, l.lchmodSync = function(f, d) {
-      var h = l.openSync(f, ue.O_WRONLY | ue.O_SYMLINK, d), m = !0, y;
+    };
+    fs22.lchmodSync = function(path2, mode2) {
+      var fd = fs22.openSync(path2, constants.O_WRONLY | constants.O_SYMLINK, mode2);
+      var threw = true;
+      var ret;
       try {
-        y = l.fchmodSync(h, d), m = !1;
+        ret = fs22.fchmodSync(fd, mode2);
+        threw = false;
       } finally {
-        if (m)
+        if (threw) {
           try {
-            l.closeSync(h);
-          } catch {
+            fs22.closeSync(fd);
+          } catch (er) {
           }
-        else
-          l.closeSync(h);
+        } else {
+          fs22.closeSync(fd);
+        }
       }
-      return y;
+      return ret;
     };
   }
-  function n(l) {
-    ue.hasOwnProperty("O_SYMLINK") && l.futimes ? (l.lutimes = function(f, d, h, m) {
-      l.open(f, ue.O_SYMLINK, function(y, g) {
-        if (y) {
-          m && m(y);
-          return;
-        }
-        l.futimes(g, d, h, function(S) {
-          l.close(g, function(E) {
-            m && m(S || E);
+  function patchLutimes(fs22) {
+    if (constants.hasOwnProperty("O_SYMLINK") && fs22.futimes) {
+      fs22.lutimes = function(path2, at, mt, cb) {
+        fs22.open(path2, constants.O_SYMLINK, function(er, fd) {
+          if (er) {
+            if (cb) cb(er);
+            return;
+          }
+          fs22.futimes(fd, at, mt, function(er2) {
+            fs22.close(fd, function(er22) {
+              if (cb) cb(er2 || er22);
+            });
           });
         });
-      });
-    }, l.lutimesSync = function(f, d, h) {
-      var m = l.openSync(f, ue.O_SYMLINK), y, g = !0;
-      try {
-        y = l.futimesSync(m, d, h), g = !1;
-      } finally {
-        if (g)
-          try {
-            l.closeSync(m);
-          } catch {
+      };
+      fs22.lutimesSync = function(path2, at, mt) {
+        var fd = fs22.openSync(path2, constants.O_SYMLINK);
+        var ret;
+        var threw = true;
+        try {
+          ret = fs22.futimesSync(fd, at, mt);
+          threw = false;
+        } finally {
+          if (threw) {
+            try {
+              fs22.closeSync(fd);
+            } catch (er) {
+            }
+          } else {
+            fs22.closeSync(fd);
           }
-        else
-          l.closeSync(m);
-      }
-      return y;
-    }) : l.futimes && (l.lutimes = function(f, d, h, m) {
-      m && process.nextTick(m);
-    }, l.lutimesSync = function() {
-    });
+        }
+        return ret;
+      };
+    } else if (fs22.futimes) {
+      fs22.lutimes = function(_a2, _b2, _c2, cb) {
+        if (cb) process.nextTick(cb);
+      };
+      fs22.lutimesSync = function() {
+      };
+    }
   }
-  function r(l) {
-    return l && function(f, d, h) {
-      return l.call(e, f, d, function(m) {
-        u(m) && (m = null), h && h.apply(this, arguments);
+  function chmodFix(orig) {
+    if (!orig) return orig;
+    return function(target, mode2, cb) {
+      return orig.call(fs2, target, mode2, function(er) {
+        if (chownErOk(er)) er = null;
+        if (cb) cb.apply(this, arguments);
       });
     };
   }
-  function o(l) {
-    return l && function(f, d) {
+  function chmodFixSync(orig) {
+    if (!orig) return orig;
+    return function(target, mode2) {
       try {
-        return l.call(e, f, d);
-      } catch (h) {
-        if (!u(h)) throw h;
+        return orig.call(fs2, target, mode2);
+      } catch (er) {
+        if (!chownErOk(er)) throw er;
       }
     };
   }
-  function i(l) {
-    return l && function(f, d, h, m) {
-      return l.call(e, f, d, h, function(y) {
-        u(y) && (y = null), m && m.apply(this, arguments);
+  function chownFix(orig) {
+    if (!orig) return orig;
+    return function(target, uid, gid, cb) {
+      return orig.call(fs2, target, uid, gid, function(er) {
+        if (chownErOk(er)) er = null;
+        if (cb) cb.apply(this, arguments);
       });
     };
   }
-  function s(l) {
-    return l && function(f, d, h) {
+  function chownFixSync(orig) {
+    if (!orig) return orig;
+    return function(target, uid, gid) {
       try {
-        return l.call(e, f, d, h);
-      } catch (m) {
-        if (!u(m)) throw m;
+        return orig.call(fs2, target, uid, gid);
+      } catch (er) {
+        if (!chownErOk(er)) throw er;
       }
     };
   }
-  function a(l) {
-    return l && function(f, d, h) {
-      typeof d == "function" && (h = d, d = null);
-      function m(y, g) {
-        g && (g.uid < 0 && (g.uid += 4294967296), g.gid < 0 && (g.gid += 4294967296)), h && h.apply(this, arguments);
+  function statFix(orig) {
+    if (!orig) return orig;
+    return function(target, options, cb) {
+      if (typeof options === "function") {
+        cb = options;
+        options = null;
       }
-      return d ? l.call(e, f, d, m) : l.call(e, f, m);
+      function callback(er, stats) {
+        if (stats) {
+          if (stats.uid < 0) stats.uid += 4294967296;
+          if (stats.gid < 0) stats.gid += 4294967296;
+        }
+        if (cb) cb.apply(this, arguments);
+      }
+      return options ? orig.call(fs2, target, options, callback) : orig.call(fs2, target, callback);
     };
   }
-  function c(l) {
-    return l && function(f, d) {
-      var h = d ? l.call(e, f, d) : l.call(e, f);
-      return h && (h.uid < 0 && (h.uid += 4294967296), h.gid < 0 && (h.gid += 4294967296)), h;
+  function statFixSync(orig) {
+    if (!orig) return orig;
+    return function(target, options) {
+      var stats = options ? orig.call(fs2, target, options) : orig.call(fs2, target);
+      if (stats) {
+        if (stats.uid < 0) stats.uid += 4294967296;
+        if (stats.gid < 0) stats.gid += 4294967296;
+      }
+      return stats;
     };
   }
-  function u(l) {
-    if (!l || l.code === "ENOSYS")
-      return !0;
-    var f = !process.getuid || process.getuid() !== 0;
-    return !!(f && (l.code === "EINVAL" || l.code === "EPERM"));
+  function chownErOk(er) {
+    if (!er)
+      return true;
+    if (er.code === "ENOSYS")
+      return true;
+    var nonroot = !process.getuid || process.getuid() !== 0;
+    if (nonroot) {
+      if (er.code === "EINVAL" || er.code === "EPERM")
+        return true;
+    }
+    return false;
   }
 }
-var kr = fc.Stream, _c = jc;
-function jc(e) {
+var Stream = require$$0$1.Stream;
+var legacyStreams = legacy$1;
+function legacy$1(fs2) {
   return {
-    ReadStream: t,
-    WriteStream: n
+    ReadStream,
+    WriteStream
   };
-  function t(r, o) {
-    if (!(this instanceof t)) return new t(r, o);
-    kr.call(this);
-    var i = this;
-    this.path = r, this.fd = null, this.readable = !0, this.paused = !1, this.flags = "r", this.mode = 438, this.bufferSize = 64 * 1024, o = o || {};
-    for (var s = Object.keys(o), a = 0, c = s.length; a < c; a++) {
-      var u = s[a];
-      this[u] = o[u];
+  function ReadStream(path2, options) {
+    if (!(this instanceof ReadStream)) return new ReadStream(path2, options);
+    Stream.call(this);
+    var self2 = this;
+    this.path = path2;
+    this.fd = null;
+    this.readable = true;
+    this.paused = false;
+    this.flags = "r";
+    this.mode = 438;
+    this.bufferSize = 64 * 1024;
+    options = options || {};
+    var keys = Object.keys(options);
+    for (var index = 0, length = keys.length; index < length; index++) {
+      var key = keys[index];
+      this[key] = options[key];
     }
-    if (this.encoding && this.setEncoding(this.encoding), this.start !== void 0) {
-      if (typeof this.start != "number")
+    if (this.encoding) this.setEncoding(this.encoding);
+    if (this.start !== void 0) {
+      if ("number" !== typeof this.start) {
         throw TypeError("start must be a Number");
-      if (this.end === void 0)
-        this.end = 1 / 0;
-      else if (typeof this.end != "number")
+      }
+      if (this.end === void 0) {
+        this.end = Infinity;
+      } else if ("number" !== typeof this.end) {
         throw TypeError("end must be a Number");
-      if (this.start > this.end)
+      }
+      if (this.start > this.end) {
         throw new Error("start must be <= end");
+      }
       this.pos = this.start;
     }
     if (this.fd !== null) {
       process.nextTick(function() {
-        i._read();
+        self2._read();
       });
       return;
     }
-    e.open(this.path, this.flags, this.mode, function(l, f) {
-      if (l) {
-        i.emit("error", l), i.readable = !1;
+    fs2.open(this.path, this.flags, this.mode, function(err, fd) {
+      if (err) {
+        self2.emit("error", err);
+        self2.readable = false;
         return;
       }
-      i.fd = f, i.emit("open", f), i._read();
+      self2.fd = fd;
+      self2.emit("open", fd);
+      self2._read();
     });
   }
-  function n(r, o) {
-    if (!(this instanceof n)) return new n(r, o);
-    kr.call(this), this.path = r, this.fd = null, this.writable = !0, this.flags = "w", this.encoding = "binary", this.mode = 438, this.bytesWritten = 0, o = o || {};
-    for (var i = Object.keys(o), s = 0, a = i.length; s < a; s++) {
-      var c = i[s];
-      this[c] = o[c];
+  function WriteStream(path2, options) {
+    if (!(this instanceof WriteStream)) return new WriteStream(path2, options);
+    Stream.call(this);
+    this.path = path2;
+    this.fd = null;
+    this.writable = true;
+    this.flags = "w";
+    this.encoding = "binary";
+    this.mode = 438;
+    this.bytesWritten = 0;
+    options = options || {};
+    var keys = Object.keys(options);
+    for (var index = 0, length = keys.length; index < length; index++) {
+      var key = keys[index];
+      this[key] = options[key];
     }
     if (this.start !== void 0) {
-      if (typeof this.start != "number")
+      if ("number" !== typeof this.start) {
         throw TypeError("start must be a Number");
-      if (this.start < 0)
+      }
+      if (this.start < 0) {
         throw new Error("start must be >= zero");
+      }
       this.pos = this.start;
     }
-    this.busy = !1, this._queue = [], this.fd === null && (this._open = e.open, this._queue.push([this._open, this.path, this.flags, this.mode, void 0]), this.flush());
+    this.busy = false;
+    this._queue = [];
+    if (this.fd === null) {
+      this._open = fs2.open;
+      this._queue.push([this._open, this.path, this.flags, this.mode, void 0]);
+      this.flush();
+    }
   }
 }
-var Bc = Nc, Uc = Object.getPrototypeOf || function(e) {
-  return e.__proto__;
+var clone_1 = clone$1;
+var getPrototypeOf = Object.getPrototypeOf || function(obj) {
+  return obj.__proto__;
 };
-function Nc(e) {
-  if (e === null || typeof e != "object")
-    return e;
-  if (e instanceof Object)
-    var t = { __proto__: Uc(e) };
+function clone$1(obj) {
+  if (obj === null || typeof obj !== "object")
+    return obj;
+  if (obj instanceof Object)
+    var copy2 = { __proto__: getPrototypeOf(obj) };
   else
-    var t = /* @__PURE__ */ Object.create(null);
-  return Object.getOwnPropertyNames(e).forEach(function(n) {
-    Object.defineProperty(t, n, Object.getOwnPropertyDescriptor(e, n));
-  }), t;
+    var copy2 = /* @__PURE__ */ Object.create(null);
+  Object.getOwnPropertyNames(obj).forEach(function(key) {
+    Object.defineProperty(copy2, key, Object.getOwnPropertyDescriptor(obj, key));
+  });
+  return copy2;
 }
-var x = dt, Gc = Mc, Wc = _c, zc = Bc, St = dc, N, Ft;
-typeof Symbol == "function" && typeof Symbol.for == "function" ? (N = Symbol.for("graceful-fs.queue"), Ft = Symbol.for("graceful-fs.previous")) : (N = "___graceful-fs.queue", Ft = "___graceful-fs.previous");
-function Vc() {
+var fs$i = require$$0$2;
+var polyfills = polyfills$1;
+var legacy = legacyStreams;
+var clone = clone_1;
+var util = require$$4;
+var gracefulQueue;
+var previousSymbol;
+if (typeof Symbol === "function" && typeof Symbol.for === "function") {
+  gracefulQueue = Symbol.for("graceful-fs.queue");
+  previousSymbol = Symbol.for("graceful-fs.previous");
+} else {
+  gracefulQueue = "___graceful-fs.queue";
+  previousSymbol = "___graceful-fs.previous";
 }
-function ei(e, t) {
-  Object.defineProperty(e, N, {
+function noop$2() {
+}
+function publishQueue(context, queue2) {
+  Object.defineProperty(context, gracefulQueue, {
     get: function() {
-      return t;
+      return queue2;
     }
   });
 }
-var Te = Vc;
-St.debuglog ? Te = St.debuglog("gfs4") : /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && (Te = function() {
-  var e = St.format.apply(St, arguments);
-  e = "GFS4: " + e.split(/\n/).join(`
-GFS4: `), console.error(e);
-});
-if (!x[N]) {
-  var Hc = Ct[N] || [];
-  ei(x, Hc), x.close = function(e) {
-    function t(n, r) {
-      return e.call(x, n, function(o) {
-        o || _r(), typeof r == "function" && r.apply(this, arguments);
+var debug = noop$2;
+if (util.debuglog)
+  debug = util.debuglog("gfs4");
+else if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || ""))
+  debug = function() {
+    var m = util.format.apply(util, arguments);
+    m = "GFS4: " + m.split(/\n/).join("\nGFS4: ");
+    console.error(m);
+  };
+if (!fs$i[gracefulQueue]) {
+  var queue = commonjsGlobal[gracefulQueue] || [];
+  publishQueue(fs$i, queue);
+  fs$i.close = function(fs$close) {
+    function close(fd, cb) {
+      return fs$close.call(fs$i, fd, function(err) {
+        if (!err) {
+          resetQueue();
+        }
+        if (typeof cb === "function")
+          cb.apply(this, arguments);
       });
     }
-    return Object.defineProperty(t, Ft, {
-      value: e
-    }), t;
-  }(x.close), x.closeSync = function(e) {
-    function t(n) {
-      e.apply(x, arguments), _r();
+    Object.defineProperty(close, previousSymbol, {
+      value: fs$close
+    });
+    return close;
+  }(fs$i.close);
+  fs$i.closeSync = function(fs$closeSync) {
+    function closeSync(fd) {
+      fs$closeSync.apply(fs$i, arguments);
+      resetQueue();
     }
-    return Object.defineProperty(t, Ft, {
-      value: e
-    }), t;
-  }(x.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
-    Te(x[N]), hc.equal(x[N].length, 0);
-  });
+    Object.defineProperty(closeSync, previousSymbol, {
+      value: fs$closeSync
+    });
+    return closeSync;
+  }(fs$i.closeSync);
+  if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || "")) {
+    process.on("exit", function() {
+      debug(fs$i[gracefulQueue]);
+      require$$5.equal(fs$i[gracefulQueue].length, 0);
+    });
+  }
 }
-Ct[N] || ei(Ct, x[N]);
-var Ye = Un(zc(x));
-process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !x.__patched && (Ye = Un(x), x.__patched = !0);
-function Un(e) {
-  Gc(e), e.gracefulify = Un, e.createReadStream = K, e.createWriteStream = Q;
-  var t = e.readFile;
-  e.readFile = n;
-  function n(w, $, b) {
-    return typeof $ == "function" && (b = $, $ = null), j(w, $, b);
-    function j(B, k, I, R) {
-      return t(B, k, function(O) {
-        O && (O.code === "EMFILE" || O.code === "ENFILE") ? Ce([j, [B, k, I], O, R || Date.now(), Date.now()]) : typeof I == "function" && I.apply(this, arguments);
+if (!commonjsGlobal[gracefulQueue]) {
+  publishQueue(commonjsGlobal, fs$i[gracefulQueue]);
+}
+var gracefulFs = patch(clone(fs$i));
+if (process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs$i.__patched) {
+  gracefulFs = patch(fs$i);
+  fs$i.__patched = true;
+}
+function patch(fs2) {
+  polyfills(fs2);
+  fs2.gracefulify = patch;
+  fs2.createReadStream = createReadStream2;
+  fs2.createWriteStream = createWriteStream2;
+  var fs$readFile = fs2.readFile;
+  fs2.readFile = readFile2;
+  function readFile2(path2, options, cb) {
+    if (typeof options === "function")
+      cb = options, options = null;
+    return go$readFile(path2, options, cb);
+    function go$readFile(path22, options2, cb2, startTime) {
+      return fs$readFile(path22, options2, function(err) {
+        if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
+          enqueue([go$readFile, [path22, options2, cb2], err, startTime || Date.now(), Date.now()]);
+        else {
+          if (typeof cb2 === "function")
+            cb2.apply(this, arguments);
+        }
       });
     }
   }
-  var r = e.writeFile;
-  e.writeFile = o;
-  function o(w, $, b, j) {
-    return typeof b == "function" && (j = b, b = null), B(w, $, b, j);
-    function B(k, I, R, O, U) {
-      return r(k, I, R, function(D) {
-        D && (D.code === "EMFILE" || D.code === "ENFILE") ? Ce([B, [k, I, R, O], D, U || Date.now(), Date.now()]) : typeof O == "function" && O.apply(this, arguments);
+  var fs$writeFile = fs2.writeFile;
+  fs2.writeFile = writeFile2;
+  function writeFile2(path2, data, options, cb) {
+    if (typeof options === "function")
+      cb = options, options = null;
+    return go$writeFile(path2, data, options, cb);
+    function go$writeFile(path22, data2, options2, cb2, startTime) {
+      return fs$writeFile(path22, data2, options2, function(err) {
+        if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
+          enqueue([go$writeFile, [path22, data2, options2, cb2], err, startTime || Date.now(), Date.now()]);
+        else {
+          if (typeof cb2 === "function")
+            cb2.apply(this, arguments);
+        }
       });
     }
   }
-  var i = e.appendFile;
-  i && (e.appendFile = s);
-  function s(w, $, b, j) {
-    return typeof b == "function" && (j = b, b = null), B(w, $, b, j);
-    function B(k, I, R, O, U) {
-      return i(k, I, R, function(D) {
-        D && (D.code === "EMFILE" || D.code === "ENFILE") ? Ce([B, [k, I, R, O], D, U || Date.now(), Date.now()]) : typeof O == "function" && O.apply(this, arguments);
+  var fs$appendFile = fs2.appendFile;
+  if (fs$appendFile)
+    fs2.appendFile = appendFile;
+  function appendFile(path2, data, options, cb) {
+    if (typeof options === "function")
+      cb = options, options = null;
+    return go$appendFile(path2, data, options, cb);
+    function go$appendFile(path22, data2, options2, cb2, startTime) {
+      return fs$appendFile(path22, data2, options2, function(err) {
+        if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
+          enqueue([go$appendFile, [path22, data2, options2, cb2], err, startTime || Date.now(), Date.now()]);
+        else {
+          if (typeof cb2 === "function")
+            cb2.apply(this, arguments);
+        }
       });
     }
   }
-  var a = e.copyFile;
-  a && (e.copyFile = c);
-  function c(w, $, b, j) {
-    return typeof b == "function" && (j = b, b = 0), B(w, $, b, j);
-    function B(k, I, R, O, U) {
-      return a(k, I, R, function(D) {
-        D && (D.code === "EMFILE" || D.code === "ENFILE") ? Ce([B, [k, I, R, O], D, U || Date.now(), Date.now()]) : typeof O == "function" && O.apply(this, arguments);
+  var fs$copyFile = fs2.copyFile;
+  if (fs$copyFile)
+    fs2.copyFile = copyFile2;
+  function copyFile2(src, dest, flags, cb) {
+    if (typeof flags === "function") {
+      cb = flags;
+      flags = 0;
+    }
+    return go$copyFile(src, dest, flags, cb);
+    function go$copyFile(src2, dest2, flags2, cb2, startTime) {
+      return fs$copyFile(src2, dest2, flags2, function(err) {
+        if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
+          enqueue([go$copyFile, [src2, dest2, flags2, cb2], err, startTime || Date.now(), Date.now()]);
+        else {
+          if (typeof cb2 === "function")
+            cb2.apply(this, arguments);
+        }
       });
     }
   }
-  var u = e.readdir;
-  e.readdir = f;
-  var l = /^v[0-5]\./;
-  function f(w, $, b) {
-    typeof $ == "function" && (b = $, $ = null);
-    var j = l.test(process.version) ? function(I, R, O, U) {
-      return u(I, B(
-        I,
-        R,
-        O,
-        U
+  var fs$readdir = fs2.readdir;
+  fs2.readdir = readdir;
+  var noReaddirOptionVersions = /^v[0-5]\./;
+  function readdir(path2, options, cb) {
+    if (typeof options === "function")
+      cb = options, options = null;
+    var go$readdir = noReaddirOptionVersions.test(process.version) ? function go$readdir2(path22, options2, cb2, startTime) {
+      return fs$readdir(path22, fs$readdirCallback(
+        path22,
+        options2,
+        cb2,
+        startTime
       ));
-    } : function(I, R, O, U) {
-      return u(I, R, B(
-        I,
-        R,
-        O,
-        U
+    } : function go$readdir2(path22, options2, cb2, startTime) {
+      return fs$readdir(path22, options2, fs$readdirCallback(
+        path22,
+        options2,
+        cb2,
+        startTime
       ));
     };
-    return j(w, $, b);
-    function B(k, I, R, O) {
-      return function(U, D) {
-        U && (U.code === "EMFILE" || U.code === "ENFILE") ? Ce([
-          j,
-          [k, I, R],
-          U,
-          O || Date.now(),
-          Date.now()
-        ]) : (D && D.sort && D.sort(), typeof R == "function" && R.call(this, U, D));
+    return go$readdir(path2, options, cb);
+    function fs$readdirCallback(path22, options2, cb2, startTime) {
+      return function(err, files) {
+        if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
+          enqueue([
+            go$readdir,
+            [path22, options2, cb2],
+            err,
+            startTime || Date.now(),
+            Date.now()
+          ]);
+        else {
+          if (files && files.sort)
+            files.sort();
+          if (typeof cb2 === "function")
+            cb2.call(this, err, files);
+        }
       };
     }
   }
   if (process.version.substr(0, 4) === "v0.8") {
-    var d = Wc(e);
-    S = d.ReadStream, v = d.WriteStream;
+    var legStreams = legacy(fs2);
+    ReadStream = legStreams.ReadStream;
+    WriteStream = legStreams.WriteStream;
   }
-  var h = e.ReadStream;
-  h && (S.prototype = Object.create(h.prototype), S.prototype.open = E);
-  var m = e.WriteStream;
-  m && (v.prototype = Object.create(m.prototype), v.prototype.open = M), Object.defineProperty(e, "ReadStream", {
-    get: function() {
-      return S;
-    },
-    set: function(w) {
-      S = w;
-    },
-    enumerable: !0,
-    configurable: !0
-  }), Object.defineProperty(e, "WriteStream", {
-    get: function() {
-      return v;
-    },
-    set: function(w) {
-      v = w;
-    },
-    enumerable: !0,
-    configurable: !0
-  });
-  var y = S;
-  Object.defineProperty(e, "FileReadStream", {
-    get: function() {
-      return y;
-    },
-    set: function(w) {
-      y = w;
-    },
-    enumerable: !0,
-    configurable: !0
-  });
-  var g = v;
-  Object.defineProperty(e, "FileWriteStream", {
-    get: function() {
-      return g;
-    },
-    set: function(w) {
-      g = w;
-    },
-    enumerable: !0,
-    configurable: !0
-  });
-  function S(w, $) {
-    return this instanceof S ? (h.apply(this, arguments), this) : S.apply(Object.create(S.prototype), arguments);
+  var fs$ReadStream = fs2.ReadStream;
+  if (fs$ReadStream) {
+    ReadStream.prototype = Object.create(fs$ReadStream.prototype);
+    ReadStream.prototype.open = ReadStream$open;
   }
-  function E() {
-    var w = this;
-    ne(w.path, w.flags, w.mode, function($, b) {
-      $ ? (w.autoClose && w.destroy(), w.emit("error", $)) : (w.fd = b, w.emit("open", b), w.read());
+  var fs$WriteStream = fs2.WriteStream;
+  if (fs$WriteStream) {
+    WriteStream.prototype = Object.create(fs$WriteStream.prototype);
+    WriteStream.prototype.open = WriteStream$open;
+  }
+  Object.defineProperty(fs2, "ReadStream", {
+    get: function() {
+      return ReadStream;
+    },
+    set: function(val) {
+      ReadStream = val;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  Object.defineProperty(fs2, "WriteStream", {
+    get: function() {
+      return WriteStream;
+    },
+    set: function(val) {
+      WriteStream = val;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  var FileReadStream = ReadStream;
+  Object.defineProperty(fs2, "FileReadStream", {
+    get: function() {
+      return FileReadStream;
+    },
+    set: function(val) {
+      FileReadStream = val;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  var FileWriteStream = WriteStream;
+  Object.defineProperty(fs2, "FileWriteStream", {
+    get: function() {
+      return FileWriteStream;
+    },
+    set: function(val) {
+      FileWriteStream = val;
+    },
+    enumerable: true,
+    configurable: true
+  });
+  function ReadStream(path2, options) {
+    if (this instanceof ReadStream)
+      return fs$ReadStream.apply(this, arguments), this;
+    else
+      return ReadStream.apply(Object.create(ReadStream.prototype), arguments);
+  }
+  function ReadStream$open() {
+    var that = this;
+    open(that.path, that.flags, that.mode, function(err, fd) {
+      if (err) {
+        if (that.autoClose)
+          that.destroy();
+        that.emit("error", err);
+      } else {
+        that.fd = fd;
+        that.emit("open", fd);
+        that.read();
+      }
     });
   }
-  function v(w, $) {
-    return this instanceof v ? (m.apply(this, arguments), this) : v.apply(Object.create(v.prototype), arguments);
+  function WriteStream(path2, options) {
+    if (this instanceof WriteStream)
+      return fs$WriteStream.apply(this, arguments), this;
+    else
+      return WriteStream.apply(Object.create(WriteStream.prototype), arguments);
   }
-  function M() {
-    var w = this;
-    ne(w.path, w.flags, w.mode, function($, b) {
-      $ ? (w.destroy(), w.emit("error", $)) : (w.fd = b, w.emit("open", b));
+  function WriteStream$open() {
+    var that = this;
+    open(that.path, that.flags, that.mode, function(err, fd) {
+      if (err) {
+        that.destroy();
+        that.emit("error", err);
+      } else {
+        that.fd = fd;
+        that.emit("open", fd);
+      }
     });
   }
-  function K(w, $) {
-    return new e.ReadStream(w, $);
+  function createReadStream2(path2, options) {
+    return new fs2.ReadStream(path2, options);
   }
-  function Q(w, $) {
-    return new e.WriteStream(w, $);
+  function createWriteStream2(path2, options) {
+    return new fs2.WriteStream(path2, options);
   }
-  var ce = e.open;
-  e.open = ne;
-  function ne(w, $, b, j) {
-    return typeof b == "function" && (j = b, b = null), B(w, $, b, j);
-    function B(k, I, R, O, U) {
-      return ce(k, I, R, function(D, gb) {
-        D && (D.code === "EMFILE" || D.code === "ENFILE") ? Ce([B, [k, I, R, O], D, U || Date.now(), Date.now()]) : typeof O == "function" && O.apply(this, arguments);
+  var fs$open = fs2.open;
+  fs2.open = open;
+  function open(path2, flags, mode2, cb) {
+    if (typeof mode2 === "function")
+      cb = mode2, mode2 = null;
+    return go$open(path2, flags, mode2, cb);
+    function go$open(path22, flags2, mode22, cb2, startTime) {
+      return fs$open(path22, flags2, mode22, function(err, fd) {
+        if (err && (err.code === "EMFILE" || err.code === "ENFILE"))
+          enqueue([go$open, [path22, flags2, mode22, cb2], err, startTime || Date.now(), Date.now()]);
+        else {
+          if (typeof cb2 === "function")
+            cb2.apply(this, arguments);
+        }
       });
     }
   }
-  return e;
+  return fs2;
 }
-function Ce(e) {
-  Te("ENQUEUE", e[0].name, e[1]), x[N].push(e), Nn();
+function enqueue(elem) {
+  debug("ENQUEUE", elem[0].name, elem[1]);
+  fs$i[gracefulQueue].push(elem);
+  retry();
 }
-var bt;
-function _r() {
-  for (var e = Date.now(), t = 0; t < x[N].length; ++t)
-    x[N][t].length > 2 && (x[N][t][3] = e, x[N][t][4] = e);
-  Nn();
-}
-function Nn() {
-  if (clearTimeout(bt), bt = void 0, x[N].length !== 0) {
-    var e = x[N].shift(), t = e[0], n = e[1], r = e[2], o = e[3], i = e[4];
-    if (o === void 0)
-      Te("RETRY", t.name, n), t.apply(null, n);
-    else if (Date.now() - o >= 6e4) {
-      Te("TIMEOUT", t.name, n);
-      var s = n.pop();
-      typeof s == "function" && s.call(null, r);
-    } else {
-      var a = Date.now() - i, c = Math.max(i - o, 1), u = Math.min(c * 1.2, 100);
-      a >= u ? (Te("RETRY", t.name, n), t.apply(null, n.concat([o]))) : x[N].push(e);
+var retryTimer;
+function resetQueue() {
+  var now = Date.now();
+  for (var i2 = 0; i2 < fs$i[gracefulQueue].length; ++i2) {
+    if (fs$i[gracefulQueue][i2].length > 2) {
+      fs$i[gracefulQueue][i2][3] = now;
+      fs$i[gracefulQueue][i2][4] = now;
     }
-    bt === void 0 && (bt = setTimeout(Nn, 0));
+  }
+  retry();
+}
+function retry() {
+  clearTimeout(retryTimer);
+  retryTimer = void 0;
+  if (fs$i[gracefulQueue].length === 0)
+    return;
+  var elem = fs$i[gracefulQueue].shift();
+  var fn = elem[0];
+  var args = elem[1];
+  var err = elem[2];
+  var startTime = elem[3];
+  var lastTime = elem[4];
+  if (startTime === void 0) {
+    debug("RETRY", fn.name, args);
+    fn.apply(null, args);
+  } else if (Date.now() - startTime >= 6e4) {
+    debug("TIMEOUT", fn.name, args);
+    var cb = args.pop();
+    if (typeof cb === "function")
+      cb.call(null, err);
+  } else {
+    var sinceAttempt = Date.now() - lastTime;
+    var sinceStart = Math.max(lastTime - startTime, 1);
+    var desiredDelay = Math.min(sinceStart * 1.2, 100);
+    if (sinceAttempt >= desiredDelay) {
+      debug("RETRY", fn.name, args);
+      fn.apply(null, args.concat([startTime]));
+    } else {
+      fs$i[gracefulQueue].push(elem);
+    }
+  }
+  if (retryTimer === void 0) {
+    retryTimer = setTimeout(retry, 0);
   }
 }
-(function(e) {
-  const t = L.fromCallback, n = Ye, r = [
+(function(exports$1) {
+  const u2 = universalify$1.fromCallback;
+  const fs2 = gracefulFs;
+  const api = [
     "access",
     "appendFile",
     "chmod",
@@ -572,1010 +852,1423 @@ function Nn() {
     "unlink",
     "utimes",
     "writeFile"
-  ].filter((o) => typeof n[o] == "function");
-  Object.assign(e, n), r.forEach((o) => {
-    e[o] = t(n[o]);
-  }), e.exists = function(o, i) {
-    return typeof i == "function" ? n.exists(o, i) : new Promise((s) => n.exists(o, s));
-  }, e.read = function(o, i, s, a, c, u) {
-    return typeof u == "function" ? n.read(o, i, s, a, c, u) : new Promise((l, f) => {
-      n.read(o, i, s, a, c, (d, h, m) => {
-        if (d) return f(d);
-        l({ bytesRead: h, buffer: m });
+  ].filter((key) => {
+    return typeof fs2[key] === "function";
+  });
+  Object.assign(exports$1, fs2);
+  api.forEach((method) => {
+    exports$1[method] = u2(fs2[method]);
+  });
+  exports$1.exists = function(filename, callback) {
+    if (typeof callback === "function") {
+      return fs2.exists(filename, callback);
+    }
+    return new Promise((resolve) => {
+      return fs2.exists(filename, resolve);
+    });
+  };
+  exports$1.read = function(fd, buffer, offset, length, position, callback) {
+    if (typeof callback === "function") {
+      return fs2.read(fd, buffer, offset, length, position, callback);
+    }
+    return new Promise((resolve, reject) => {
+      fs2.read(fd, buffer, offset, length, position, (err, bytesRead, buffer2) => {
+        if (err) return reject(err);
+        resolve({ bytesRead, buffer: buffer2 });
       });
     });
-  }, e.write = function(o, i, ...s) {
-    return typeof s[s.length - 1] == "function" ? n.write(o, i, ...s) : new Promise((a, c) => {
-      n.write(o, i, ...s, (u, l, f) => {
-        if (u) return c(u);
-        a({ bytesWritten: l, buffer: f });
+  };
+  exports$1.write = function(fd, buffer, ...args) {
+    if (typeof args[args.length - 1] === "function") {
+      return fs2.write(fd, buffer, ...args);
+    }
+    return new Promise((resolve, reject) => {
+      fs2.write(fd, buffer, ...args, (err, bytesWritten, buffer2) => {
+        if (err) return reject(err);
+        resolve({ bytesWritten, buffer: buffer2 });
       });
     });
-  }, e.readv = function(o, i, ...s) {
-    return typeof s[s.length - 1] == "function" ? n.readv(o, i, ...s) : new Promise((a, c) => {
-      n.readv(o, i, ...s, (u, l, f) => {
-        if (u) return c(u);
-        a({ bytesRead: l, buffers: f });
+  };
+  exports$1.readv = function(fd, buffers, ...args) {
+    if (typeof args[args.length - 1] === "function") {
+      return fs2.readv(fd, buffers, ...args);
+    }
+    return new Promise((resolve, reject) => {
+      fs2.readv(fd, buffers, ...args, (err, bytesRead, buffers2) => {
+        if (err) return reject(err);
+        resolve({ bytesRead, buffers: buffers2 });
       });
     });
-  }, e.writev = function(o, i, ...s) {
-    return typeof s[s.length - 1] == "function" ? n.writev(o, i, ...s) : new Promise((a, c) => {
-      n.writev(o, i, ...s, (u, l, f) => {
-        if (u) return c(u);
-        a({ bytesWritten: l, buffers: f });
+  };
+  exports$1.writev = function(fd, buffers, ...args) {
+    if (typeof args[args.length - 1] === "function") {
+      return fs2.writev(fd, buffers, ...args);
+    }
+    return new Promise((resolve, reject) => {
+      fs2.writev(fd, buffers, ...args, (err, bytesWritten, buffers2) => {
+        if (err) return reject(err);
+        resolve({ bytesWritten, buffers: buffers2 });
       });
     });
-  }, typeof n.realpath.native == "function" ? e.realpath.native = t(n.realpath.native) : process.emitWarning(
-    "fs.realpath.native is not a function. Is fs being monkey-patched?",
-    "Warning",
-    "fs-extra-WARN0003"
-  );
-})(q);
-var Gn = {}, ti = {};
-const qc = T;
-ti.checkPath = function(t) {
-  if (process.platform === "win32" && /[<>:"|?*]/.test(t.replace(qc.parse(t).root, ""))) {
-    const r = new Error(`Path contains invalid characters: ${t}`);
-    throw r.code = "EINVAL", r;
+  };
+  if (typeof fs2.realpath.native === "function") {
+    exports$1.realpath.native = u2(fs2.realpath.native);
+  } else {
+    process.emitWarning(
+      "fs.realpath.native is not a function. Is fs being monkey-patched?",
+      "Warning",
+      "fs-extra-WARN0003"
+    );
+  }
+})(fs$j);
+var makeDir$1 = {};
+var utils$1 = {};
+const path$e = path$f;
+utils$1.checkPath = function checkPath(pth) {
+  if (process.platform === "win32") {
+    const pathHasInvalidWinCharacters = /[<>:"|?*]/.test(pth.replace(path$e.parse(pth).root, ""));
+    if (pathHasInvalidWinCharacters) {
+      const error = new Error(`Path contains invalid characters: ${pth}`);
+      error.code = "EINVAL";
+      throw error;
+    }
   }
 };
-const ni = q, { checkPath: ri } = ti, oi = (e) => {
-  const t = { mode: 511 };
-  return typeof e == "number" ? e : { ...t, ...e }.mode;
+const fs$h = fs$j;
+const { checkPath: checkPath2 } = utils$1;
+const getMode = (options) => {
+  const defaults = { mode: 511 };
+  if (typeof options === "number") return options;
+  return { ...defaults, ...options }.mode;
 };
-Gn.makeDir = async (e, t) => (ri(e), ni.mkdir(e, {
-  mode: oi(t),
-  recursive: !0
-}));
-Gn.makeDirSync = (e, t) => (ri(e), ni.mkdirSync(e, {
-  mode: oi(t),
-  recursive: !0
-}));
-const Yc = L.fromPromise, { makeDir: Jc, makeDirSync: tn } = Gn, nn = Yc(Jc);
-var ae = {
-  mkdirs: nn,
-  mkdirsSync: tn,
+makeDir$1.makeDir = async (dir, options) => {
+  checkPath2(dir);
+  return fs$h.mkdir(dir, {
+    mode: getMode(options),
+    recursive: true
+  });
+};
+makeDir$1.makeDirSync = (dir, options) => {
+  checkPath2(dir);
+  return fs$h.mkdirSync(dir, {
+    mode: getMode(options),
+    recursive: true
+  });
+};
+const u$f = universalify$1.fromPromise;
+const { makeDir: _makeDir, makeDirSync } = makeDir$1;
+const makeDir = u$f(_makeDir);
+var mkdirs$2 = {
+  mkdirs: makeDir,
+  mkdirsSync: makeDirSync,
   // alias
-  mkdirp: nn,
-  mkdirpSync: tn,
-  ensureDir: nn,
-  ensureDirSync: tn
+  mkdirp: makeDir,
+  mkdirpSync: makeDirSync,
+  ensureDir: makeDir,
+  ensureDirSync: makeDirSync
 };
-const Kc = L.fromPromise, ii = q;
-function Xc(e) {
-  return ii.access(e).then(() => !0).catch(() => !1);
+const u$e = universalify$1.fromPromise;
+const fs$g = fs$j;
+function pathExists$6(path2) {
+  return fs$g.access(path2).then(() => true).catch(() => false);
 }
-var Ie = {
-  pathExists: Kc(Xc),
-  pathExistsSync: ii.existsSync
+var pathExists_1 = {
+  pathExists: u$e(pathExists$6),
+  pathExistsSync: fs$g.existsSync
 };
-const Me = q, Qc = L.fromPromise;
-async function Zc(e, t, n) {
-  const r = await Me.open(e, "r+");
-  let o = null;
+const fs$f = fs$j;
+const u$d = universalify$1.fromPromise;
+async function utimesMillis$1(path2, atime, mtime) {
+  const fd = await fs$f.open(path2, "r+");
+  let closeErr = null;
   try {
-    await Me.futimes(r, t, n);
+    await fs$f.futimes(fd, atime, mtime);
   } finally {
     try {
-      await Me.close(r);
-    } catch (i) {
-      o = i;
+      await fs$f.close(fd);
+    } catch (e) {
+      closeErr = e;
     }
   }
-  if (o)
-    throw o;
+  if (closeErr) {
+    throw closeErr;
+  }
 }
-function el(e, t, n) {
-  const r = Me.openSync(e, "r+");
-  return Me.futimesSync(r, t, n), Me.closeSync(r);
+function utimesMillisSync$1(path2, atime, mtime) {
+  const fd = fs$f.openSync(path2, "r+");
+  fs$f.futimesSync(fd, atime, mtime);
+  return fs$f.closeSync(fd);
 }
-var si = {
-  utimesMillis: Qc(Zc),
-  utimesMillisSync: el
+var utimes = {
+  utimesMillis: u$d(utimesMillis$1),
+  utimesMillisSync: utimesMillisSync$1
 };
-const Ne = q, _ = T, jr = L.fromPromise;
-function tl(e, t, n) {
-  const r = n.dereference ? (o) => Ne.stat(o, { bigint: !0 }) : (o) => Ne.lstat(o, { bigint: !0 });
+const fs$e = fs$j;
+const path$d = path$f;
+const u$c = universalify$1.fromPromise;
+function getStats$1(src, dest, opts) {
+  const statFunc = opts.dereference ? (file2) => fs$e.stat(file2, { bigint: true }) : (file2) => fs$e.lstat(file2, { bigint: true });
   return Promise.all([
-    r(e),
-    r(t).catch((o) => {
-      if (o.code === "ENOENT") return null;
-      throw o;
+    statFunc(src),
+    statFunc(dest).catch((err) => {
+      if (err.code === "ENOENT") return null;
+      throw err;
     })
-  ]).then(([o, i]) => ({ srcStat: o, destStat: i }));
+  ]).then(([srcStat, destStat]) => ({ srcStat, destStat }));
 }
-function nl(e, t, n) {
-  let r;
-  const o = n.dereference ? (s) => Ne.statSync(s, { bigint: !0 }) : (s) => Ne.lstatSync(s, { bigint: !0 }), i = o(e);
+function getStatsSync(src, dest, opts) {
+  let destStat;
+  const statFunc = opts.dereference ? (file2) => fs$e.statSync(file2, { bigint: true }) : (file2) => fs$e.lstatSync(file2, { bigint: true });
+  const srcStat = statFunc(src);
   try {
-    r = o(t);
-  } catch (s) {
-    if (s.code === "ENOENT") return { srcStat: i, destStat: null };
-    throw s;
+    destStat = statFunc(dest);
+  } catch (err) {
+    if (err.code === "ENOENT") return { srcStat, destStat: null };
+    throw err;
   }
-  return { srcStat: i, destStat: r };
+  return { srcStat, destStat };
 }
-async function rl(e, t, n, r) {
-  const { srcStat: o, destStat: i } = await tl(e, t, r);
-  if (i) {
-    if (ht(o, i)) {
-      const s = _.basename(e), a = _.basename(t);
-      if (n === "move" && s !== a && s.toLowerCase() === a.toLowerCase())
-        return { srcStat: o, destStat: i, isChangingCase: !0 };
+async function checkPaths(src, dest, funcName, opts) {
+  const { srcStat, destStat } = await getStats$1(src, dest, opts);
+  if (destStat) {
+    if (areIdentical$2(srcStat, destStat)) {
+      const srcBaseName = path$d.basename(src);
+      const destBaseName = path$d.basename(dest);
+      if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
+        return { srcStat, destStat, isChangingCase: true };
+      }
       throw new Error("Source and destination must not be the same.");
     }
-    if (o.isDirectory() && !i.isDirectory())
-      throw new Error(`Cannot overwrite non-directory '${t}' with directory '${e}'.`);
-    if (!o.isDirectory() && i.isDirectory())
-      throw new Error(`Cannot overwrite directory '${t}' with non-directory '${e}'.`);
+    if (srcStat.isDirectory() && !destStat.isDirectory()) {
+      throw new Error(`Cannot overwrite non-directory '${dest}' with directory '${src}'.`);
+    }
+    if (!srcStat.isDirectory() && destStat.isDirectory()) {
+      throw new Error(`Cannot overwrite directory '${dest}' with non-directory '${src}'.`);
+    }
   }
-  if (o.isDirectory() && Wn(e, t))
-    throw new Error(zt(e, t, n));
-  return { srcStat: o, destStat: i };
+  if (srcStat.isDirectory() && isSrcSubdir(src, dest)) {
+    throw new Error(errMsg(src, dest, funcName));
+  }
+  return { srcStat, destStat };
 }
-function ol(e, t, n, r) {
-  const { srcStat: o, destStat: i } = nl(e, t, r);
-  if (i) {
-    if (ht(o, i)) {
-      const s = _.basename(e), a = _.basename(t);
-      if (n === "move" && s !== a && s.toLowerCase() === a.toLowerCase())
-        return { srcStat: o, destStat: i, isChangingCase: !0 };
+function checkPathsSync(src, dest, funcName, opts) {
+  const { srcStat, destStat } = getStatsSync(src, dest, opts);
+  if (destStat) {
+    if (areIdentical$2(srcStat, destStat)) {
+      const srcBaseName = path$d.basename(src);
+      const destBaseName = path$d.basename(dest);
+      if (funcName === "move" && srcBaseName !== destBaseName && srcBaseName.toLowerCase() === destBaseName.toLowerCase()) {
+        return { srcStat, destStat, isChangingCase: true };
+      }
       throw new Error("Source and destination must not be the same.");
     }
-    if (o.isDirectory() && !i.isDirectory())
-      throw new Error(`Cannot overwrite non-directory '${t}' with directory '${e}'.`);
-    if (!o.isDirectory() && i.isDirectory())
-      throw new Error(`Cannot overwrite directory '${t}' with non-directory '${e}'.`);
+    if (srcStat.isDirectory() && !destStat.isDirectory()) {
+      throw new Error(`Cannot overwrite non-directory '${dest}' with directory '${src}'.`);
+    }
+    if (!srcStat.isDirectory() && destStat.isDirectory()) {
+      throw new Error(`Cannot overwrite directory '${dest}' with non-directory '${src}'.`);
+    }
   }
-  if (o.isDirectory() && Wn(e, t))
-    throw new Error(zt(e, t, n));
-  return { srcStat: o, destStat: i };
+  if (srcStat.isDirectory() && isSrcSubdir(src, dest)) {
+    throw new Error(errMsg(src, dest, funcName));
+  }
+  return { srcStat, destStat };
 }
-async function ai(e, t, n, r) {
-  const o = _.resolve(_.dirname(e)), i = _.resolve(_.dirname(n));
-  if (i === o || i === _.parse(i).root) return;
-  let s;
+async function checkParentPaths(src, srcStat, dest, funcName) {
+  const srcParent = path$d.resolve(path$d.dirname(src));
+  const destParent = path$d.resolve(path$d.dirname(dest));
+  if (destParent === srcParent || destParent === path$d.parse(destParent).root) return;
+  let destStat;
   try {
-    s = await Ne.stat(i, { bigint: !0 });
-  } catch (a) {
-    if (a.code === "ENOENT") return;
-    throw a;
+    destStat = await fs$e.stat(destParent, { bigint: true });
+  } catch (err) {
+    if (err.code === "ENOENT") return;
+    throw err;
   }
-  if (ht(t, s))
-    throw new Error(zt(e, n, r));
-  return ai(e, t, i, r);
+  if (areIdentical$2(srcStat, destStat)) {
+    throw new Error(errMsg(src, dest, funcName));
+  }
+  return checkParentPaths(src, srcStat, destParent, funcName);
 }
-function ci(e, t, n, r) {
-  const o = _.resolve(_.dirname(e)), i = _.resolve(_.dirname(n));
-  if (i === o || i === _.parse(i).root) return;
-  let s;
+function checkParentPathsSync(src, srcStat, dest, funcName) {
+  const srcParent = path$d.resolve(path$d.dirname(src));
+  const destParent = path$d.resolve(path$d.dirname(dest));
+  if (destParent === srcParent || destParent === path$d.parse(destParent).root) return;
+  let destStat;
   try {
-    s = Ne.statSync(i, { bigint: !0 });
-  } catch (a) {
-    if (a.code === "ENOENT") return;
-    throw a;
+    destStat = fs$e.statSync(destParent, { bigint: true });
+  } catch (err) {
+    if (err.code === "ENOENT") return;
+    throw err;
   }
-  if (ht(t, s))
-    throw new Error(zt(e, n, r));
-  return ci(e, t, i, r);
+  if (areIdentical$2(srcStat, destStat)) {
+    throw new Error(errMsg(src, dest, funcName));
+  }
+  return checkParentPathsSync(src, srcStat, destParent, funcName);
 }
-function ht(e, t) {
-  return t.ino !== void 0 && t.dev !== void 0 && t.ino === e.ino && t.dev === e.dev;
+function areIdentical$2(srcStat, destStat) {
+  return destStat.ino !== void 0 && destStat.dev !== void 0 && destStat.ino === srcStat.ino && destStat.dev === srcStat.dev;
 }
-function Wn(e, t) {
-  const n = _.resolve(e).split(_.sep).filter((o) => o), r = _.resolve(t).split(_.sep).filter((o) => o);
-  return n.every((o, i) => r[i] === o);
+function isSrcSubdir(src, dest) {
+  const srcArr = path$d.resolve(src).split(path$d.sep).filter((i2) => i2);
+  const destArr = path$d.resolve(dest).split(path$d.sep).filter((i2) => i2);
+  return srcArr.every((cur, i2) => destArr[i2] === cur);
 }
-function zt(e, t, n) {
-  return `Cannot ${n} '${e}' to a subdirectory of itself, '${t}'.`;
+function errMsg(src, dest, funcName) {
+  return `Cannot ${funcName} '${src}' to a subdirectory of itself, '${dest}'.`;
 }
-var Je = {
+var stat$4 = {
   // checkPaths
-  checkPaths: jr(rl),
-  checkPathsSync: ol,
+  checkPaths: u$c(checkPaths),
+  checkPathsSync,
   // checkParent
-  checkParentPaths: jr(ai),
-  checkParentPathsSync: ci,
+  checkParentPaths: u$c(checkParentPaths),
+  checkParentPathsSync,
   // Misc
-  isSrcSubdir: Wn,
-  areIdentical: ht
+  isSrcSubdir,
+  areIdentical: areIdentical$2
 };
-async function il(e, t) {
-  const n = [];
-  for await (const r of e)
-    n.push(
-      t(r).then(
+async function asyncIteratorConcurrentProcess$1(iterator, fn) {
+  const promises = [];
+  for await (const item of iterator) {
+    promises.push(
+      fn(item).then(
         () => null,
-        (o) => o ?? new Error("unknown error")
+        (err) => err ?? new Error("unknown error")
       )
     );
+  }
   await Promise.all(
-    n.map(
-      (r) => r.then((o) => {
-        if (o !== null) throw o;
+    promises.map(
+      (promise) => promise.then((possibleErr) => {
+        if (possibleErr !== null) throw possibleErr;
       })
     )
   );
 }
-var sl = {
-  asyncIteratorConcurrentProcess: il
+var async = {
+  asyncIteratorConcurrentProcess: asyncIteratorConcurrentProcess$1
 };
-const z = q, rt = T, { mkdirs: al } = ae, { pathExists: cl } = Ie, { utimesMillis: ll } = si, ot = Je, { asyncIteratorConcurrentProcess: ul } = sl;
-async function fl(e, t, n = {}) {
-  typeof n == "function" && (n = { filter: n }), n.clobber = "clobber" in n ? !!n.clobber : !0, n.overwrite = "overwrite" in n ? !!n.overwrite : n.clobber, n.preserveTimestamps && process.arch === "ia32" && process.emitWarning(
-    `Using the preserveTimestamps option in 32-bit node is not recommended;
-
-	see https://github.com/jprichardson/node-fs-extra/issues/269`,
-    "Warning",
-    "fs-extra-WARN0001"
-  );
-  const { srcStat: r, destStat: o } = await ot.checkPaths(e, t, "copy", n);
-  if (await ot.checkParentPaths(e, r, t, "copy"), !await li(e, t, n)) return;
-  const s = rt.dirname(t);
-  await cl(s) || await al(s), await ui(o, e, t, n);
-}
-async function li(e, t, n) {
-  return n.filter ? n.filter(e, t) : !0;
-}
-async function ui(e, t, n, r) {
-  const i = await (r.dereference ? z.stat : z.lstat)(t);
-  if (i.isDirectory()) return pl(i, e, t, n, r);
-  if (i.isFile() || i.isCharacterDevice() || i.isBlockDevice()) return dl(i, e, t, n, r);
-  if (i.isSymbolicLink()) return yl(e, t, n, r);
-  throw i.isSocket() ? new Error(`Cannot copy a socket file: ${t}`) : i.isFIFO() ? new Error(`Cannot copy a FIFO pipe: ${t}`) : new Error(`Unknown file: ${t}`);
-}
-async function dl(e, t, n, r, o) {
-  if (!t) return Br(e, n, r, o);
-  if (o.overwrite)
-    return await z.unlink(r), Br(e, n, r, o);
-  if (o.errorOnExist)
-    throw new Error(`'${r}' already exists`);
-}
-async function Br(e, t, n, r) {
-  if (await z.copyFile(t, n), r.preserveTimestamps) {
-    hl(e.mode) && await ml(n, e.mode);
-    const o = await z.stat(t);
-    await ll(n, o.atime, o.mtime);
+const fs$d = fs$j;
+const path$c = path$f;
+const { mkdirs: mkdirs$1 } = mkdirs$2;
+const { pathExists: pathExists$5 } = pathExists_1;
+const { utimesMillis } = utimes;
+const stat$3 = stat$4;
+const { asyncIteratorConcurrentProcess } = async;
+async function copy$2(src, dest, opts = {}) {
+  if (typeof opts === "function") {
+    opts = { filter: opts };
   }
-  return z.chmod(n, e.mode);
+  opts.clobber = "clobber" in opts ? !!opts.clobber : true;
+  opts.overwrite = "overwrite" in opts ? !!opts.overwrite : opts.clobber;
+  if (opts.preserveTimestamps && process.arch === "ia32") {
+    process.emitWarning(
+      "Using the preserveTimestamps option in 32-bit node is not recommended;\n\n	see https://github.com/jprichardson/node-fs-extra/issues/269",
+      "Warning",
+      "fs-extra-WARN0001"
+    );
+  }
+  const { srcStat, destStat } = await stat$3.checkPaths(src, dest, "copy", opts);
+  await stat$3.checkParentPaths(src, srcStat, dest, "copy");
+  const include = await runFilter(src, dest, opts);
+  if (!include) return;
+  const destParent = path$c.dirname(dest);
+  const dirExists = await pathExists$5(destParent);
+  if (!dirExists) {
+    await mkdirs$1(destParent);
+  }
+  await getStatsAndPerformCopy(destStat, src, dest, opts);
 }
-function hl(e) {
-  return (e & 128) === 0;
+async function runFilter(src, dest, opts) {
+  if (!opts.filter) return true;
+  return opts.filter(src, dest);
 }
-function ml(e, t) {
-  return z.chmod(e, t | 128);
+async function getStatsAndPerformCopy(destStat, src, dest, opts) {
+  const statFn = opts.dereference ? fs$d.stat : fs$d.lstat;
+  const srcStat = await statFn(src);
+  if (srcStat.isDirectory()) return onDir$1(srcStat, destStat, src, dest, opts);
+  if (srcStat.isFile() || srcStat.isCharacterDevice() || srcStat.isBlockDevice()) return onFile$1(srcStat, destStat, src, dest, opts);
+  if (srcStat.isSymbolicLink()) return onLink$1(destStat, src, dest, opts);
+  if (srcStat.isSocket()) throw new Error(`Cannot copy a socket file: ${src}`);
+  if (srcStat.isFIFO()) throw new Error(`Cannot copy a FIFO pipe: ${src}`);
+  throw new Error(`Unknown file: ${src}`);
 }
-async function pl(e, t, n, r, o) {
-  t || await z.mkdir(r), await ul(await z.opendir(n), async (i) => {
-    const s = rt.join(n, i.name), a = rt.join(r, i.name);
-    if (await li(s, a, o)) {
-      const { destStat: u } = await ot.checkPaths(s, a, "copy", o);
-      await ui(u, s, a, o);
+async function onFile$1(srcStat, destStat, src, dest, opts) {
+  if (!destStat) return copyFile$1(srcStat, src, dest, opts);
+  if (opts.overwrite) {
+    await fs$d.unlink(dest);
+    return copyFile$1(srcStat, src, dest, opts);
+  }
+  if (opts.errorOnExist) {
+    throw new Error(`'${dest}' already exists`);
+  }
+}
+async function copyFile$1(srcStat, src, dest, opts) {
+  await fs$d.copyFile(src, dest);
+  if (opts.preserveTimestamps) {
+    if (fileIsNotWritable$1(srcStat.mode)) {
+      await makeFileWritable$1(dest, srcStat.mode);
     }
-  }), t || await z.chmod(r, e.mode);
-}
-async function yl(e, t, n, r) {
-  let o = await z.readlink(t);
-  if (r.dereference && (o = rt.resolve(process.cwd(), o)), !e)
-    return z.symlink(o, n);
-  let i = null;
-  try {
-    i = await z.readlink(n);
-  } catch (s) {
-    if (s.code === "EINVAL" || s.code === "UNKNOWN") return z.symlink(o, n);
-    throw s;
+    const updatedSrcStat = await fs$d.stat(src);
+    await utimesMillis(dest, updatedSrcStat.atime, updatedSrcStat.mtime);
   }
-  if (r.dereference && (i = rt.resolve(process.cwd(), i)), o !== i) {
-    if (ot.isSrcSubdir(o, i))
-      throw new Error(`Cannot copy '${o}' to a subdirectory of itself, '${i}'.`);
-    if (ot.isSrcSubdir(i, o))
-      throw new Error(`Cannot overwrite '${i}' with '${o}'.`);
+  return fs$d.chmod(dest, srcStat.mode);
+}
+function fileIsNotWritable$1(srcMode) {
+  return (srcMode & 128) === 0;
+}
+function makeFileWritable$1(dest, srcMode) {
+  return fs$d.chmod(dest, srcMode | 128);
+}
+async function onDir$1(srcStat, destStat, src, dest, opts) {
+  if (!destStat) {
+    await fs$d.mkdir(dest);
   }
-  return await z.unlink(n), z.symlink(o, n);
+  await asyncIteratorConcurrentProcess(await fs$d.opendir(src), async (item) => {
+    const srcItem = path$c.join(src, item.name);
+    const destItem = path$c.join(dest, item.name);
+    const include = await runFilter(srcItem, destItem, opts);
+    if (include) {
+      const { destStat: destStat2 } = await stat$3.checkPaths(srcItem, destItem, "copy", opts);
+      await getStatsAndPerformCopy(destStat2, srcItem, destItem, opts);
+    }
+  });
+  if (!destStat) {
+    await fs$d.chmod(dest, srcStat.mode);
+  }
 }
-var wl = fl;
-const V = Ye, it = T, gl = ae.mkdirsSync, Sl = si.utimesMillisSync, st = Je;
-function bl(e, t, n) {
-  typeof n == "function" && (n = { filter: n }), n = n || {}, n.clobber = "clobber" in n ? !!n.clobber : !0, n.overwrite = "overwrite" in n ? !!n.overwrite : n.clobber, n.preserveTimestamps && process.arch === "ia32" && process.emitWarning(
-    `Using the preserveTimestamps option in 32-bit node is not recommended;
-
-	see https://github.com/jprichardson/node-fs-extra/issues/269`,
-    "Warning",
-    "fs-extra-WARN0002"
-  );
-  const { srcStat: r, destStat: o } = st.checkPathsSync(e, t, "copy", n);
-  if (st.checkParentPathsSync(e, r, t, "copy"), n.filter && !n.filter(e, t)) return;
-  const i = it.dirname(t);
-  return V.existsSync(i) || gl(i), fi(o, e, t, n);
-}
-function fi(e, t, n, r) {
-  const i = (r.dereference ? V.statSync : V.lstatSync)(t);
-  if (i.isDirectory()) return Il(i, e, t, n, r);
-  if (i.isFile() || i.isCharacterDevice() || i.isBlockDevice()) return El(i, e, t, n, r);
-  if (i.isSymbolicLink()) return Pl(e, t, n, r);
-  throw i.isSocket() ? new Error(`Cannot copy a socket file: ${t}`) : i.isFIFO() ? new Error(`Cannot copy a FIFO pipe: ${t}`) : new Error(`Unknown file: ${t}`);
-}
-function El(e, t, n, r, o) {
-  return t ? Tl(e, n, r, o) : di(e, n, r, o);
-}
-function Tl(e, t, n, r) {
-  if (r.overwrite)
-    return V.unlinkSync(n), di(e, t, n, r);
-  if (r.errorOnExist)
-    throw new Error(`'${n}' already exists`);
-}
-function di(e, t, n, r) {
-  return V.copyFileSync(t, n), r.preserveTimestamps && $l(e.mode, t, n), zn(n, e.mode);
-}
-function $l(e, t, n) {
-  return vl(e) && Ol(n, e), Dl(t, n);
-}
-function vl(e) {
-  return (e & 128) === 0;
-}
-function Ol(e, t) {
-  return zn(e, t | 128);
-}
-function zn(e, t) {
-  return V.chmodSync(e, t);
-}
-function Dl(e, t) {
-  const n = V.statSync(e);
-  return Sl(t, n.atime, n.mtime);
-}
-function Il(e, t, n, r, o) {
-  return t ? hi(n, r, o) : xl(e.mode, n, r, o);
-}
-function xl(e, t, n, r) {
-  return V.mkdirSync(n), hi(t, n, r), zn(n, e);
-}
-function hi(e, t, n) {
-  const r = V.opendirSync(e);
+async function onLink$1(destStat, src, dest, opts) {
+  let resolvedSrc = await fs$d.readlink(src);
+  if (opts.dereference) {
+    resolvedSrc = path$c.resolve(process.cwd(), resolvedSrc);
+  }
+  if (!destStat) {
+    return fs$d.symlink(resolvedSrc, dest);
+  }
+  let resolvedDest = null;
   try {
-    let o;
-    for (; (o = r.readSync()) !== null; )
-      Rl(o.name, e, t, n);
+    resolvedDest = await fs$d.readlink(dest);
+  } catch (e) {
+    if (e.code === "EINVAL" || e.code === "UNKNOWN") return fs$d.symlink(resolvedSrc, dest);
+    throw e;
+  }
+  if (opts.dereference) {
+    resolvedDest = path$c.resolve(process.cwd(), resolvedDest);
+  }
+  if (resolvedSrc !== resolvedDest) {
+    if (stat$3.isSrcSubdir(resolvedSrc, resolvedDest)) {
+      throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
+    }
+    if (stat$3.isSrcSubdir(resolvedDest, resolvedSrc)) {
+      throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
+    }
+  }
+  await fs$d.unlink(dest);
+  return fs$d.symlink(resolvedSrc, dest);
+}
+var copy_1 = copy$2;
+const fs$c = gracefulFs;
+const path$b = path$f;
+const mkdirsSync$1 = mkdirs$2.mkdirsSync;
+const utimesMillisSync = utimes.utimesMillisSync;
+const stat$2 = stat$4;
+function copySync$1(src, dest, opts) {
+  if (typeof opts === "function") {
+    opts = { filter: opts };
+  }
+  opts = opts || {};
+  opts.clobber = "clobber" in opts ? !!opts.clobber : true;
+  opts.overwrite = "overwrite" in opts ? !!opts.overwrite : opts.clobber;
+  if (opts.preserveTimestamps && process.arch === "ia32") {
+    process.emitWarning(
+      "Using the preserveTimestamps option in 32-bit node is not recommended;\n\n	see https://github.com/jprichardson/node-fs-extra/issues/269",
+      "Warning",
+      "fs-extra-WARN0002"
+    );
+  }
+  const { srcStat, destStat } = stat$2.checkPathsSync(src, dest, "copy", opts);
+  stat$2.checkParentPathsSync(src, srcStat, dest, "copy");
+  if (opts.filter && !opts.filter(src, dest)) return;
+  const destParent = path$b.dirname(dest);
+  if (!fs$c.existsSync(destParent)) mkdirsSync$1(destParent);
+  return getStats(destStat, src, dest, opts);
+}
+function getStats(destStat, src, dest, opts) {
+  const statSync2 = opts.dereference ? fs$c.statSync : fs$c.lstatSync;
+  const srcStat = statSync2(src);
+  if (srcStat.isDirectory()) return onDir(srcStat, destStat, src, dest, opts);
+  else if (srcStat.isFile() || srcStat.isCharacterDevice() || srcStat.isBlockDevice()) return onFile(srcStat, destStat, src, dest, opts);
+  else if (srcStat.isSymbolicLink()) return onLink(destStat, src, dest, opts);
+  else if (srcStat.isSocket()) throw new Error(`Cannot copy a socket file: ${src}`);
+  else if (srcStat.isFIFO()) throw new Error(`Cannot copy a FIFO pipe: ${src}`);
+  throw new Error(`Unknown file: ${src}`);
+}
+function onFile(srcStat, destStat, src, dest, opts) {
+  if (!destStat) return copyFile(srcStat, src, dest, opts);
+  return mayCopyFile(srcStat, src, dest, opts);
+}
+function mayCopyFile(srcStat, src, dest, opts) {
+  if (opts.overwrite) {
+    fs$c.unlinkSync(dest);
+    return copyFile(srcStat, src, dest, opts);
+  } else if (opts.errorOnExist) {
+    throw new Error(`'${dest}' already exists`);
+  }
+}
+function copyFile(srcStat, src, dest, opts) {
+  fs$c.copyFileSync(src, dest);
+  if (opts.preserveTimestamps) handleTimestamps(srcStat.mode, src, dest);
+  return setDestMode(dest, srcStat.mode);
+}
+function handleTimestamps(srcMode, src, dest) {
+  if (fileIsNotWritable(srcMode)) makeFileWritable(dest, srcMode);
+  return setDestTimestamps(src, dest);
+}
+function fileIsNotWritable(srcMode) {
+  return (srcMode & 128) === 0;
+}
+function makeFileWritable(dest, srcMode) {
+  return setDestMode(dest, srcMode | 128);
+}
+function setDestMode(dest, srcMode) {
+  return fs$c.chmodSync(dest, srcMode);
+}
+function setDestTimestamps(src, dest) {
+  const updatedSrcStat = fs$c.statSync(src);
+  return utimesMillisSync(dest, updatedSrcStat.atime, updatedSrcStat.mtime);
+}
+function onDir(srcStat, destStat, src, dest, opts) {
+  if (!destStat) return mkDirAndCopy(srcStat.mode, src, dest, opts);
+  return copyDir(src, dest, opts);
+}
+function mkDirAndCopy(srcMode, src, dest, opts) {
+  fs$c.mkdirSync(dest);
+  copyDir(src, dest, opts);
+  return setDestMode(dest, srcMode);
+}
+function copyDir(src, dest, opts) {
+  const dir = fs$c.opendirSync(src);
+  try {
+    let dirent;
+    while ((dirent = dir.readSync()) !== null) {
+      copyDirItem(dirent.name, src, dest, opts);
+    }
   } finally {
-    r.closeSync();
+    dir.closeSync();
   }
 }
-function Rl(e, t, n, r) {
-  const o = it.join(t, e), i = it.join(n, e);
-  if (r.filter && !r.filter(o, i)) return;
-  const { destStat: s } = st.checkPathsSync(o, i, "copy", r);
-  return fi(s, o, i, r);
+function copyDirItem(item, src, dest, opts) {
+  const srcItem = path$b.join(src, item);
+  const destItem = path$b.join(dest, item);
+  if (opts.filter && !opts.filter(srcItem, destItem)) return;
+  const { destStat } = stat$2.checkPathsSync(srcItem, destItem, "copy", opts);
+  return getStats(destStat, srcItem, destItem, opts);
 }
-function Pl(e, t, n, r) {
-  let o = V.readlinkSync(t);
-  if (r.dereference && (o = it.resolve(process.cwd(), o)), e) {
-    let i;
+function onLink(destStat, src, dest, opts) {
+  let resolvedSrc = fs$c.readlinkSync(src);
+  if (opts.dereference) {
+    resolvedSrc = path$b.resolve(process.cwd(), resolvedSrc);
+  }
+  if (!destStat) {
+    return fs$c.symlinkSync(resolvedSrc, dest);
+  } else {
+    let resolvedDest;
     try {
-      i = V.readlinkSync(n);
-    } catch (s) {
-      if (s.code === "EINVAL" || s.code === "UNKNOWN") return V.symlinkSync(o, n);
-      throw s;
+      resolvedDest = fs$c.readlinkSync(dest);
+    } catch (err) {
+      if (err.code === "EINVAL" || err.code === "UNKNOWN") return fs$c.symlinkSync(resolvedSrc, dest);
+      throw err;
     }
-    if (r.dereference && (i = it.resolve(process.cwd(), i)), o !== i) {
-      if (st.isSrcSubdir(o, i))
-        throw new Error(`Cannot copy '${o}' to a subdirectory of itself, '${i}'.`);
-      if (st.isSrcSubdir(i, o))
-        throw new Error(`Cannot overwrite '${i}' with '${o}'.`);
+    if (opts.dereference) {
+      resolvedDest = path$b.resolve(process.cwd(), resolvedDest);
     }
-    return Al(o, n);
-  } else
-    return V.symlinkSync(o, n);
-}
-function Al(e, t) {
-  return V.unlinkSync(t), V.symlinkSync(e, t);
-}
-var Cl = bl;
-const Fl = L.fromPromise;
-var Vn = {
-  copy: Fl(wl),
-  copySync: Cl
-};
-const mi = Ye, Ll = L.fromCallback;
-function Ml(e, t) {
-  mi.rm(e, { recursive: !0, force: !0 }, t);
-}
-function kl(e) {
-  mi.rmSync(e, { recursive: !0, force: !0 });
-}
-var Vt = {
-  remove: Ll(Ml),
-  removeSync: kl
-};
-const _l = L.fromPromise, pi = q, yi = T, wi = ae, gi = Vt, Ur = _l(async function(t) {
-  let n;
-  try {
-    n = await pi.readdir(t);
-  } catch {
-    return wi.mkdirs(t);
+    if (resolvedSrc !== resolvedDest) {
+      if (stat$2.isSrcSubdir(resolvedSrc, resolvedDest)) {
+        throw new Error(`Cannot copy '${resolvedSrc}' to a subdirectory of itself, '${resolvedDest}'.`);
+      }
+      if (stat$2.isSrcSubdir(resolvedDest, resolvedSrc)) {
+        throw new Error(`Cannot overwrite '${resolvedDest}' with '${resolvedSrc}'.`);
+      }
+    }
+    return copyLink(resolvedSrc, dest);
   }
-  return Promise.all(n.map((r) => gi.remove(yi.join(t, r))));
+}
+function copyLink(resolvedSrc, dest) {
+  fs$c.unlinkSync(dest);
+  return fs$c.symlinkSync(resolvedSrc, dest);
+}
+var copySync_1 = copySync$1;
+const u$b = universalify$1.fromPromise;
+var copy$1 = {
+  copy: u$b(copy_1),
+  copySync: copySync_1
+};
+const fs$b = gracefulFs;
+const u$a = universalify$1.fromCallback;
+function remove$2(path2, callback) {
+  fs$b.rm(path2, { recursive: true, force: true }, callback);
+}
+function removeSync$1(path2) {
+  fs$b.rmSync(path2, { recursive: true, force: true });
+}
+var remove_1 = {
+  remove: u$a(remove$2),
+  removeSync: removeSync$1
+};
+const u$9 = universalify$1.fromPromise;
+const fs$a = fs$j;
+const path$a = path$f;
+const mkdir$3 = mkdirs$2;
+const remove$1 = remove_1;
+const emptyDir = u$9(async function emptyDir2(dir) {
+  let items;
+  try {
+    items = await fs$a.readdir(dir);
+  } catch {
+    return mkdir$3.mkdirs(dir);
+  }
+  return Promise.all(items.map((item) => remove$1.remove(path$a.join(dir, item))));
 });
-function Nr(e) {
-  let t;
+function emptyDirSync(dir) {
+  let items;
   try {
-    t = pi.readdirSync(e);
+    items = fs$a.readdirSync(dir);
   } catch {
-    return wi.mkdirsSync(e);
+    return mkdir$3.mkdirsSync(dir);
   }
-  t.forEach((n) => {
-    n = yi.join(e, n), gi.removeSync(n);
+  items.forEach((item) => {
+    item = path$a.join(dir, item);
+    remove$1.removeSync(item);
   });
 }
-var jl = {
-  emptyDirSync: Nr,
-  emptydirSync: Nr,
-  emptyDir: Ur,
-  emptydir: Ur
+var empty = {
+  emptyDirSync,
+  emptydirSync: emptyDirSync,
+  emptyDir,
+  emptydir: emptyDir
 };
-const Bl = L.fromPromise, Si = T, le = q, bi = ae;
-async function Ul(e) {
-  let t;
+const u$8 = universalify$1.fromPromise;
+const path$9 = path$f;
+const fs$9 = fs$j;
+const mkdir$2 = mkdirs$2;
+async function createFile$1(file2) {
+  let stats;
   try {
-    t = await le.stat(e);
+    stats = await fs$9.stat(file2);
   } catch {
   }
-  if (t && t.isFile()) return;
-  const n = Si.dirname(e);
-  let r = null;
+  if (stats && stats.isFile()) return;
+  const dir = path$9.dirname(file2);
+  let dirStats = null;
   try {
-    r = await le.stat(n);
-  } catch (o) {
-    if (o.code === "ENOENT") {
-      await bi.mkdirs(n), await le.writeFile(e, "");
+    dirStats = await fs$9.stat(dir);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      await mkdir$2.mkdirs(dir);
+      await fs$9.writeFile(file2, "");
       return;
-    } else
-      throw o;
+    } else {
+      throw err;
+    }
   }
-  r.isDirectory() ? await le.writeFile(e, "") : await le.readdir(n);
+  if (dirStats.isDirectory()) {
+    await fs$9.writeFile(file2, "");
+  } else {
+    await fs$9.readdir(dir);
+  }
 }
-function Nl(e) {
-  let t;
+function createFileSync$1(file2) {
+  let stats;
   try {
-    t = le.statSync(e);
+    stats = fs$9.statSync(file2);
   } catch {
   }
-  if (t && t.isFile()) return;
-  const n = Si.dirname(e);
+  if (stats && stats.isFile()) return;
+  const dir = path$9.dirname(file2);
   try {
-    le.statSync(n).isDirectory() || le.readdirSync(n);
-  } catch (r) {
-    if (r && r.code === "ENOENT") bi.mkdirsSync(n);
-    else throw r;
+    if (!fs$9.statSync(dir).isDirectory()) {
+      fs$9.readdirSync(dir);
+    }
+  } catch (err) {
+    if (err && err.code === "ENOENT") mkdir$2.mkdirsSync(dir);
+    else throw err;
   }
-  le.writeFileSync(e, "");
+  fs$9.writeFileSync(file2, "");
 }
-var Gl = {
-  createFile: Bl(Ul),
-  createFileSync: Nl
+var file = {
+  createFile: u$8(createFile$1),
+  createFileSync: createFileSync$1
 };
-const Wl = L.fromPromise, Ei = T, de = q, Ti = ae, { pathExists: zl } = Ie, { areIdentical: $i } = Je;
-async function Vl(e, t) {
-  let n;
+const u$7 = universalify$1.fromPromise;
+const path$8 = path$f;
+const fs$8 = fs$j;
+const mkdir$1 = mkdirs$2;
+const { pathExists: pathExists$4 } = pathExists_1;
+const { areIdentical: areIdentical$1 } = stat$4;
+async function createLink$1(srcpath, dstpath) {
+  let dstStat;
   try {
-    n = await de.lstat(t);
+    dstStat = await fs$8.lstat(dstpath);
   } catch {
   }
-  let r;
+  let srcStat;
   try {
-    r = await de.lstat(e);
-  } catch (s) {
-    throw s.message = s.message.replace("lstat", "ensureLink"), s;
+    srcStat = await fs$8.lstat(srcpath);
+  } catch (err) {
+    err.message = err.message.replace("lstat", "ensureLink");
+    throw err;
   }
-  if (n && $i(r, n)) return;
-  const o = Ei.dirname(t);
-  await zl(o) || await Ti.mkdirs(o), await de.link(e, t);
+  if (dstStat && areIdentical$1(srcStat, dstStat)) return;
+  const dir = path$8.dirname(dstpath);
+  const dirExists = await pathExists$4(dir);
+  if (!dirExists) {
+    await mkdir$1.mkdirs(dir);
+  }
+  await fs$8.link(srcpath, dstpath);
 }
-function Hl(e, t) {
-  let n;
+function createLinkSync$1(srcpath, dstpath) {
+  let dstStat;
   try {
-    n = de.lstatSync(t);
+    dstStat = fs$8.lstatSync(dstpath);
   } catch {
   }
   try {
-    const i = de.lstatSync(e);
-    if (n && $i(i, n)) return;
-  } catch (i) {
-    throw i.message = i.message.replace("lstat", "ensureLink"), i;
+    const srcStat = fs$8.lstatSync(srcpath);
+    if (dstStat && areIdentical$1(srcStat, dstStat)) return;
+  } catch (err) {
+    err.message = err.message.replace("lstat", "ensureLink");
+    throw err;
   }
-  const r = Ei.dirname(t);
-  return de.existsSync(r) || Ti.mkdirsSync(r), de.linkSync(e, t);
+  const dir = path$8.dirname(dstpath);
+  const dirExists = fs$8.existsSync(dir);
+  if (dirExists) return fs$8.linkSync(srcpath, dstpath);
+  mkdir$1.mkdirsSync(dir);
+  return fs$8.linkSync(srcpath, dstpath);
 }
-var ql = {
-  createLink: Wl(Vl),
-  createLinkSync: Hl
+var link = {
+  createLink: u$7(createLink$1),
+  createLinkSync: createLinkSync$1
 };
-const ye = T, et = q, { pathExists: Yl } = Ie, Jl = L.fromPromise;
-async function Kl(e, t) {
-  if (ye.isAbsolute(e)) {
+const path$7 = path$f;
+const fs$7 = fs$j;
+const { pathExists: pathExists$3 } = pathExists_1;
+const u$6 = universalify$1.fromPromise;
+async function symlinkPaths$1(srcpath, dstpath) {
+  if (path$7.isAbsolute(srcpath)) {
     try {
-      await et.lstat(e);
-    } catch (i) {
-      throw i.message = i.message.replace("lstat", "ensureSymlink"), i;
+      await fs$7.lstat(srcpath);
+    } catch (err) {
+      err.message = err.message.replace("lstat", "ensureSymlink");
+      throw err;
     }
     return {
-      toCwd: e,
-      toDst: e
+      toCwd: srcpath,
+      toDst: srcpath
     };
   }
-  const n = ye.dirname(t), r = ye.join(n, e);
-  if (await Yl(r))
+  const dstdir = path$7.dirname(dstpath);
+  const relativeToDst = path$7.join(dstdir, srcpath);
+  const exists = await pathExists$3(relativeToDst);
+  if (exists) {
     return {
-      toCwd: r,
-      toDst: e
+      toCwd: relativeToDst,
+      toDst: srcpath
     };
+  }
   try {
-    await et.lstat(e);
-  } catch (i) {
-    throw i.message = i.message.replace("lstat", "ensureSymlink"), i;
+    await fs$7.lstat(srcpath);
+  } catch (err) {
+    err.message = err.message.replace("lstat", "ensureSymlink");
+    throw err;
   }
   return {
-    toCwd: e,
-    toDst: ye.relative(n, e)
+    toCwd: srcpath,
+    toDst: path$7.relative(dstdir, srcpath)
   };
 }
-function Xl(e, t) {
-  if (ye.isAbsolute(e)) {
-    if (!et.existsSync(e)) throw new Error("absolute srcpath does not exist");
+function symlinkPathsSync$1(srcpath, dstpath) {
+  if (path$7.isAbsolute(srcpath)) {
+    const exists2 = fs$7.existsSync(srcpath);
+    if (!exists2) throw new Error("absolute srcpath does not exist");
     return {
-      toCwd: e,
-      toDst: e
+      toCwd: srcpath,
+      toDst: srcpath
     };
   }
-  const n = ye.dirname(t), r = ye.join(n, e);
-  if (et.existsSync(r))
+  const dstdir = path$7.dirname(dstpath);
+  const relativeToDst = path$7.join(dstdir, srcpath);
+  const exists = fs$7.existsSync(relativeToDst);
+  if (exists) {
     return {
-      toCwd: r,
-      toDst: e
+      toCwd: relativeToDst,
+      toDst: srcpath
     };
-  if (!et.existsSync(e)) throw new Error("relative srcpath does not exist");
+  }
+  const srcExists = fs$7.existsSync(srcpath);
+  if (!srcExists) throw new Error("relative srcpath does not exist");
   return {
-    toCwd: e,
-    toDst: ye.relative(n, e)
+    toCwd: srcpath,
+    toDst: path$7.relative(dstdir, srcpath)
   };
 }
-var Ql = {
-  symlinkPaths: Jl(Kl),
-  symlinkPathsSync: Xl
+var symlinkPaths_1 = {
+  symlinkPaths: u$6(symlinkPaths$1),
+  symlinkPathsSync: symlinkPathsSync$1
 };
-const vi = q, Zl = L.fromPromise;
-async function eu(e, t) {
-  if (t) return t;
-  let n;
+const fs$6 = fs$j;
+const u$5 = universalify$1.fromPromise;
+async function symlinkType$1(srcpath, type) {
+  if (type) return type;
+  let stats;
   try {
-    n = await vi.lstat(e);
+    stats = await fs$6.lstat(srcpath);
   } catch {
     return "file";
   }
-  return n && n.isDirectory() ? "dir" : "file";
+  return stats && stats.isDirectory() ? "dir" : "file";
 }
-function tu(e, t) {
-  if (t) return t;
-  let n;
+function symlinkTypeSync$1(srcpath, type) {
+  if (type) return type;
+  let stats;
   try {
-    n = vi.lstatSync(e);
+    stats = fs$6.lstatSync(srcpath);
   } catch {
     return "file";
   }
-  return n && n.isDirectory() ? "dir" : "file";
+  return stats && stats.isDirectory() ? "dir" : "file";
 }
-var nu = {
-  symlinkType: Zl(eu),
-  symlinkTypeSync: tu
+var symlinkType_1 = {
+  symlinkType: u$5(symlinkType$1),
+  symlinkTypeSync: symlinkTypeSync$1
 };
-const ru = L.fromPromise, Oi = T, oe = q, { mkdirs: ou, mkdirsSync: iu } = ae, { symlinkPaths: su, symlinkPathsSync: au } = Ql, { symlinkType: cu, symlinkTypeSync: lu } = nu, { pathExists: uu } = Ie, { areIdentical: Di } = Je;
-async function fu(e, t, n) {
-  let r;
+const u$4 = universalify$1.fromPromise;
+const path$6 = path$f;
+const fs$5 = fs$j;
+const { mkdirs, mkdirsSync } = mkdirs$2;
+const { symlinkPaths, symlinkPathsSync } = symlinkPaths_1;
+const { symlinkType, symlinkTypeSync } = symlinkType_1;
+const { pathExists: pathExists$2 } = pathExists_1;
+const { areIdentical } = stat$4;
+async function createSymlink$1(srcpath, dstpath, type) {
+  let stats;
   try {
-    r = await oe.lstat(t);
+    stats = await fs$5.lstat(dstpath);
   } catch {
   }
-  if (r && r.isSymbolicLink()) {
-    const [a, c] = await Promise.all([
-      oe.stat(e),
-      oe.stat(t)
+  if (stats && stats.isSymbolicLink()) {
+    const [srcStat, dstStat] = await Promise.all([
+      fs$5.stat(srcpath),
+      fs$5.stat(dstpath)
     ]);
-    if (Di(a, c)) return;
+    if (areIdentical(srcStat, dstStat)) return;
   }
-  const o = await su(e, t);
-  e = o.toDst;
-  const i = await cu(o.toCwd, n), s = Oi.dirname(t);
-  return await uu(s) || await ou(s), oe.symlink(e, t, i);
+  const relative = await symlinkPaths(srcpath, dstpath);
+  srcpath = relative.toDst;
+  const toType = await symlinkType(relative.toCwd, type);
+  const dir = path$6.dirname(dstpath);
+  if (!await pathExists$2(dir)) {
+    await mkdirs(dir);
+  }
+  return fs$5.symlink(srcpath, dstpath, toType);
 }
-function du(e, t, n) {
-  let r;
+function createSymlinkSync$1(srcpath, dstpath, type) {
+  let stats;
   try {
-    r = oe.lstatSync(t);
+    stats = fs$5.lstatSync(dstpath);
   } catch {
   }
-  if (r && r.isSymbolicLink()) {
-    const a = oe.statSync(e), c = oe.statSync(t);
-    if (Di(a, c)) return;
+  if (stats && stats.isSymbolicLink()) {
+    const srcStat = fs$5.statSync(srcpath);
+    const dstStat = fs$5.statSync(dstpath);
+    if (areIdentical(srcStat, dstStat)) return;
   }
-  const o = au(e, t);
-  e = o.toDst, n = lu(o.toCwd, n);
-  const i = Oi.dirname(t);
-  return oe.existsSync(i) || iu(i), oe.symlinkSync(e, t, n);
+  const relative = symlinkPathsSync(srcpath, dstpath);
+  srcpath = relative.toDst;
+  type = symlinkTypeSync(relative.toCwd, type);
+  const dir = path$6.dirname(dstpath);
+  const exists = fs$5.existsSync(dir);
+  if (exists) return fs$5.symlinkSync(srcpath, dstpath, type);
+  mkdirsSync(dir);
+  return fs$5.symlinkSync(srcpath, dstpath, type);
 }
-var hu = {
-  createSymlink: ru(fu),
-  createSymlinkSync: du
+var symlink = {
+  createSymlink: u$4(createSymlink$1),
+  createSymlinkSync: createSymlinkSync$1
 };
-const { createFile: Gr, createFileSync: Wr } = Gl, { createLink: zr, createLinkSync: Vr } = ql, { createSymlink: Hr, createSymlinkSync: qr } = hu;
-var mu = {
+const { createFile, createFileSync } = file;
+const { createLink, createLinkSync } = link;
+const { createSymlink, createSymlinkSync } = symlink;
+var ensure = {
   // file
-  createFile: Gr,
-  createFileSync: Wr,
-  ensureFile: Gr,
-  ensureFileSync: Wr,
+  createFile,
+  createFileSync,
+  ensureFile: createFile,
+  ensureFileSync: createFileSync,
   // link
-  createLink: zr,
-  createLinkSync: Vr,
-  ensureLink: zr,
-  ensureLinkSync: Vr,
+  createLink,
+  createLinkSync,
+  ensureLink: createLink,
+  ensureLinkSync: createLinkSync,
   // symlink
-  createSymlink: Hr,
-  createSymlinkSync: qr,
-  ensureSymlink: Hr,
-  ensureSymlinkSync: qr
+  createSymlink,
+  createSymlinkSync,
+  ensureSymlink: createSymlink,
+  ensureSymlinkSync: createSymlinkSync
 };
-function pu(e, { EOL: t = `
-`, finalEOL: n = !0, replacer: r = null, spaces: o } = {}) {
-  const i = n ? t : "";
-  return JSON.stringify(e, r, o).replace(/\n/g, t) + i;
+function stringify$3(obj, { EOL = "\n", finalEOL = true, replacer = null, spaces } = {}) {
+  const EOF = finalEOL ? EOL : "";
+  const str = JSON.stringify(obj, replacer, spaces);
+  return str.replace(/\n/g, EOL) + EOF;
 }
-function yu(e) {
-  return Buffer.isBuffer(e) && (e = e.toString("utf8")), e.replace(/^\uFEFF/, "");
+function stripBom$1(content) {
+  if (Buffer.isBuffer(content)) content = content.toString("utf8");
+  return content.replace(/^\uFEFF/, "");
 }
-var Hn = { stringify: pu, stripBom: yu };
-let Ge;
+var utils = { stringify: stringify$3, stripBom: stripBom$1 };
+let _fs;
 try {
-  Ge = Ye;
-} catch {
-  Ge = dt;
+  _fs = gracefulFs;
+} catch (_) {
+  _fs = require$$0$2;
 }
-const Ht = L, { stringify: Ii, stripBom: xi } = Hn;
-async function wu(e, t = {}) {
-  typeof t == "string" && (t = { encoding: t });
-  const n = t.fs || Ge, r = "throws" in t ? t.throws : !0;
-  let o = await Ht.fromCallback(n.readFile)(e, t);
-  o = xi(o);
-  let i;
+const universalify = universalify$1;
+const { stringify: stringify$2, stripBom } = utils;
+async function _readFile(file2, options = {}) {
+  if (typeof options === "string") {
+    options = { encoding: options };
+  }
+  const fs2 = options.fs || _fs;
+  const shouldThrow = "throws" in options ? options.throws : true;
+  let data = await universalify.fromCallback(fs2.readFile)(file2, options);
+  data = stripBom(data);
+  let obj;
   try {
-    i = JSON.parse(o, t ? t.reviver : null);
-  } catch (s) {
-    if (r)
-      throw s.message = `${e}: ${s.message}`, s;
-    return null;
-  }
-  return i;
-}
-const gu = Ht.fromPromise(wu);
-function Su(e, t = {}) {
-  typeof t == "string" && (t = { encoding: t });
-  const n = t.fs || Ge, r = "throws" in t ? t.throws : !0;
-  try {
-    let o = n.readFileSync(e, t);
-    return o = xi(o), JSON.parse(o, t.reviver);
-  } catch (o) {
-    if (r)
-      throw o.message = `${e}: ${o.message}`, o;
-    return null;
-  }
-}
-async function bu(e, t, n = {}) {
-  const r = n.fs || Ge, o = Ii(t, n);
-  await Ht.fromCallback(r.writeFile)(e, o, n);
-}
-const Eu = Ht.fromPromise(bu);
-function Tu(e, t, n = {}) {
-  const r = n.fs || Ge, o = Ii(t, n);
-  return r.writeFileSync(e, o, n);
-}
-var $u = {
-  readFile: gu,
-  readFileSync: Su,
-  writeFile: Eu,
-  writeFileSync: Tu
-};
-const Et = $u;
-var vu = {
-  // jsonfile exports
-  readJson: Et.readFile,
-  readJsonSync: Et.readFileSync,
-  writeJson: Et.writeFile,
-  writeJsonSync: Et.writeFileSync
-};
-const Ou = L.fromPromise, mn = q, Ri = T, Pi = ae, Du = Ie.pathExists;
-async function Iu(e, t, n = "utf-8") {
-  const r = Ri.dirname(e);
-  return await Du(r) || await Pi.mkdirs(r), mn.writeFile(e, t, n);
-}
-function xu(e, ...t) {
-  const n = Ri.dirname(e);
-  mn.existsSync(n) || Pi.mkdirsSync(n), mn.writeFileSync(e, ...t);
-}
-var qn = {
-  outputFile: Ou(Iu),
-  outputFileSync: xu
-};
-const { stringify: Ru } = Hn, { outputFile: Pu } = qn;
-async function Au(e, t, n = {}) {
-  const r = Ru(t, n);
-  await Pu(e, r, n);
-}
-var Cu = Au;
-const { stringify: Fu } = Hn, { outputFileSync: Lu } = qn;
-function Mu(e, t, n) {
-  const r = Fu(t, n);
-  Lu(e, r, n);
-}
-var ku = Mu;
-const _u = L.fromPromise, H = vu;
-H.outputJson = _u(Cu);
-H.outputJsonSync = ku;
-H.outputJSON = H.outputJson;
-H.outputJSONSync = H.outputJsonSync;
-H.writeJSON = H.writeJson;
-H.writeJSONSync = H.writeJsonSync;
-H.readJSON = H.readJson;
-H.readJSONSync = H.readJsonSync;
-var ju = H;
-const Bu = q, Yr = T, { copy: Uu } = Vn, { remove: Ai } = Vt, { mkdirp: Nu } = ae, { pathExists: Gu } = Ie, Jr = Je;
-async function Wu(e, t, n = {}) {
-  const r = n.overwrite || n.clobber || !1, { srcStat: o, isChangingCase: i = !1 } = await Jr.checkPaths(e, t, "move", n);
-  await Jr.checkParentPaths(e, o, t, "move");
-  const s = Yr.dirname(t);
-  return Yr.parse(s).root !== s && await Nu(s), zu(e, t, r, i);
-}
-async function zu(e, t, n, r) {
-  if (!r) {
-    if (n)
-      await Ai(t);
-    else if (await Gu(t))
-      throw new Error("dest already exists.");
-  }
-  try {
-    await Bu.rename(e, t);
-  } catch (o) {
-    if (o.code !== "EXDEV")
-      throw o;
-    await Vu(e, t, n);
-  }
-}
-async function Vu(e, t, n) {
-  return await Uu(e, t, {
-    overwrite: n,
-    errorOnExist: !0,
-    preserveTimestamps: !0
-  }), Ai(e);
-}
-var Hu = Wu;
-const Ci = Ye, pn = T, qu = Vn.copySync, Fi = Vt.removeSync, Yu = ae.mkdirpSync, Kr = Je;
-function Ju(e, t, n) {
-  n = n || {};
-  const r = n.overwrite || n.clobber || !1, { srcStat: o, isChangingCase: i = !1 } = Kr.checkPathsSync(e, t, "move", n);
-  return Kr.checkParentPathsSync(e, o, t, "move"), Ku(t) || Yu(pn.dirname(t)), Xu(e, t, r, i);
-}
-function Ku(e) {
-  const t = pn.dirname(e);
-  return pn.parse(t).root === t;
-}
-function Xu(e, t, n, r) {
-  if (r) return rn(e, t, n);
-  if (n)
-    return Fi(t), rn(e, t, n);
-  if (Ci.existsSync(t)) throw new Error("dest already exists.");
-  return rn(e, t, n);
-}
-function rn(e, t, n) {
-  try {
-    Ci.renameSync(e, t);
-  } catch (r) {
-    if (r.code !== "EXDEV") throw r;
-    return Qu(e, t, n);
-  }
-}
-function Qu(e, t, n) {
-  return qu(e, t, {
-    overwrite: n,
-    errorOnExist: !0,
-    preserveTimestamps: !0
-  }), Fi(e);
-}
-var Zu = Ju;
-const ef = L.fromPromise;
-var tf = {
-  move: ef(Hu),
-  moveSync: Zu
-}, nf = {
-  // Export promiseified graceful-fs:
-  ...q,
-  // Export extra methods:
-  ...Vn,
-  ...jl,
-  ...mu,
-  ...ju,
-  ...ae,
-  ...tf,
-  ...qn,
-  ...Ie,
-  ...Vt
-};
-const F = /* @__PURE__ */ Zo(nf);
-function X(e) {
-  if (typeof e != "object" || e === null)
-    return !1;
-  const t = Object.getPrototypeOf(e);
-  return (t === null || t === Object.prototype || Object.getPrototypeOf(t) === null) && !(Symbol.toStringTag in e) && !(Symbol.iterator in e);
-}
-const Yn = (e, t) => {
-  const n = Mi(rf(e));
-  if (typeof n != "string")
-    throw new TypeError(`${t} must be a string or a file URL: ${n}.`);
-  return n;
-}, rf = (e) => Li(e) ? e.toString() : e, Li = (e) => typeof e != "string" && e && Object.getPrototypeOf(e) === String.prototype, Mi = (e) => e instanceof URL ? kn(e) : e, ki = (e, t = [], n = {}) => {
-  const r = Yn(e, "First argument"), [o, i] = X(t) ? [[], t] : [t, n];
-  if (!Array.isArray(o))
-    throw new TypeError(`Second argument must be either an array of arguments or an options object: ${o}`);
-  if (o.some((c) => typeof c == "object" && c !== null))
-    throw new TypeError(`Second argument must be an array of strings: ${o}`);
-  const s = o.map(String), a = s.find((c) => c.includes("\0"));
-  if (a !== void 0)
-    throw new TypeError(`Arguments cannot contain null bytes ("\\0"): ${a}`);
-  if (!X(i))
-    throw new TypeError(`Last argument must be an options object: ${i}`);
-  return [r, s, i];
-}, { toString: _i } = Object.prototype, of = (e) => _i.call(e) === "[object ArrayBuffer]", te = (e) => _i.call(e) === "[object Uint8Array]", at = (e) => new Uint8Array(e.buffer, e.byteOffset, e.byteLength), sf = new TextEncoder(), ji = (e) => sf.encode(e), af = new TextDecoder(), Bi = (e) => af.decode(e), cf = (e, t) => lf(e, t).join(""), lf = (e, t) => {
-  if (t === "utf8" && e.every((i) => typeof i == "string"))
-    return e;
-  const n = new zo(t), r = e.map((i) => typeof i == "string" ? ji(i) : i).map((i) => n.write(i)), o = n.end();
-  return o === "" ? r : [...r, o];
-}, Jn = (e) => e.length === 1 && te(e[0]) ? e[0] : Ui(uf(e)), uf = (e) => e.map((t) => typeof t == "string" ? ji(t) : t), Ui = (e) => {
-  const t = new Uint8Array(ff(e));
-  let n = 0;
-  for (const r of e)
-    t.set(r, n), n += r.length;
-  return t;
-}, ff = (e) => {
-  let t = 0;
-  for (const n of e)
-    t += n.length;
-  return t;
-}, df = (e) => Array.isArray(e) && Array.isArray(e.raw), hf = (e, t) => {
-  let n = [];
-  for (const [i, s] of e.entries())
-    n = mf({
-      templates: e,
-      expressions: t,
-      tokens: n,
-      index: i,
-      template: s
-    });
-  if (n.length === 0)
-    throw new TypeError("Template script must not be empty");
-  const [r, ...o] = n;
-  return [r, o, {}];
-}, mf = ({ templates: e, expressions: t, tokens: n, index: r, template: o }) => {
-  if (o === void 0)
-    throw new TypeError(`Invalid backslash sequence: ${e.raw[r]}`);
-  const { nextTokens: i, leadingWhitespaces: s, trailingWhitespaces: a } = pf(o, e.raw[r]), c = Qr(n, i, s);
-  if (r === t.length)
-    return c;
-  const u = t[r], l = Array.isArray(u) ? u.map((f) => Zr(f)) : [Zr(u)];
-  return Qr(c, l, a);
-}, pf = (e, t) => {
-  if (t.length === 0)
-    return { nextTokens: [], leadingWhitespaces: !1, trailingWhitespaces: !1 };
-  const n = [];
-  let r = 0;
-  const o = Xr.has(t[0]);
-  for (let s = 0, a = 0; s < e.length; s += 1, a += 1) {
-    const c = t[a];
-    if (Xr.has(c))
-      r !== s && n.push(e.slice(r, s)), r = s + 1;
-    else if (c === "\\") {
-      const u = t[a + 1];
-      u === `
-` ? (s -= 1, a += 1) : u === "u" && t[a + 2] === "{" ? a = t.indexOf("}", a + 3) : a += yf[u] ?? 1;
+    obj = JSON.parse(data, options ? options.reviver : null);
+  } catch (err) {
+    if (shouldThrow) {
+      err.message = `${file2}: ${err.message}`;
+      throw err;
+    } else {
+      return null;
     }
   }
-  const i = r === e.length;
-  return i || n.push(e.slice(r)), { nextTokens: n, leadingWhitespaces: o, trailingWhitespaces: i };
-}, Xr = /* @__PURE__ */ new Set([" ", "	", "\r", `
-`]), yf = { x: 3, u: 5 }, Qr = (e, t, n) => n || e.length === 0 || t.length === 0 ? [...e, ...t] : [
-  ...e.slice(0, -1),
-  `${e.at(-1)}${t[0]}`,
-  ...t.slice(1)
-], Zr = (e) => {
-  const t = typeof e;
-  if (t === "string")
-    return e;
-  if (t === "number")
-    return String(e);
-  if (X(e) && ("stdout" in e || "isMaxBuffer" in e))
-    return wf(e);
-  throw e instanceof Wo || Object.prototype.toString.call(e) === "[object Promise]" ? new TypeError("Unexpected subprocess in template expression. Please use ${await subprocess} instead of ${subprocess}.") : new TypeError(`Unexpected "${t}" in template expression`);
-}, wf = ({ stdout: e }) => {
-  if (typeof e == "string")
-    return e;
-  if (te(e))
-    return Bi(e);
-  throw e === void 0 ? new TypeError(`Missing result.stdout in template expression. This is probably due to the previous subprocess' "stdout" option.`) : new TypeError(`Unexpected "${typeof e}" stdout in template expression`);
-}, ve = (e) => Kn.includes(e), Kn = [G.stdin, G.stdout, G.stderr], se = ["stdin", "stdout", "stderr"], Ni = (e) => se[e] ?? `stdio[${e}]`, gf = (e) => {
-  const t = { ...e };
-  for (const n of zi)
-    t[n] = Gi(e, n);
-  return t;
-}, Gi = (e, t) => {
-  const n = Array.from({ length: Sf(e) + 1 }), r = bf(e[t], n, t);
-  return Of(r, t);
-}, Sf = ({ stdio: e }) => Array.isArray(e) ? Math.max(e.length, se.length) : se.length, bf = (e, t, n) => X(e) ? Ef(e, t, n) : t.fill(e), Ef = (e, t, n) => {
-  for (const r of Object.keys(e).sort(Tf))
-    for (const o of $f(r, n, t))
-      t[o] = e[r];
-  return t;
-}, Tf = (e, t) => eo(e) < eo(t) ? 1 : -1, eo = (e) => e === "stdout" || e === "stderr" ? 0 : e === "all" ? 2 : 1, $f = (e, t, n) => {
-  if (e === "ipc")
-    return [n.length - 1];
-  const r = Wi(e);
-  if (r === void 0 || r === 0)
-    throw new TypeError(`"${t}.${e}" is invalid.
-It must be "${t}.stdout", "${t}.stderr", "${t}.all", "${t}.ipc", or "${t}.fd3", "${t}.fd4" (and so on).`);
-  if (r >= n.length)
-    throw new TypeError(`"${t}.${e}" is invalid: that file descriptor does not exist.
+  return obj;
+}
+const readFile = universalify.fromPromise(_readFile);
+function readFileSync(file2, options = {}) {
+  if (typeof options === "string") {
+    options = { encoding: options };
+  }
+  const fs2 = options.fs || _fs;
+  const shouldThrow = "throws" in options ? options.throws : true;
+  try {
+    let content = fs2.readFileSync(file2, options);
+    content = stripBom(content);
+    return JSON.parse(content, options.reviver);
+  } catch (err) {
+    if (shouldThrow) {
+      err.message = `${file2}: ${err.message}`;
+      throw err;
+    } else {
+      return null;
+    }
+  }
+}
+async function _writeFile(file2, obj, options = {}) {
+  const fs2 = options.fs || _fs;
+  const str = stringify$2(obj, options);
+  await universalify.fromCallback(fs2.writeFile)(file2, str, options);
+}
+const writeFile = universalify.fromPromise(_writeFile);
+function writeFileSync(file2, obj, options = {}) {
+  const fs2 = options.fs || _fs;
+  const str = stringify$2(obj, options);
+  return fs2.writeFileSync(file2, str, options);
+}
+var jsonfile$1 = {
+  readFile,
+  readFileSync,
+  writeFile,
+  writeFileSync
+};
+const jsonFile$1 = jsonfile$1;
+var jsonfile = {
+  // jsonfile exports
+  readJson: jsonFile$1.readFile,
+  readJsonSync: jsonFile$1.readFileSync,
+  writeJson: jsonFile$1.writeFile,
+  writeJsonSync: jsonFile$1.writeFileSync
+};
+const u$3 = universalify$1.fromPromise;
+const fs$4 = fs$j;
+const path$5 = path$f;
+const mkdir = mkdirs$2;
+const pathExists$1 = pathExists_1.pathExists;
+async function outputFile$1(file2, data, encoding = "utf-8") {
+  const dir = path$5.dirname(file2);
+  if (!await pathExists$1(dir)) {
+    await mkdir.mkdirs(dir);
+  }
+  return fs$4.writeFile(file2, data, encoding);
+}
+function outputFileSync$1(file2, ...args) {
+  const dir = path$5.dirname(file2);
+  if (!fs$4.existsSync(dir)) {
+    mkdir.mkdirsSync(dir);
+  }
+  fs$4.writeFileSync(file2, ...args);
+}
+var outputFile_1 = {
+  outputFile: u$3(outputFile$1),
+  outputFileSync: outputFileSync$1
+};
+const { stringify: stringify$1 } = utils;
+const { outputFile } = outputFile_1;
+async function outputJson(file2, data, options = {}) {
+  const str = stringify$1(data, options);
+  await outputFile(file2, str, options);
+}
+var outputJson_1 = outputJson;
+const { stringify } = utils;
+const { outputFileSync } = outputFile_1;
+function outputJsonSync(file2, data, options) {
+  const str = stringify(data, options);
+  outputFileSync(file2, str, options);
+}
+var outputJsonSync_1 = outputJsonSync;
+const u$2 = universalify$1.fromPromise;
+const jsonFile = jsonfile;
+jsonFile.outputJson = u$2(outputJson_1);
+jsonFile.outputJsonSync = outputJsonSync_1;
+jsonFile.outputJSON = jsonFile.outputJson;
+jsonFile.outputJSONSync = jsonFile.outputJsonSync;
+jsonFile.writeJSON = jsonFile.writeJson;
+jsonFile.writeJSONSync = jsonFile.writeJsonSync;
+jsonFile.readJSON = jsonFile.readJson;
+jsonFile.readJSONSync = jsonFile.readJsonSync;
+var json = jsonFile;
+const fs$3 = fs$j;
+const path$4 = path$f;
+const { copy } = copy$1;
+const { remove } = remove_1;
+const { mkdirp } = mkdirs$2;
+const { pathExists } = pathExists_1;
+const stat$1 = stat$4;
+async function move$1(src, dest, opts = {}) {
+  const overwrite = opts.overwrite || opts.clobber || false;
+  const { srcStat, isChangingCase = false } = await stat$1.checkPaths(src, dest, "move", opts);
+  await stat$1.checkParentPaths(src, srcStat, dest, "move");
+  const destParent = path$4.dirname(dest);
+  const parsedParentPath = path$4.parse(destParent);
+  if (parsedParentPath.root !== destParent) {
+    await mkdirp(destParent);
+  }
+  return doRename$1(src, dest, overwrite, isChangingCase);
+}
+async function doRename$1(src, dest, overwrite, isChangingCase) {
+  if (!isChangingCase) {
+    if (overwrite) {
+      await remove(dest);
+    } else if (await pathExists(dest)) {
+      throw new Error("dest already exists.");
+    }
+  }
+  try {
+    await fs$3.rename(src, dest);
+  } catch (err) {
+    if (err.code !== "EXDEV") {
+      throw err;
+    }
+    await moveAcrossDevice$1(src, dest, overwrite);
+  }
+}
+async function moveAcrossDevice$1(src, dest, overwrite) {
+  const opts = {
+    overwrite,
+    errorOnExist: true,
+    preserveTimestamps: true
+  };
+  await copy(src, dest, opts);
+  return remove(src);
+}
+var move_1 = move$1;
+const fs$2 = gracefulFs;
+const path$3 = path$f;
+const copySync = copy$1.copySync;
+const removeSync = remove_1.removeSync;
+const mkdirpSync = mkdirs$2.mkdirpSync;
+const stat = stat$4;
+function moveSync(src, dest, opts) {
+  opts = opts || {};
+  const overwrite = opts.overwrite || opts.clobber || false;
+  const { srcStat, isChangingCase = false } = stat.checkPathsSync(src, dest, "move", opts);
+  stat.checkParentPathsSync(src, srcStat, dest, "move");
+  if (!isParentRoot(dest)) mkdirpSync(path$3.dirname(dest));
+  return doRename(src, dest, overwrite, isChangingCase);
+}
+function isParentRoot(dest) {
+  const parent = path$3.dirname(dest);
+  const parsedPath = path$3.parse(parent);
+  return parsedPath.root === parent;
+}
+function doRename(src, dest, overwrite, isChangingCase) {
+  if (isChangingCase) return rename(src, dest, overwrite);
+  if (overwrite) {
+    removeSync(dest);
+    return rename(src, dest, overwrite);
+  }
+  if (fs$2.existsSync(dest)) throw new Error("dest already exists.");
+  return rename(src, dest, overwrite);
+}
+function rename(src, dest, overwrite) {
+  try {
+    fs$2.renameSync(src, dest);
+  } catch (err) {
+    if (err.code !== "EXDEV") throw err;
+    return moveAcrossDevice(src, dest, overwrite);
+  }
+}
+function moveAcrossDevice(src, dest, overwrite) {
+  const opts = {
+    overwrite,
+    errorOnExist: true,
+    preserveTimestamps: true
+  };
+  copySync(src, dest, opts);
+  return removeSync(src);
+}
+var moveSync_1 = moveSync;
+const u$1 = universalify$1.fromPromise;
+var move = {
+  move: u$1(move_1),
+  moveSync: moveSync_1
+};
+var lib = {
+  // Export promiseified graceful-fs:
+  ...fs$j,
+  // Export extra methods:
+  ...copy$1,
+  ...empty,
+  ...ensure,
+  ...json,
+  ...mkdirs$2,
+  ...move,
+  ...outputFile_1,
+  ...pathExists_1,
+  ...remove_1
+};
+const fs$1 = /* @__PURE__ */ getDefaultExportFromCjs(lib);
+function isPlainObject(value) {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in value) && !(Symbol.iterator in value);
+}
+const safeNormalizeFileUrl = (file2, name) => {
+  const fileString = normalizeFileUrl(normalizeDenoExecPath(file2));
+  if (typeof fileString !== "string") {
+    throw new TypeError(`${name} must be a string or a file URL: ${fileString}.`);
+  }
+  return fileString;
+};
+const normalizeDenoExecPath = (file2) => isDenoExecPath(file2) ? file2.toString() : file2;
+const isDenoExecPath = (file2) => typeof file2 !== "string" && file2 && Object.getPrototypeOf(file2) === String.prototype;
+const normalizeFileUrl = (file2) => file2 instanceof URL ? fileURLToPath(file2) : file2;
+const normalizeParameters = (rawFile, rawArguments = [], rawOptions = {}) => {
+  const filePath = safeNormalizeFileUrl(rawFile, "First argument");
+  const [commandArguments, options] = isPlainObject(rawArguments) ? [[], rawArguments] : [rawArguments, rawOptions];
+  if (!Array.isArray(commandArguments)) {
+    throw new TypeError(`Second argument must be either an array of arguments or an options object: ${commandArguments}`);
+  }
+  if (commandArguments.some((commandArgument) => typeof commandArgument === "object" && commandArgument !== null)) {
+    throw new TypeError(`Second argument must be an array of strings: ${commandArguments}`);
+  }
+  const normalizedArguments = commandArguments.map(String);
+  const nullByteArgument = normalizedArguments.find((normalizedArgument) => normalizedArgument.includes("\0"));
+  if (nullByteArgument !== void 0) {
+    throw new TypeError(`Arguments cannot contain null bytes ("\\0"): ${nullByteArgument}`);
+  }
+  if (!isPlainObject(options)) {
+    throw new TypeError(`Last argument must be an options object: ${options}`);
+  }
+  return [filePath, normalizedArguments, options];
+};
+const { toString: objectToString$1 } = Object.prototype;
+const isArrayBuffer = (value) => objectToString$1.call(value) === "[object ArrayBuffer]";
+const isUint8Array = (value) => objectToString$1.call(value) === "[object Uint8Array]";
+const bufferToUint8Array = (buffer) => new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+const textEncoder$1 = new TextEncoder();
+const stringToUint8Array = (string) => textEncoder$1.encode(string);
+const textDecoder = new TextDecoder();
+const uint8ArrayToString = (uint8Array) => textDecoder.decode(uint8Array);
+const joinToString = (uint8ArraysOrStrings, encoding) => {
+  const strings = uint8ArraysToStrings(uint8ArraysOrStrings, encoding);
+  return strings.join("");
+};
+const uint8ArraysToStrings = (uint8ArraysOrStrings, encoding) => {
+  if (encoding === "utf8" && uint8ArraysOrStrings.every((uint8ArrayOrString) => typeof uint8ArrayOrString === "string")) {
+    return uint8ArraysOrStrings;
+  }
+  const decoder = new StringDecoder(encoding);
+  const strings = uint8ArraysOrStrings.map((uint8ArrayOrString) => typeof uint8ArrayOrString === "string" ? stringToUint8Array(uint8ArrayOrString) : uint8ArrayOrString).map((uint8Array) => decoder.write(uint8Array));
+  const finalString = decoder.end();
+  return finalString === "" ? strings : [...strings, finalString];
+};
+const joinToUint8Array = (uint8ArraysOrStrings) => {
+  if (uint8ArraysOrStrings.length === 1 && isUint8Array(uint8ArraysOrStrings[0])) {
+    return uint8ArraysOrStrings[0];
+  }
+  return concatUint8Arrays(stringsToUint8Arrays(uint8ArraysOrStrings));
+};
+const stringsToUint8Arrays = (uint8ArraysOrStrings) => uint8ArraysOrStrings.map((uint8ArrayOrString) => typeof uint8ArrayOrString === "string" ? stringToUint8Array(uint8ArrayOrString) : uint8ArrayOrString);
+const concatUint8Arrays = (uint8Arrays) => {
+  const result = new Uint8Array(getJoinLength(uint8Arrays));
+  let index = 0;
+  for (const uint8Array of uint8Arrays) {
+    result.set(uint8Array, index);
+    index += uint8Array.length;
+  }
+  return result;
+};
+const getJoinLength = (uint8Arrays) => {
+  let joinLength = 0;
+  for (const uint8Array of uint8Arrays) {
+    joinLength += uint8Array.length;
+  }
+  return joinLength;
+};
+const isTemplateString = (templates) => Array.isArray(templates) && Array.isArray(templates.raw);
+const parseTemplates = (templates, expressions) => {
+  let tokens = [];
+  for (const [index, template] of templates.entries()) {
+    tokens = parseTemplate({
+      templates,
+      expressions,
+      tokens,
+      index,
+      template
+    });
+  }
+  if (tokens.length === 0) {
+    throw new TypeError("Template script must not be empty");
+  }
+  const [file2, ...commandArguments] = tokens;
+  return [file2, commandArguments, {}];
+};
+const parseTemplate = ({ templates, expressions, tokens, index, template }) => {
+  if (template === void 0) {
+    throw new TypeError(`Invalid backslash sequence: ${templates.raw[index]}`);
+  }
+  const { nextTokens, leadingWhitespaces, trailingWhitespaces } = splitByWhitespaces(template, templates.raw[index]);
+  const newTokens = concatTokens(tokens, nextTokens, leadingWhitespaces);
+  if (index === expressions.length) {
+    return newTokens;
+  }
+  const expression = expressions[index];
+  const expressionTokens = Array.isArray(expression) ? expression.map((expression2) => parseExpression(expression2)) : [parseExpression(expression)];
+  return concatTokens(newTokens, expressionTokens, trailingWhitespaces);
+};
+const splitByWhitespaces = (template, rawTemplate) => {
+  if (rawTemplate.length === 0) {
+    return { nextTokens: [], leadingWhitespaces: false, trailingWhitespaces: false };
+  }
+  const nextTokens = [];
+  let templateStart = 0;
+  const leadingWhitespaces = DELIMITERS.has(rawTemplate[0]);
+  for (let templateIndex = 0, rawIndex = 0; templateIndex < template.length; templateIndex += 1, rawIndex += 1) {
+    const rawCharacter = rawTemplate[rawIndex];
+    if (DELIMITERS.has(rawCharacter)) {
+      if (templateStart !== templateIndex) {
+        nextTokens.push(template.slice(templateStart, templateIndex));
+      }
+      templateStart = templateIndex + 1;
+    } else if (rawCharacter === "\\") {
+      const nextRawCharacter = rawTemplate[rawIndex + 1];
+      if (nextRawCharacter === "\n") {
+        templateIndex -= 1;
+        rawIndex += 1;
+      } else if (nextRawCharacter === "u" && rawTemplate[rawIndex + 2] === "{") {
+        rawIndex = rawTemplate.indexOf("}", rawIndex + 3);
+      } else {
+        rawIndex += ESCAPE_LENGTH[nextRawCharacter] ?? 1;
+      }
+    }
+  }
+  const trailingWhitespaces = templateStart === template.length;
+  if (!trailingWhitespaces) {
+    nextTokens.push(template.slice(templateStart));
+  }
+  return { nextTokens, leadingWhitespaces, trailingWhitespaces };
+};
+const DELIMITERS = /* @__PURE__ */ new Set([" ", "	", "\r", "\n"]);
+const ESCAPE_LENGTH = { x: 3, u: 5 };
+const concatTokens = (tokens, nextTokens, isSeparated) => isSeparated || tokens.length === 0 || nextTokens.length === 0 ? [...tokens, ...nextTokens] : [
+  ...tokens.slice(0, -1),
+  `${tokens.at(-1)}${nextTokens[0]}`,
+  ...nextTokens.slice(1)
+];
+const parseExpression = (expression) => {
+  const typeOfExpression = typeof expression;
+  if (typeOfExpression === "string") {
+    return expression;
+  }
+  if (typeOfExpression === "number") {
+    return String(expression);
+  }
+  if (isPlainObject(expression) && ("stdout" in expression || "isMaxBuffer" in expression)) {
+    return getSubprocessResult(expression);
+  }
+  if (expression instanceof ChildProcess || Object.prototype.toString.call(expression) === "[object Promise]") {
+    throw new TypeError("Unexpected subprocess in template expression. Please use ${await subprocess} instead of ${subprocess}.");
+  }
+  throw new TypeError(`Unexpected "${typeOfExpression}" in template expression`);
+};
+const getSubprocessResult = ({ stdout }) => {
+  if (typeof stdout === "string") {
+    return stdout;
+  }
+  if (isUint8Array(stdout)) {
+    return uint8ArrayToString(stdout);
+  }
+  if (stdout === void 0) {
+    throw new TypeError(`Missing result.stdout in template expression. This is probably due to the previous subprocess' "stdout" option.`);
+  }
+  throw new TypeError(`Unexpected "${typeof stdout}" stdout in template expression`);
+};
+const isStandardStream = (stream) => STANDARD_STREAMS.includes(stream);
+const STANDARD_STREAMS = [process$2.stdin, process$2.stdout, process$2.stderr];
+const STANDARD_STREAMS_ALIASES = ["stdin", "stdout", "stderr"];
+const getStreamName = (fdNumber) => STANDARD_STREAMS_ALIASES[fdNumber] ?? `stdio[${fdNumber}]`;
+const normalizeFdSpecificOptions = (options) => {
+  const optionsCopy = { ...options };
+  for (const optionName of FD_SPECIFIC_OPTIONS) {
+    optionsCopy[optionName] = normalizeFdSpecificOption(options, optionName);
+  }
+  return optionsCopy;
+};
+const normalizeFdSpecificOption = (options, optionName) => {
+  const optionBaseArray = Array.from({ length: getStdioLength(options) + 1 });
+  const optionArray = normalizeFdSpecificValue(options[optionName], optionBaseArray, optionName);
+  return addDefaultValue$1(optionArray, optionName);
+};
+const getStdioLength = ({ stdio }) => Array.isArray(stdio) ? Math.max(stdio.length, STANDARD_STREAMS_ALIASES.length) : STANDARD_STREAMS_ALIASES.length;
+const normalizeFdSpecificValue = (optionValue, optionArray, optionName) => isPlainObject(optionValue) ? normalizeOptionObject(optionValue, optionArray, optionName) : optionArray.fill(optionValue);
+const normalizeOptionObject = (optionValue, optionArray, optionName) => {
+  for (const fdName of Object.keys(optionValue).sort(compareFdName)) {
+    for (const fdNumber of parseFdName(fdName, optionName, optionArray)) {
+      optionArray[fdNumber] = optionValue[fdName];
+    }
+  }
+  return optionArray;
+};
+const compareFdName = (fdNameA, fdNameB) => getFdNameOrder(fdNameA) < getFdNameOrder(fdNameB) ? 1 : -1;
+const getFdNameOrder = (fdName) => {
+  if (fdName === "stdout" || fdName === "stderr") {
+    return 0;
+  }
+  return fdName === "all" ? 2 : 1;
+};
+const parseFdName = (fdName, optionName, optionArray) => {
+  if (fdName === "ipc") {
+    return [optionArray.length - 1];
+  }
+  const fdNumber = parseFd(fdName);
+  if (fdNumber === void 0 || fdNumber === 0) {
+    throw new TypeError(`"${optionName}.${fdName}" is invalid.
+It must be "${optionName}.stdout", "${optionName}.stderr", "${optionName}.all", "${optionName}.ipc", or "${optionName}.fd3", "${optionName}.fd4" (and so on).`);
+  }
+  if (fdNumber >= optionArray.length) {
+    throw new TypeError(`"${optionName}.${fdName}" is invalid: that file descriptor does not exist.
 Please set the "stdio" option to ensure that file descriptor exists.`);
-  return r === "all" ? [1, 2] : [r];
-}, Wi = (e) => {
-  if (e === "all")
-    return e;
-  if (se.includes(e))
-    return se.indexOf(e);
-  const t = vf.exec(e);
-  if (t !== null)
-    return Number(t[1]);
-}, vf = /^fd(\d+)$/, Of = (e, t) => e.map((n) => n === void 0 ? If[t] : n), Df = wc("execa").enabled ? "full" : "none", If = {
-  lines: !1,
-  buffer: !0,
+  }
+  return fdNumber === "all" ? [1, 2] : [fdNumber];
+};
+const parseFd = (fdName) => {
+  if (fdName === "all") {
+    return fdName;
+  }
+  if (STANDARD_STREAMS_ALIASES.includes(fdName)) {
+    return STANDARD_STREAMS_ALIASES.indexOf(fdName);
+  }
+  const regexpResult = FD_REGEXP.exec(fdName);
+  if (regexpResult !== null) {
+    return Number(regexpResult[1]);
+  }
+};
+const FD_REGEXP = /^fd(\d+)$/;
+const addDefaultValue$1 = (optionArray, optionName) => optionArray.map((optionValue) => optionValue === void 0 ? DEFAULT_OPTIONS[optionName] : optionValue);
+const verboseDefault = debuglog("execa").enabled ? "full" : "none";
+const DEFAULT_OPTIONS = {
+  lines: false,
+  buffer: true,
   maxBuffer: 1e3 * 1e3 * 100,
-  verbose: Df,
-  stripFinalNewline: !0
-}, zi = ["lines", "buffer", "maxBuffer", "verbose", "stripFinalNewline"], ct = (e, t) => t === "ipc" ? e.at(-1) : e[t], Xn = ({ verbose: e }, t) => Zn(e, t) !== "none", Qn = ({ verbose: e }, t) => !["none", "short"].includes(Zn(e, t)), xf = ({ verbose: e }, t) => {
-  const n = Zn(e, t);
-  return er(n) ? n : void 0;
-}, Zn = (e, t) => t === void 0 ? Rf(e) : ct(e, t), Rf = (e) => e.find((t) => er(t)) ?? yn.findLast((t) => e.includes(t)), er = (e) => typeof e == "function", yn = ["none", "short", "full"], Pf = (e, t) => {
-  const n = [e, ...t], r = n.join(" "), o = n.map((i) => kf(Vi(i))).join(" ");
-  return { command: r, escapedCommand: o };
-}, tr = (e) => gc(e).split(`
-`).map((t) => Vi(t)).join(`
-`), Vi = (e) => e.replaceAll(Ff, (t) => Af(t)), Af = (e) => {
-  const t = Lf[e];
-  if (t !== void 0)
-    return t;
-  const n = e.codePointAt(0), r = n.toString(16);
-  return n <= Mf ? `\\u${r.padStart(4, "0")}` : `\\U${r}`;
-}, Cf = () => {
+  verbose: verboseDefault,
+  stripFinalNewline: true
+};
+const FD_SPECIFIC_OPTIONS = ["lines", "buffer", "maxBuffer", "verbose", "stripFinalNewline"];
+const getFdSpecificValue = (optionArray, fdNumber) => fdNumber === "ipc" ? optionArray.at(-1) : optionArray[fdNumber];
+const isVerbose = ({ verbose }, fdNumber) => getFdVerbose(verbose, fdNumber) !== "none";
+const isFullVerbose = ({ verbose }, fdNumber) => !["none", "short"].includes(getFdVerbose(verbose, fdNumber));
+const getVerboseFunction = ({ verbose }, fdNumber) => {
+  const fdVerbose = getFdVerbose(verbose, fdNumber);
+  return isVerboseFunction(fdVerbose) ? fdVerbose : void 0;
+};
+const getFdVerbose = (verbose, fdNumber) => fdNumber === void 0 ? getFdGenericVerbose(verbose) : getFdSpecificValue(verbose, fdNumber);
+const getFdGenericVerbose = (verbose) => verbose.find((fdVerbose) => isVerboseFunction(fdVerbose)) ?? VERBOSE_VALUES.findLast((fdVerbose) => verbose.includes(fdVerbose));
+const isVerboseFunction = (fdVerbose) => typeof fdVerbose === "function";
+const VERBOSE_VALUES = ["none", "short", "full"];
+const joinCommand = (filePath, rawArguments) => {
+  const fileAndArguments = [filePath, ...rawArguments];
+  const command = fileAndArguments.join(" ");
+  const escapedCommand = fileAndArguments.map((fileAndArgument) => quoteString(escapeControlCharacters(fileAndArgument))).join(" ");
+  return { command, escapedCommand };
+};
+const escapeLines = (lines) => stripVTControlCharacters(lines).split("\n").map((line) => escapeControlCharacters(line)).join("\n");
+const escapeControlCharacters = (line) => line.replaceAll(SPECIAL_CHAR_REGEXP, (character) => escapeControlCharacter(character));
+const escapeControlCharacter = (character) => {
+  const commonEscape = COMMON_ESCAPES[character];
+  if (commonEscape !== void 0) {
+    return commonEscape;
+  }
+  const codepoint = character.codePointAt(0);
+  const codepointHex = codepoint.toString(16);
+  return codepoint <= ASTRAL_START ? `\\u${codepointHex.padStart(4, "0")}` : `\\U${codepointHex}`;
+};
+const getSpecialCharRegExp = () => {
   try {
     return new RegExp("\\p{Separator}|\\p{Other}", "gu");
   } catch {
     return /[\s\u0000-\u001F\u007F-\u009F\u00AD]/g;
   }
-}, Ff = Cf(), Lf = {
+};
+const SPECIAL_CHAR_REGEXP = getSpecialCharRegExp();
+const COMMON_ESCAPES = {
   " ": " ",
   "\b": "\\b",
   "\f": "\\f",
   "\n": "\\n",
   "\r": "\\r",
   "	": "\\t"
-}, Mf = 65535, kf = (e) => _f.test(e) ? e : bc === "win32" ? `"${e.replaceAll('"', '""')}"` : `'${e.replaceAll("'", "'\\''")}'`, _f = /^[\w./-]+$/;
-function jf() {
-  const { env: e } = G, { TERM: t, TERM_PROGRAM: n } = e;
-  return G.platform !== "win32" ? t !== "linux" : !!e.WT_SESSION || !!e.TERMINUS_SUBLIME || e.ConEmuTask === "{cmd::Cmder}" || n === "Terminus-Sublime" || n === "vscode" || t === "xterm-256color" || t === "alacritty" || t === "rxvt-unicode" || t === "rxvt-unicode-256color" || e.TERMINAL_EMULATOR === "JetBrains-JediTerm";
+};
+const ASTRAL_START = 65535;
+const quoteString = (escapedArgument) => {
+  if (NO_ESCAPE_REGEXP.test(escapedArgument)) {
+    return escapedArgument;
+  }
+  return platform$1 === "win32" ? `"${escapedArgument.replaceAll('"', '""')}"` : `'${escapedArgument.replaceAll("'", "'\\''")}'`;
+};
+const NO_ESCAPE_REGEXP = /^[\w./-]+$/;
+function isUnicodeSupported() {
+  const { env } = process$2;
+  const { TERM, TERM_PROGRAM } = env;
+  if (process$2.platform !== "win32") {
+    return TERM !== "linux";
+  }
+  return Boolean(env.WT_SESSION) || Boolean(env.TERMINUS_SUBLIME) || env.ConEmuTask === "{cmd::Cmder}" || TERM_PROGRAM === "Terminus-Sublime" || TERM_PROGRAM === "vscode" || TERM === "xterm-256color" || TERM === "alacritty" || TERM === "rxvt-unicode" || TERM === "rxvt-unicode-256color" || env.TERMINAL_EMULATOR === "JetBrains-JediTerm";
 }
-const Hi = {
+const common = {
   circleQuestionMark: "(?)",
   questionMarkPrefix: "(?)",
   square: "█",
@@ -1770,7 +2463,8 @@ const Hi = {
   lineCross: "╳",
   lineBackslash: "╲",
   lineSlash: "╱"
-}, Bf = {
+};
+const specialMainSymbols = {
   tick: "✔",
   info: "ℹ",
   warning: "⚠",
@@ -1805,7 +2499,8 @@ const Hi = {
   oneSeventh: "⅐",
   oneNinth: "⅑",
   oneTenth: "⅒"
-}, Uf = {
+};
+const specialFallbackSymbols = {
   tick: "√",
   info: "i",
   warning: "‼",
@@ -1840,470 +2535,715 @@ const Hi = {
   oneSeventh: "1/7",
   oneNinth: "1/9",
   oneTenth: "1/10"
-}, Nf = { ...Hi, ...Bf }, Gf = { ...Hi, ...Uf }, Wf = jf(), on = Wf ? Nf : Gf;
-var Bo, Uo, Dt, No;
-const zf = ((No = (Dt = (Uo = (Bo = Yo) == null ? void 0 : Bo.WriteStream) == null ? void 0 : Uo.prototype) == null ? void 0 : Dt.hasColors) == null ? void 0 : No.call(Dt)) ?? !1, qt = (e, t) => {
-  if (!zf)
-    return (o) => o;
-  const n = `\x1B[${e}m`, r = `\x1B[${t}m`;
-  return (o) => {
-    const i = o + "";
-    let s = i.indexOf(r);
-    if (s === -1)
-      return n + i + r;
-    let a = n, c = 0;
-    const l = (t === 22 ? r : "") + n;
-    for (; s !== -1; )
-      a += i.slice(c, s) + l, c = s + r.length, s = i.indexOf(r, c);
-    return a += i.slice(c) + r, a;
-  };
-}, Vf = qt(1, 22), wn = qt(90, 39), Hf = qt(91, 39), qf = qt(93, 39), Yf = ({
-  type: e,
-  message: t,
-  timestamp: n,
-  piped: r,
-  commandId: o,
-  result: { failed: i = !1 } = {},
-  options: { reject: s = !0 }
-}) => {
-  const a = Jf(n), c = Kf[e]({ failed: i, reject: s, piped: r }), u = Xf[e]({ reject: s });
-  return `${wn(`[${a}]`)} ${wn(`[${o}]`)} ${u(c)} ${u(t)}`;
-}, Jf = (e) => `${Tt(e.getHours(), 2)}:${Tt(e.getMinutes(), 2)}:${Tt(e.getSeconds(), 2)}.${Tt(e.getMilliseconds(), 3)}`, Tt = (e, t) => String(e).padStart(t, "0"), to = ({ failed: e, reject: t }) => e ? t ? on.cross : on.warning : on.tick, Kf = {
-  command: ({ piped: e }) => e ? "|" : "$",
-  output: () => " ",
-  ipc: () => "*",
-  error: to,
-  duration: to
-}, no = (e) => e, Xf = {
-  command: () => Vf,
-  output: () => no,
-  ipc: () => no,
-  error: ({ reject: e }) => e ? Hf : qf,
-  duration: () => wn
-}, Qf = (e, t, n) => {
-  const r = xf(t, n);
-  return e.map(({ verboseLine: o, verboseObject: i }) => Zf(o, i, r)).filter((o) => o !== void 0).map((o) => ed(o)).join("");
-}, Zf = (e, t, n) => {
-  if (n === void 0)
-    return e;
-  const r = n(e, t);
-  if (typeof r == "string")
-    return r;
-}, ed = (e) => e.endsWith(`
-`) ? e : `${e}
-`, mt = ({ type: e, verboseMessage: t, fdNumber: n, verboseInfo: r, result: o }) => {
-  const i = td({ type: e, result: o, verboseInfo: r }), s = nd(t, i), a = Qf(s, r, n);
-  a !== "" && console.warn(a.slice(0, -1));
-}, td = ({
-  type: e,
-  result: t,
-  verboseInfo: { escapedCommand: n, commandId: r, rawOptions: { piped: o = !1, ...i } }
-}) => ({
-  type: e,
-  escapedCommand: n,
-  commandId: `${r}`,
-  timestamp: /* @__PURE__ */ new Date(),
-  piped: o,
-  result: t,
-  options: i
-}), nd = (e, t) => e.split(`
-`).map((n) => rd({ ...t, message: n })), rd = (e) => ({ verboseLine: Yf(e), verboseObject: e }), qi = (e) => {
-  const t = typeof e == "string" ? e : Vo(e);
-  return tr(t).replaceAll("	", " ".repeat(od));
-}, od = 2, id = (e, t) => {
-  Xn(t) && mt({
-    type: "command",
-    verboseMessage: e,
-    verboseInfo: t
-  });
-}, sd = (e, t, n) => {
-  ld(e);
-  const r = ad(e);
-  return {
-    verbose: e,
-    escapedCommand: t,
-    commandId: r,
-    rawOptions: n
-  };
-}, ad = (e) => Xn({ verbose: e }) ? cd++ : void 0;
-let cd = 0n;
-const ld = (e) => {
-  for (const t of e) {
-    if (t === !1)
-      throw new TypeError(`The "verbose: false" option was renamed to "verbose: 'none'".`);
-    if (t === !0)
-      throw new TypeError(`The "verbose: true" option was renamed to "verbose: 'short'".`);
-    if (!yn.includes(t) && !er(t)) {
-      const n = yn.map((r) => `'${r}'`).join(", ");
-      throw new TypeError(`The "verbose" option must not be ${t}. Allowed values are: ${n} or a function.`);
-    }
+};
+const mainSymbols = { ...common, ...specialMainSymbols };
+const fallbackSymbols = { ...common, ...specialFallbackSymbols };
+const shouldUseMain = isUnicodeSupported();
+const figures = shouldUseMain ? mainSymbols : fallbackSymbols;
+const hasColors = ((_d = (_c = (_b = (_a = tty) == null ? void 0 : _a.WriteStream) == null ? void 0 : _b.prototype) == null ? void 0 : _c.hasColors) == null ? void 0 : _d.call(_c)) ?? false;
+const format = (open, close) => {
+  if (!hasColors) {
+    return (input) => input;
   }
-}, Yi = () => qo.bigint(), Ji = (e) => Number(qo.bigint() - e) / 1e6, Ki = (e, t, n) => {
-  const r = Yi(), { command: o, escapedCommand: i } = Pf(e, t), s = Gi(n, "verbose"), a = sd(s, i, { ...n });
-  return id(i, a), {
-    command: o,
-    escapedCommand: i,
-    startTime: r,
-    verboseInfo: a
+  const openCode = `\x1B[${open}m`;
+  const closeCode = `\x1B[${close}m`;
+  return (input) => {
+    const string = input + "";
+    let index = string.indexOf(closeCode);
+    if (index === -1) {
+      return openCode + string + closeCode;
+    }
+    let result = openCode;
+    let lastIndex = 0;
+    const reopenOnNestedClose = close === 22;
+    const replaceCode = (reopenOnNestedClose ? closeCode : "") + openCode;
+    while (index !== -1) {
+      result += string.slice(lastIndex, index) + replaceCode;
+      lastIndex = index + closeCode.length;
+      index = string.indexOf(closeCode, lastIndex);
+    }
+    result += string.slice(lastIndex) + closeCode;
+    return result;
   };
 };
-var Ke = { exports: {} }, sn, ro;
-function ud() {
-  if (ro) return sn;
-  ro = 1, sn = r, r.sync = o;
-  var e = dt;
-  function t(i, s) {
-    var a = s.pathExt !== void 0 ? s.pathExt : process.env.PATHEXT;
-    if (!a || (a = a.split(";"), a.indexOf("") !== -1))
-      return !0;
-    for (var c = 0; c < a.length; c++) {
-      var u = a[c].toLowerCase();
-      if (u && i.substr(-u.length).toLowerCase() === u)
-        return !0;
+const bold = format(1, 22);
+const gray = format(90, 39);
+const redBright = format(91, 39);
+const yellowBright = format(93, 39);
+const defaultVerboseFunction = ({
+  type,
+  message,
+  timestamp,
+  piped,
+  commandId,
+  result: { failed = false } = {},
+  options: { reject = true }
+}) => {
+  const timestampString = serializeTimestamp(timestamp);
+  const icon = ICONS[type]({ failed, reject, piped });
+  const color = COLORS[type]({ reject });
+  return `${gray(`[${timestampString}]`)} ${gray(`[${commandId}]`)} ${color(icon)} ${color(message)}`;
+};
+const serializeTimestamp = (timestamp) => `${padField(timestamp.getHours(), 2)}:${padField(timestamp.getMinutes(), 2)}:${padField(timestamp.getSeconds(), 2)}.${padField(timestamp.getMilliseconds(), 3)}`;
+const padField = (field, padding) => String(field).padStart(padding, "0");
+const getFinalIcon = ({ failed, reject }) => {
+  if (!failed) {
+    return figures.tick;
+  }
+  return reject ? figures.cross : figures.warning;
+};
+const ICONS = {
+  command: ({ piped }) => piped ? "|" : "$",
+  output: () => " ",
+  ipc: () => "*",
+  error: getFinalIcon,
+  duration: getFinalIcon
+};
+const identity$1 = (string) => string;
+const COLORS = {
+  command: () => bold,
+  output: () => identity$1,
+  ipc: () => identity$1,
+  error: ({ reject }) => reject ? redBright : yellowBright,
+  duration: () => gray
+};
+const applyVerboseOnLines = (printedLines, verboseInfo, fdNumber) => {
+  const verboseFunction = getVerboseFunction(verboseInfo, fdNumber);
+  return printedLines.map(({ verboseLine, verboseObject }) => applyVerboseFunction(verboseLine, verboseObject, verboseFunction)).filter((printedLine) => printedLine !== void 0).map((printedLine) => appendNewline(printedLine)).join("");
+};
+const applyVerboseFunction = (verboseLine, verboseObject, verboseFunction) => {
+  if (verboseFunction === void 0) {
+    return verboseLine;
+  }
+  const printedLine = verboseFunction(verboseLine, verboseObject);
+  if (typeof printedLine === "string") {
+    return printedLine;
+  }
+};
+const appendNewline = (printedLine) => printedLine.endsWith("\n") ? printedLine : `${printedLine}
+`;
+const verboseLog = ({ type, verboseMessage, fdNumber, verboseInfo, result }) => {
+  const verboseObject = getVerboseObject({ type, result, verboseInfo });
+  const printedLines = getPrintedLines(verboseMessage, verboseObject);
+  const finalLines = applyVerboseOnLines(printedLines, verboseInfo, fdNumber);
+  if (finalLines !== "") {
+    console.warn(finalLines.slice(0, -1));
+  }
+};
+const getVerboseObject = ({
+  type,
+  result,
+  verboseInfo: { escapedCommand, commandId, rawOptions: { piped = false, ...options } }
+}) => ({
+  type,
+  escapedCommand,
+  commandId: `${commandId}`,
+  timestamp: /* @__PURE__ */ new Date(),
+  piped,
+  result,
+  options
+});
+const getPrintedLines = (verboseMessage, verboseObject) => verboseMessage.split("\n").map((message) => getPrintedLine({ ...verboseObject, message }));
+const getPrintedLine = (verboseObject) => {
+  const verboseLine = defaultVerboseFunction(verboseObject);
+  return { verboseLine, verboseObject };
+};
+const serializeVerboseMessage = (message) => {
+  const messageString = typeof message === "string" ? message : inspect(message);
+  const escapedMessage = escapeLines(messageString);
+  return escapedMessage.replaceAll("	", " ".repeat(TAB_SIZE));
+};
+const TAB_SIZE = 2;
+const logCommand = (escapedCommand, verboseInfo) => {
+  if (!isVerbose(verboseInfo)) {
+    return;
+  }
+  verboseLog({
+    type: "command",
+    verboseMessage: escapedCommand,
+    verboseInfo
+  });
+};
+const getVerboseInfo = (verbose, escapedCommand, rawOptions) => {
+  validateVerbose(verbose);
+  const commandId = getCommandId(verbose);
+  return {
+    verbose,
+    escapedCommand,
+    commandId,
+    rawOptions
+  };
+};
+const getCommandId = (verbose) => isVerbose({ verbose }) ? COMMAND_ID++ : void 0;
+let COMMAND_ID = 0n;
+const validateVerbose = (verbose) => {
+  for (const fdVerbose of verbose) {
+    if (fdVerbose === false) {
+      throw new TypeError(`The "verbose: false" option was renamed to "verbose: 'none'".`);
     }
-    return !1;
+    if (fdVerbose === true) {
+      throw new TypeError(`The "verbose: true" option was renamed to "verbose: 'short'".`);
+    }
+    if (!VERBOSE_VALUES.includes(fdVerbose) && !isVerboseFunction(fdVerbose)) {
+      const allowedValues = VERBOSE_VALUES.map((allowedValue) => `'${allowedValue}'`).join(", ");
+      throw new TypeError(`The "verbose" option must not be ${fdVerbose}. Allowed values are: ${allowedValues} or a function.`);
+    }
   }
-  function n(i, s, a) {
-    return !i.isSymbolicLink() && !i.isFile() ? !1 : t(s, a);
+};
+const getStartTime = () => hrtime.bigint();
+const getDurationMs = (startTime) => Number(hrtime.bigint() - startTime) / 1e6;
+const handleCommand = (filePath, rawArguments, rawOptions) => {
+  const startTime = getStartTime();
+  const { command, escapedCommand } = joinCommand(filePath, rawArguments);
+  const verbose = normalizeFdSpecificOption(rawOptions, "verbose");
+  const verboseInfo = getVerboseInfo(verbose, escapedCommand, { ...rawOptions });
+  logCommand(escapedCommand, verboseInfo);
+  return {
+    command,
+    escapedCommand,
+    startTime,
+    verboseInfo
+  };
+};
+var crossSpawn$1 = { exports: {} };
+var windows;
+var hasRequiredWindows;
+function requireWindows() {
+  if (hasRequiredWindows) return windows;
+  hasRequiredWindows = 1;
+  windows = isexe2;
+  isexe2.sync = sync2;
+  var fs2 = require$$0$2;
+  function checkPathExt(path2, options) {
+    var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
+    if (!pathext) {
+      return true;
+    }
+    pathext = pathext.split(";");
+    if (pathext.indexOf("") !== -1) {
+      return true;
+    }
+    for (var i2 = 0; i2 < pathext.length; i2++) {
+      var p = pathext[i2].toLowerCase();
+      if (p && path2.substr(-p.length).toLowerCase() === p) {
+        return true;
+      }
+    }
+    return false;
   }
-  function r(i, s, a) {
-    e.stat(i, function(c, u) {
-      a(c, c ? !1 : n(u, i, s));
+  function checkStat(stat2, path2, options) {
+    if (!stat2.isSymbolicLink() && !stat2.isFile()) {
+      return false;
+    }
+    return checkPathExt(path2, options);
+  }
+  function isexe2(path2, options, cb) {
+    fs2.stat(path2, function(er, stat2) {
+      cb(er, er ? false : checkStat(stat2, path2, options));
     });
   }
-  function o(i, s) {
-    return n(e.statSync(i), i, s);
+  function sync2(path2, options) {
+    return checkStat(fs2.statSync(path2), path2, options);
   }
-  return sn;
+  return windows;
 }
-var an, oo;
-function fd() {
-  if (oo) return an;
-  oo = 1, an = t, t.sync = n;
-  var e = dt;
-  function t(i, s, a) {
-    e.stat(i, function(c, u) {
-      a(c, c ? !1 : r(u, s));
+var mode;
+var hasRequiredMode;
+function requireMode() {
+  if (hasRequiredMode) return mode;
+  hasRequiredMode = 1;
+  mode = isexe2;
+  isexe2.sync = sync2;
+  var fs2 = require$$0$2;
+  function isexe2(path2, options, cb) {
+    fs2.stat(path2, function(er, stat2) {
+      cb(er, er ? false : checkStat(stat2, options));
     });
   }
-  function n(i, s) {
-    return r(e.statSync(i), s);
+  function sync2(path2, options) {
+    return checkStat(fs2.statSync(path2), options);
   }
-  function r(i, s) {
-    return i.isFile() && o(i, s);
+  function checkStat(stat2, options) {
+    return stat2.isFile() && checkMode(stat2, options);
   }
-  function o(i, s) {
-    var a = i.mode, c = i.uid, u = i.gid, l = s.uid !== void 0 ? s.uid : process.getuid && process.getuid(), f = s.gid !== void 0 ? s.gid : process.getgid && process.getgid(), d = parseInt("100", 8), h = parseInt("010", 8), m = parseInt("001", 8), y = d | h, g = a & m || a & h && u === f || a & d && c === l || a & y && l === 0;
-    return g;
+  function checkMode(stat2, options) {
+    var mod = stat2.mode;
+    var uid = stat2.uid;
+    var gid = stat2.gid;
+    var myUid = options.uid !== void 0 ? options.uid : process.getuid && process.getuid();
+    var myGid = options.gid !== void 0 ? options.gid : process.getgid && process.getgid();
+    var u2 = parseInt("100", 8);
+    var g = parseInt("010", 8);
+    var o2 = parseInt("001", 8);
+    var ug = u2 | g;
+    var ret = mod & o2 || mod & g && gid === myGid || mod & u2 && uid === myUid || mod & ug && myUid === 0;
+    return ret;
   }
-  return an;
+  return mode;
 }
-var Lt;
-process.platform === "win32" || Ct.TESTING_WINDOWS ? Lt = ud() : Lt = fd();
-var dd = nr;
-nr.sync = hd;
-function nr(e, t, n) {
-  if (typeof t == "function" && (n = t, t = {}), !n) {
-    if (typeof Promise != "function")
+var core;
+if (process.platform === "win32" || commonjsGlobal.TESTING_WINDOWS) {
+  core = requireWindows();
+} else {
+  core = requireMode();
+}
+var isexe_1 = isexe$1;
+isexe$1.sync = sync;
+function isexe$1(path2, options, cb) {
+  if (typeof options === "function") {
+    cb = options;
+    options = {};
+  }
+  if (!cb) {
+    if (typeof Promise !== "function") {
       throw new TypeError("callback not provided");
-    return new Promise(function(r, o) {
-      nr(e, t || {}, function(i, s) {
-        i ? o(i) : r(s);
+    }
+    return new Promise(function(resolve, reject) {
+      isexe$1(path2, options || {}, function(er, is) {
+        if (er) {
+          reject(er);
+        } else {
+          resolve(is);
+        }
       });
     });
   }
-  Lt(e, t || {}, function(r, o) {
-    r && (r.code === "EACCES" || t && t.ignoreErrors) && (r = null, o = !1), n(r, o);
+  core(path2, options || {}, function(er, is) {
+    if (er) {
+      if (er.code === "EACCES" || options && options.ignoreErrors) {
+        er = null;
+        is = false;
+      }
+    }
+    cb(er, is);
   });
 }
-function hd(e, t) {
+function sync(path2, options) {
   try {
-    return Lt.sync(e, t || {});
-  } catch (n) {
-    if (t && t.ignoreErrors || n.code === "EACCES")
-      return !1;
-    throw n;
+    return core.sync(path2, options || {});
+  } catch (er) {
+    if (options && options.ignoreErrors || er.code === "EACCES") {
+      return false;
+    } else {
+      throw er;
+    }
   }
 }
-const Le = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys", Xi = T, md = Le ? ";" : ":", Qi = dd, Zi = (e) => Object.assign(new Error(`not found: ${e}`), { code: "ENOENT" }), es = (e, t) => {
-  const n = t.colon || md, r = e.match(/\//) || Le && e.match(/\\/) ? [""] : [
+const isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
+const path$2 = path$f;
+const COLON = isWindows ? ";" : ":";
+const isexe = isexe_1;
+const getNotFoundError = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" });
+const getPathInfo = (cmd, opt) => {
+  const colon = opt.colon || COLON;
+  const pathEnv = cmd.match(/\//) || isWindows && cmd.match(/\\/) ? [""] : [
     // windows always checks the cwd first
-    ...Le ? [process.cwd()] : [],
-    ...(t.path || process.env.PATH || /* istanbul ignore next: very unusual */
-    "").split(n)
-  ], o = Le ? t.pathExt || process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM" : "", i = Le ? o.split(n) : [""];
-  return Le && e.indexOf(".") !== -1 && i[0] !== "" && i.unshift(""), {
-    pathEnv: r,
-    pathExt: i,
-    pathExtExe: o
+    ...isWindows ? [process.cwd()] : [],
+    ...(opt.path || process.env.PATH || /* istanbul ignore next: very unusual */
+    "").split(colon)
+  ];
+  const pathExtExe = isWindows ? opt.pathExt || process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM" : "";
+  const pathExt = isWindows ? pathExtExe.split(colon) : [""];
+  if (isWindows) {
+    if (cmd.indexOf(".") !== -1 && pathExt[0] !== "")
+      pathExt.unshift("");
+  }
+  return {
+    pathEnv,
+    pathExt,
+    pathExtExe
   };
-}, ts = (e, t, n) => {
-  typeof t == "function" && (n = t, t = {}), t || (t = {});
-  const { pathEnv: r, pathExt: o, pathExtExe: i } = es(e, t), s = [], a = (u) => new Promise((l, f) => {
-    if (u === r.length)
-      return t.all && s.length ? l(s) : f(Zi(e));
-    const d = r[u], h = /^".*"$/.test(d) ? d.slice(1, -1) : d, m = Xi.join(h, e), y = !h && /^\.[\\\/]/.test(e) ? e.slice(0, 2) + m : m;
-    l(c(y, u, 0));
-  }), c = (u, l, f) => new Promise((d, h) => {
-    if (f === o.length)
-      return d(a(l + 1));
-    const m = o[f];
-    Qi(u + m, { pathExt: i }, (y, g) => {
-      if (!y && g)
-        if (t.all)
-          s.push(u + m);
+};
+const which$1 = (cmd, opt, cb) => {
+  if (typeof opt === "function") {
+    cb = opt;
+    opt = {};
+  }
+  if (!opt)
+    opt = {};
+  const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+  const found = [];
+  const step = (i2) => new Promise((resolve, reject) => {
+    if (i2 === pathEnv.length)
+      return opt.all && found.length ? resolve(found) : reject(getNotFoundError(cmd));
+    const ppRaw = pathEnv[i2];
+    const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
+    const pCmd = path$2.join(pathPart, cmd);
+    const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
+    resolve(subStep(p, i2, 0));
+  });
+  const subStep = (p, i2, ii) => new Promise((resolve, reject) => {
+    if (ii === pathExt.length)
+      return resolve(step(i2 + 1));
+    const ext = pathExt[ii];
+    isexe(p + ext, { pathExt: pathExtExe }, (er, is) => {
+      if (!er && is) {
+        if (opt.all)
+          found.push(p + ext);
         else
-          return d(u + m);
-      return d(c(u, l, f + 1));
+          return resolve(p + ext);
+      }
+      return resolve(subStep(p, i2, ii + 1));
     });
   });
-  return n ? a(0).then((u) => n(null, u), n) : a(0);
-}, pd = (e, t) => {
-  t = t || {};
-  const { pathEnv: n, pathExt: r, pathExtExe: o } = es(e, t), i = [];
-  for (let s = 0; s < n.length; s++) {
-    const a = n[s], c = /^".*"$/.test(a) ? a.slice(1, -1) : a, u = Xi.join(c, e), l = !c && /^\.[\\\/]/.test(e) ? e.slice(0, 2) + u : u;
-    for (let f = 0; f < r.length; f++) {
-      const d = l + r[f];
+  return cb ? step(0).then((res) => cb(null, res), cb) : step(0);
+};
+const whichSync = (cmd, opt) => {
+  opt = opt || {};
+  const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+  const found = [];
+  for (let i2 = 0; i2 < pathEnv.length; i2++) {
+    const ppRaw = pathEnv[i2];
+    const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
+    const pCmd = path$2.join(pathPart, cmd);
+    const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
+    for (let j = 0; j < pathExt.length; j++) {
+      const cur = p + pathExt[j];
       try {
-        if (Qi.sync(d, { pathExt: o }))
-          if (t.all)
-            i.push(d);
+        const is = isexe.sync(cur, { pathExt: pathExtExe });
+        if (is) {
+          if (opt.all)
+            found.push(cur);
           else
-            return d;
-      } catch {
+            return cur;
+        }
+      } catch (ex) {
       }
     }
   }
-  if (t.all && i.length)
-    return i;
-  if (t.nothrow)
+  if (opt.all && found.length)
+    return found;
+  if (opt.nothrow)
     return null;
-  throw Zi(e);
+  throw getNotFoundError(cmd);
 };
-var yd = ts;
-ts.sync = pd;
-var rr = { exports: {} };
-const ns = (e = {}) => {
-  const t = e.env || process.env;
-  return (e.platform || process.platform) !== "win32" ? "PATH" : Object.keys(t).reverse().find((r) => r.toUpperCase() === "PATH") || "Path";
+var which_1 = which$1;
+which$1.sync = whichSync;
+var pathKey$2 = { exports: {} };
+const pathKey$1 = (options = {}) => {
+  const environment = options.env || process.env;
+  const platform2 = options.platform || process.platform;
+  if (platform2 !== "win32") {
+    return "PATH";
+  }
+  return Object.keys(environment).reverse().find((key) => key.toUpperCase() === "PATH") || "Path";
 };
-rr.exports = ns;
-rr.exports.default = ns;
-var wd = rr.exports;
-const io = T, gd = yd, Sd = wd;
-function so(e, t) {
-  const n = e.options.env || process.env, r = process.cwd(), o = e.options.cwd != null, i = o && process.chdir !== void 0 && !process.chdir.disabled;
-  if (i)
+pathKey$2.exports = pathKey$1;
+pathKey$2.exports.default = pathKey$1;
+var pathKeyExports = pathKey$2.exports;
+const path$1 = path$f;
+const which = which_1;
+const getPathKey = pathKeyExports;
+function resolveCommandAttempt(parsed, withoutPathExt) {
+  const env = parsed.options.env || process.env;
+  const cwd2 = process.cwd();
+  const hasCustomCwd = parsed.options.cwd != null;
+  const shouldSwitchCwd = hasCustomCwd && process.chdir !== void 0 && !process.chdir.disabled;
+  if (shouldSwitchCwd) {
     try {
-      process.chdir(e.options.cwd);
-    } catch {
+      process.chdir(parsed.options.cwd);
+    } catch (err) {
     }
-  let s;
+  }
+  let resolved;
   try {
-    s = gd.sync(e.command, {
-      path: n[Sd({ env: n })],
-      pathExt: t ? io.delimiter : void 0
+    resolved = which.sync(parsed.command, {
+      path: env[getPathKey({ env })],
+      pathExt: withoutPathExt ? path$1.delimiter : void 0
     });
-  } catch {
+  } catch (e) {
   } finally {
-    i && process.chdir(r);
+    if (shouldSwitchCwd) {
+      process.chdir(cwd2);
+    }
   }
-  return s && (s = io.resolve(o ? e.options.cwd : "", s)), s;
+  if (resolved) {
+    resolved = path$1.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved);
+  }
+  return resolved;
 }
-function bd(e) {
-  return so(e) || so(e, !0);
+function resolveCommand$1(parsed) {
+  return resolveCommandAttempt(parsed) || resolveCommandAttempt(parsed, true);
 }
-var Ed = bd, or = {};
-const gn = /([()\][%!^"`<>&|;, *?])/g;
-function Td(e) {
-  return e = e.replace(gn, "^$1"), e;
+var resolveCommand_1 = resolveCommand$1;
+var _escape = {};
+const metaCharsRegExp = /([()\][%!^"`<>&|;, *?])/g;
+function escapeCommand(arg) {
+  arg = arg.replace(metaCharsRegExp, "^$1");
+  return arg;
 }
-function $d(e, t) {
-  return e = `${e}`, e = e.replace(/(?=(\\+?)?)\1"/g, '$1$1\\"'), e = e.replace(/(?=(\\+?)?)\1$/, "$1$1"), e = `"${e}"`, e = e.replace(gn, "^$1"), t && (e = e.replace(gn, "^$1")), e;
+function escapeArgument(arg, doubleEscapeMetaChars) {
+  arg = `${arg}`;
+  arg = arg.replace(/(?=(\\+?)?)\1"/g, '$1$1\\"');
+  arg = arg.replace(/(?=(\\+?)?)\1$/, "$1$1");
+  arg = `"${arg}"`;
+  arg = arg.replace(metaCharsRegExp, "^$1");
+  if (doubleEscapeMetaChars) {
+    arg = arg.replace(metaCharsRegExp, "^$1");
+  }
+  return arg;
 }
-or.command = Td;
-or.argument = $d;
-var vd = /^#!(.*)/;
-const Od = vd;
-var Dd = (e = "") => {
-  const t = e.match(Od);
-  if (!t)
+_escape.command = escapeCommand;
+_escape.argument = escapeArgument;
+var shebangRegex$1 = /^#!(.*)/;
+const shebangRegex = shebangRegex$1;
+var shebangCommand$1 = (string = "") => {
+  const match = string.match(shebangRegex);
+  if (!match) {
     return null;
-  const [n, r] = t[0].replace(/#! ?/, "").split(" "), o = n.split("/").pop();
-  return o === "env" ? r : r ? `${o} ${r}` : o;
+  }
+  const [path2, argument] = match[0].replace(/#! ?/, "").split(" ");
+  const binary = path2.split("/").pop();
+  if (binary === "env") {
+    return argument;
+  }
+  return argument ? `${binary} ${argument}` : binary;
 };
-const cn = dt, Id = Dd;
-function xd(e) {
-  const n = Buffer.alloc(150);
-  let r;
+const fs = require$$0$2;
+const shebangCommand = shebangCommand$1;
+function readShebang$1(command) {
+  const size = 150;
+  const buffer = Buffer.alloc(size);
+  let fd;
   try {
-    r = cn.openSync(e, "r"), cn.readSync(r, n, 0, 150, 0), cn.closeSync(r);
-  } catch {
+    fd = fs.openSync(command, "r");
+    fs.readSync(fd, buffer, 0, size, 0);
+    fs.closeSync(fd);
+  } catch (e) {
   }
-  return Id(n.toString());
+  return shebangCommand(buffer.toString());
 }
-var Rd = xd;
-const Pd = T, ao = Ed, co = or, Ad = Rd, Cd = process.platform === "win32", Fd = /\.(?:com|exe)$/i, Ld = /node_modules[\\/].bin[\\/][^\\/]+\.cmd$/i;
-function Md(e) {
-  e.file = ao(e);
-  const t = e.file && Ad(e.file);
-  return t ? (e.args.unshift(e.file), e.command = t, ao(e)) : e.file;
-}
-function kd(e) {
-  if (!Cd)
-    return e;
-  const t = Md(e), n = !Fd.test(t);
-  if (e.options.forceShell || n) {
-    const r = Ld.test(t);
-    e.command = Pd.normalize(e.command), e.command = co.command(e.command), e.args = e.args.map((i) => co.argument(i, r));
-    const o = [e.command].concat(e.args).join(" ");
-    e.args = ["/d", "/s", "/c", `"${o}"`], e.command = process.env.comspec || "cmd.exe", e.options.windowsVerbatimArguments = !0;
+var readShebang_1 = readShebang$1;
+const path = path$f;
+const resolveCommand = resolveCommand_1;
+const escape = _escape;
+const readShebang = readShebang_1;
+const isWin$1 = process.platform === "win32";
+const isExecutableRegExp = /\.(?:com|exe)$/i;
+const isCmdShimRegExp = /node_modules[\\/].bin[\\/][^\\/]+\.cmd$/i;
+function detectShebang(parsed) {
+  parsed.file = resolveCommand(parsed);
+  const shebang = parsed.file && readShebang(parsed.file);
+  if (shebang) {
+    parsed.args.unshift(parsed.file);
+    parsed.command = shebang;
+    return resolveCommand(parsed);
   }
-  return e;
+  return parsed.file;
 }
-function _d(e, t, n) {
-  t && !Array.isArray(t) && (n = t, t = null), t = t ? t.slice(0) : [], n = Object.assign({}, n);
-  const r = {
-    command: e,
-    args: t,
-    options: n,
+function parseNonShell(parsed) {
+  if (!isWin$1) {
+    return parsed;
+  }
+  const commandFile = detectShebang(parsed);
+  const needsShell = !isExecutableRegExp.test(commandFile);
+  if (parsed.options.forceShell || needsShell) {
+    const needsDoubleEscapeMetaChars = isCmdShimRegExp.test(commandFile);
+    parsed.command = path.normalize(parsed.command);
+    parsed.command = escape.command(parsed.command);
+    parsed.args = parsed.args.map((arg) => escape.argument(arg, needsDoubleEscapeMetaChars));
+    const shellCommand = [parsed.command].concat(parsed.args).join(" ");
+    parsed.args = ["/d", "/s", "/c", `"${shellCommand}"`];
+    parsed.command = process.env.comspec || "cmd.exe";
+    parsed.options.windowsVerbatimArguments = true;
+  }
+  return parsed;
+}
+function parse$1(command, args, options) {
+  if (args && !Array.isArray(args)) {
+    options = args;
+    args = null;
+  }
+  args = args ? args.slice(0) : [];
+  options = Object.assign({}, options);
+  const parsed = {
+    command,
+    args,
+    options,
     file: void 0,
     original: {
-      command: e,
-      args: t
+      command,
+      args
     }
   };
-  return n.shell ? r : kd(r);
+  return options.shell ? parsed : parseNonShell(parsed);
 }
-var jd = _d;
-const ir = process.platform === "win32";
-function sr(e, t) {
-  return Object.assign(new Error(`${t} ${e.command} ENOENT`), {
+var parse_1 = parse$1;
+const isWin = process.platform === "win32";
+function notFoundError(original, syscall) {
+  return Object.assign(new Error(`${syscall} ${original.command} ENOENT`), {
     code: "ENOENT",
     errno: "ENOENT",
-    syscall: `${t} ${e.command}`,
-    path: e.command,
-    spawnargs: e.args
+    syscall: `${syscall} ${original.command}`,
+    path: original.command,
+    spawnargs: original.args
   });
 }
-function Bd(e, t) {
-  if (!ir)
+function hookChildProcess(cp2, parsed) {
+  if (!isWin) {
     return;
-  const n = e.emit;
-  e.emit = function(r, o) {
-    if (r === "exit") {
-      const i = rs(o, t);
-      if (i)
-        return n.call(e, "error", i);
+  }
+  const originalEmit = cp2.emit;
+  cp2.emit = function(name, arg1) {
+    if (name === "exit") {
+      const err = verifyENOENT(arg1, parsed);
+      if (err) {
+        return originalEmit.call(cp2, "error", err);
+      }
     }
-    return n.apply(e, arguments);
+    return originalEmit.apply(cp2, arguments);
   };
 }
-function rs(e, t) {
-  return ir && e === 1 && !t.file ? sr(t.original, "spawn") : null;
+function verifyENOENT(status, parsed) {
+  if (isWin && status === 1 && !parsed.file) {
+    return notFoundError(parsed.original, "spawn");
+  }
+  return null;
 }
-function Ud(e, t) {
-  return ir && e === 1 && !t.file ? sr(t.original, "spawnSync") : null;
+function verifyENOENTSync(status, parsed) {
+  if (isWin && status === 1 && !parsed.file) {
+    return notFoundError(parsed.original, "spawnSync");
+  }
+  return null;
 }
-var Nd = {
-  hookChildProcess: Bd,
-  verifyENOENT: rs,
-  verifyENOENTSync: Ud,
-  notFoundError: sr
+var enoent$1 = {
+  hookChildProcess,
+  verifyENOENT,
+  verifyENOENTSync,
+  notFoundError
 };
-const os = $c, ar = jd, cr = Nd;
-function is(e, t, n) {
-  const r = ar(e, t, n), o = os.spawn(r.command, r.args, r.options);
-  return cr.hookChildProcess(o, r), o;
+const cp = require$$0$3;
+const parse = parse_1;
+const enoent = enoent$1;
+function spawn(command, args, options) {
+  const parsed = parse(command, args, options);
+  const spawned = cp.spawn(parsed.command, parsed.args, parsed.options);
+  enoent.hookChildProcess(spawned, parsed);
+  return spawned;
 }
-function Gd(e, t, n) {
-  const r = ar(e, t, n), o = os.spawnSync(r.command, r.args, r.options);
-  return o.error = o.error || cr.verifyENOENTSync(o.status, r), o;
+function spawnSync(command, args, options) {
+  const parsed = parse(command, args, options);
+  const result = cp.spawnSync(parsed.command, parsed.args, parsed.options);
+  result.error = result.error || enoent.verifyENOENTSync(result.status, parsed);
+  return result;
 }
-Ke.exports = is;
-Ke.exports.spawn = is;
-Ke.exports.sync = Gd;
-Ke.exports._parse = ar;
-Ke.exports._enoent = cr;
-var Wd = Ke.exports;
-const zd = /* @__PURE__ */ Zo(Wd);
-function ss(e = {}) {
+crossSpawn$1.exports = spawn;
+crossSpawn$1.exports.spawn = spawn;
+crossSpawn$1.exports.sync = spawnSync;
+crossSpawn$1.exports._parse = parse;
+crossSpawn$1.exports._enoent = enoent;
+var crossSpawnExports = crossSpawn$1.exports;
+const crossSpawn = /* @__PURE__ */ getDefaultExportFromCjs(crossSpawnExports);
+function pathKey(options = {}) {
   const {
-    env: t = process.env,
-    platform: n = process.platform
-  } = e;
-  return n !== "win32" ? "PATH" : Object.keys(t).reverse().find((r) => r.toUpperCase() === "PATH") || "Path";
+    env = process.env,
+    platform: platform2 = process.platform
+  } = options;
+  if (platform2 !== "win32") {
+    return "PATH";
+  }
+  return Object.keys(env).reverse().find((key) => key.toUpperCase() === "PATH") || "Path";
 }
-Ho(mc);
-function lr(e) {
-  return e instanceof URL ? kn(e) : e;
+promisify(execFile);
+function toPath(urlOrPath) {
+  return urlOrPath instanceof URL ? fileURLToPath(urlOrPath) : urlOrPath;
 }
-function Vd(e) {
+function traversePathUp(startPath) {
   return {
     *[Symbol.iterator]() {
-      let t = A.resolve(lr(e)), n;
-      for (; n !== t; )
-        yield t, n = t, t = A.resolve(t, "..");
+      let currentPath = path$g.resolve(toPath(startPath));
+      let previousPath;
+      while (previousPath !== currentPath) {
+        yield currentPath;
+        previousPath = currentPath;
+        currentPath = path$g.resolve(currentPath, "..");
+      }
     }
   };
 }
-const Hd = ({
-  cwd: e = G.cwd(),
-  path: t = G.env[ss()],
-  preferLocal: n = !0,
-  execPath: r = G.execPath,
-  addExecPath: o = !0
+const npmRunPath = ({
+  cwd: cwd2 = process$2.cwd(),
+  path: pathOption = process$2.env[pathKey()],
+  preferLocal = true,
+  execPath: execPath2 = process$2.execPath,
+  addExecPath = true
 } = {}) => {
-  const i = A.resolve(lr(e)), s = [], a = t.split(A.delimiter);
-  return n && qd(s, a, i), o && Yd(s, a, r, i), t === "" || t === A.delimiter ? `${s.join(A.delimiter)}${t}` : [...s, t].join(A.delimiter);
-}, qd = (e, t, n) => {
-  for (const r of Vd(n)) {
-    const o = A.join(r, "node_modules/.bin");
-    t.includes(o) || e.push(o);
+  const cwdPath = path$g.resolve(toPath(cwd2));
+  const result = [];
+  const pathParts = pathOption.split(path$g.delimiter);
+  if (preferLocal) {
+    applyPreferLocal(result, pathParts, cwdPath);
   }
-}, Yd = (e, t, n, r) => {
-  const o = A.resolve(r, lr(n), "..");
-  t.includes(o) || e.push(o);
-}, Jd = ({ env: e = G.env, ...t } = {}) => {
-  e = { ...e };
-  const n = ss({ env: e });
-  return t.path = e[n], e[n] = Hd(t), e;
-}, Kd = (e, t, n) => {
-  const r = n ? En : bn, o = e instanceof pt ? {} : { cause: e };
-  return new r(t, o);
+  if (addExecPath) {
+    applyExecPath(result, pathParts, execPath2, cwdPath);
+  }
+  return pathOption === "" || pathOption === path$g.delimiter ? `${result.join(path$g.delimiter)}${pathOption}` : [...result, pathOption].join(path$g.delimiter);
 };
-class pt extends Error {
+const applyPreferLocal = (result, pathParts, cwdPath) => {
+  for (const directory of traversePathUp(cwdPath)) {
+    const pathPart = path$g.join(directory, "node_modules/.bin");
+    if (!pathParts.includes(pathPart)) {
+      result.push(pathPart);
+    }
+  }
+};
+const applyExecPath = (result, pathParts, execPath2, cwdPath) => {
+  const pathPart = path$g.resolve(cwdPath, toPath(execPath2), "..");
+  if (!pathParts.includes(pathPart)) {
+    result.push(pathPart);
+  }
+};
+const npmRunPathEnv = ({ env = process$2.env, ...options } = {}) => {
+  env = { ...env };
+  const pathName = pathKey({ env });
+  options.path = env[pathName];
+  env[pathName] = npmRunPath(options);
+  return env;
+};
+const getFinalError = (originalError, message, isSync) => {
+  const ErrorClass = isSync ? ExecaSyncError : ExecaError;
+  const options = originalError instanceof DiscardedError ? {} : { cause: originalError };
+  return new ErrorClass(message, options);
+};
+class DiscardedError extends Error {
 }
-const as = (e, t) => {
-  Object.defineProperty(e.prototype, "name", {
-    value: t,
-    writable: !0,
-    enumerable: !1,
-    configurable: !0
-  }), Object.defineProperty(e.prototype, cs, {
-    value: !0,
-    writable: !1,
-    enumerable: !1,
-    configurable: !1
+const setErrorName = (ErrorClass, value) => {
+  Object.defineProperty(ErrorClass.prototype, "name", {
+    value,
+    writable: true,
+    enumerable: false,
+    configurable: true
   });
-}, Xd = (e) => Sn(e) && cs in e, cs = Symbol("isExecaError"), Sn = (e) => Object.prototype.toString.call(e) === "[object Error]";
-class bn extends Error {
+  Object.defineProperty(ErrorClass.prototype, execaErrorSymbol, {
+    value: true,
+    writable: false,
+    enumerable: false,
+    configurable: false
+  });
+};
+const isExecaError = (error) => isErrorInstance(error) && execaErrorSymbol in error;
+const execaErrorSymbol = Symbol("isExecaError");
+const isErrorInstance = (value) => Object.prototype.toString.call(value) === "[object Error]";
+class ExecaError extends Error {
 }
-as(bn, bn.name);
-class En extends Error {
+setErrorName(ExecaError, ExecaError.name);
+class ExecaSyncError extends Error {
 }
-as(En, En.name);
-const Qd = () => {
-  const e = us - ls + 1;
-  return Array.from({ length: e }, Zd);
-}, Zd = (e, t) => ({
-  name: `SIGRT${t + 1}`,
-  number: ls + t,
+setErrorName(ExecaSyncError, ExecaSyncError.name);
+const getRealtimeSignals = () => {
+  const length = SIGRTMAX - SIGRTMIN + 1;
+  return Array.from({ length }, getRealtimeSignal);
+};
+const getRealtimeSignal = (value, index) => ({
+  name: `SIGRT${index + 1}`,
+  number: SIGRTMIN + index,
   action: "terminate",
   description: "Application-specific signal (realtime)",
   standard: "posix"
-}), ls = 34, us = 64, eh = [
+});
+const SIGRTMIN = 34;
+const SIGRTMAX = 64;
+const SIGNALS = [
   {
     name: "SIGHUP",
     number: 1,
@@ -2380,7 +3320,7 @@ const Qd = () => {
     action: "terminate",
     description: "Forced termination",
     standard: "posix",
-    forced: !0
+    forced: true
   },
   {
     name: "SIGUSR1",
@@ -2451,7 +3391,7 @@ const Qd = () => {
     action: "unpause",
     description: "Unpaused",
     standard: "posix",
-    forced: !0
+    forced: true
   },
   {
     name: "SIGSTOP",
@@ -2459,7 +3399,7 @@ const Qd = () => {
     action: "pause",
     description: "Paused",
     standard: "posix",
-    forced: !0
+    forced: true
   },
   {
     name: "SIGTSTP",
@@ -2573,1300 +3513,1963 @@ const Qd = () => {
     description: "Invalid system call",
     standard: "other"
   }
-], fs = () => {
-  const e = Qd();
-  return [...eh, ...e].map(th);
-}, th = ({
-  name: e,
-  number: t,
-  description: n,
-  action: r,
-  forced: o = !1,
-  standard: i
+];
+const getSignals = () => {
+  const realtimeSignals = getRealtimeSignals();
+  const signals2 = [...SIGNALS, ...realtimeSignals].map(normalizeSignal$1);
+  return signals2;
+};
+const normalizeSignal$1 = ({
+  name,
+  number: defaultNumber,
+  description,
+  action,
+  forced = false,
+  standard
 }) => {
   const {
-    signals: { [e]: s }
-  } = $e, a = s !== void 0;
-  return { name: e, number: a ? s : t, description: n, supported: a, action: r, forced: o, standard: i };
-}, nh = () => {
-  const e = fs();
-  return Object.fromEntries(e.map(rh));
-}, rh = ({
-  name: e,
-  number: t,
-  description: n,
-  supported: r,
-  action: o,
-  forced: i,
-  standard: s
-}) => [e, { name: e, number: t, description: n, supported: r, action: o, forced: i, standard: s }], oh = nh(), ih = () => {
-  const e = fs(), t = us + 1, n = Array.from(
-    { length: t },
-    (r, o) => sh(o, e)
+    signals: { [name]: constantSignal }
+  } = constants$1;
+  const supported = constantSignal !== void 0;
+  const number = supported ? constantSignal : defaultNumber;
+  return { name, number, description, supported, action, forced, standard };
+};
+const getSignalsByName = () => {
+  const signals2 = getSignals();
+  return Object.fromEntries(signals2.map(getSignalByName));
+};
+const getSignalByName = ({
+  name,
+  number,
+  description,
+  supported,
+  action,
+  forced,
+  standard
+}) => [name, { name, number, description, supported, action, forced, standard }];
+const signalsByName = getSignalsByName();
+const getSignalsByNumber = () => {
+  const signals2 = getSignals();
+  const length = SIGRTMAX + 1;
+  const signalsA = Array.from(
+    { length },
+    (value, number) => getSignalByNumber(number, signals2)
   );
-  return Object.assign({}, ...n);
-}, sh = (e, t) => {
-  const n = ah(e, t);
-  if (n === void 0)
+  return Object.assign({}, ...signalsA);
+};
+const getSignalByNumber = (number, signals2) => {
+  const signal = findSignalByNumber(number, signals2);
+  if (signal === void 0) {
     return {};
-  const { name: r, description: o, supported: i, action: s, forced: a, standard: c } = n;
+  }
+  const { name, description, supported, action, forced, standard } = signal;
   return {
-    [e]: {
-      name: r,
-      number: e,
-      description: o,
-      supported: i,
-      action: s,
-      forced: a,
-      standard: c
+    [number]: {
+      name,
+      number,
+      description,
+      supported,
+      action,
+      forced,
+      standard
     }
   };
-}, ah = (e, t) => {
-  const n = t.find(({ name: r }) => $e.signals[r] === e);
-  return n !== void 0 ? n : t.find((r) => r.number === e);
 };
-ih();
-const ch = (e) => {
-  const t = "option `killSignal`";
-  if (e === 0)
-    throw new TypeError(`Invalid ${t}: 0 cannot be used.`);
-  return ds(e, t);
-}, lh = (e) => e === 0 ? e : ds(e, "`subprocess.kill()`'s argument"), ds = (e, t) => {
-  if (Number.isInteger(e))
-    return uh(e, t);
-  if (typeof e == "string")
-    return dh(e, t);
-  throw new TypeError(`Invalid ${t} ${String(e)}: it must be a string or an integer.
-${ur()}`);
-}, uh = (e, t) => {
-  if (lo.has(e))
-    return lo.get(e);
-  throw new TypeError(`Invalid ${t} ${e}: this signal integer does not exist.
-${ur()}`);
-}, fh = () => new Map(Object.entries($e.signals).reverse().map(([e, t]) => [t, e])), lo = fh(), dh = (e, t) => {
-  if (e in $e.signals)
-    return e;
-  throw e.toUpperCase() in $e.signals ? new TypeError(`Invalid ${t} '${e}': please rename it to '${e.toUpperCase()}'.`) : new TypeError(`Invalid ${t} '${e}': this signal name does not exist.
-${ur()}`);
-}, ur = () => `Available signal names: ${hh()}.
-Available signal numbers: ${mh()}.`, hh = () => Object.keys($e.signals).sort().map((e) => `'${e}'`).join(", "), mh = () => [...new Set(Object.values($e.signals).sort((e, t) => e - t))].join(", "), hs = (e) => oh[e].description, ph = (e) => {
-  if (e === !1)
-    return e;
-  if (e === !0)
-    return yh;
-  if (!Number.isFinite(e) || e < 0)
-    throw new TypeError(`Expected the \`forceKillAfterDelay\` option to be a non-negative integer, got \`${e}\` (${typeof e})`);
-  return e;
-}, yh = 1e3 * 5, wh = ({ kill: e, options: { forceKillAfterDelay: t, killSignal: n }, onInternalError: r, context: o, controller: i }, s, a) => {
-  const { signal: c, error: u } = gh(s, a, n);
-  Sh(u, r);
-  const l = e(c);
-  return bh({
-    kill: e,
-    signal: c,
-    forceKillAfterDelay: t,
-    killSignal: n,
-    killResult: l,
-    context: o,
-    controller: i
-  }), l;
-}, gh = (e, t, n) => {
-  const [r = n, o] = Sn(e) ? [void 0, e] : [e, t];
-  if (typeof r != "string" && !Number.isInteger(r))
-    throw new TypeError(`The first argument must be an error instance or a signal name string/integer: ${String(r)}`);
-  if (o !== void 0 && !Sn(o))
-    throw new TypeError(`The second argument is optional. If specified, it must be an error instance: ${o}`);
-  return { signal: lh(r), error: o };
-}, Sh = (e, t) => {
-  e !== void 0 && t.reject(e);
-}, bh = async ({ kill: e, signal: t, forceKillAfterDelay: n, killSignal: r, killResult: o, context: i, controller: s }) => {
-  t === r && o && ms({
-    kill: e,
-    forceKillAfterDelay: n,
-    context: i,
-    controllerSignal: s.signal
+const findSignalByNumber = (number, signals2) => {
+  const signal = signals2.find(({ name }) => constants$1.signals[name] === number);
+  if (signal !== void 0) {
+    return signal;
+  }
+  return signals2.find((signalA) => signalA.number === number);
+};
+getSignalsByNumber();
+const normalizeKillSignal = (killSignal) => {
+  const optionName = "option `killSignal`";
+  if (killSignal === 0) {
+    throw new TypeError(`Invalid ${optionName}: 0 cannot be used.`);
+  }
+  return normalizeSignal(killSignal, optionName);
+};
+const normalizeSignalArgument = (signal) => signal === 0 ? signal : normalizeSignal(signal, "`subprocess.kill()`'s argument");
+const normalizeSignal = (signalNameOrInteger, optionName) => {
+  if (Number.isInteger(signalNameOrInteger)) {
+    return normalizeSignalInteger(signalNameOrInteger, optionName);
+  }
+  if (typeof signalNameOrInteger === "string") {
+    return normalizeSignalName(signalNameOrInteger, optionName);
+  }
+  throw new TypeError(`Invalid ${optionName} ${String(signalNameOrInteger)}: it must be a string or an integer.
+${getAvailableSignals()}`);
+};
+const normalizeSignalInteger = (signalInteger, optionName) => {
+  if (signalsIntegerToName.has(signalInteger)) {
+    return signalsIntegerToName.get(signalInteger);
+  }
+  throw new TypeError(`Invalid ${optionName} ${signalInteger}: this signal integer does not exist.
+${getAvailableSignals()}`);
+};
+const getSignalsIntegerToName = () => new Map(Object.entries(constants$1.signals).reverse().map(([signalName, signalInteger]) => [signalInteger, signalName]));
+const signalsIntegerToName = getSignalsIntegerToName();
+const normalizeSignalName = (signalName, optionName) => {
+  if (signalName in constants$1.signals) {
+    return signalName;
+  }
+  if (signalName.toUpperCase() in constants$1.signals) {
+    throw new TypeError(`Invalid ${optionName} '${signalName}': please rename it to '${signalName.toUpperCase()}'.`);
+  }
+  throw new TypeError(`Invalid ${optionName} '${signalName}': this signal name does not exist.
+${getAvailableSignals()}`);
+};
+const getAvailableSignals = () => `Available signal names: ${getAvailableSignalNames()}.
+Available signal numbers: ${getAvailableSignalIntegers()}.`;
+const getAvailableSignalNames = () => Object.keys(constants$1.signals).sort().map((signalName) => `'${signalName}'`).join(", ");
+const getAvailableSignalIntegers = () => [...new Set(Object.values(constants$1.signals).sort((signalInteger, signalIntegerTwo) => signalInteger - signalIntegerTwo))].join(", ");
+const getSignalDescription = (signal) => signalsByName[signal].description;
+const normalizeForceKillAfterDelay = (forceKillAfterDelay) => {
+  if (forceKillAfterDelay === false) {
+    return forceKillAfterDelay;
+  }
+  if (forceKillAfterDelay === true) {
+    return DEFAULT_FORCE_KILL_TIMEOUT;
+  }
+  if (!Number.isFinite(forceKillAfterDelay) || forceKillAfterDelay < 0) {
+    throw new TypeError(`Expected the \`forceKillAfterDelay\` option to be a non-negative integer, got \`${forceKillAfterDelay}\` (${typeof forceKillAfterDelay})`);
+  }
+  return forceKillAfterDelay;
+};
+const DEFAULT_FORCE_KILL_TIMEOUT = 1e3 * 5;
+const subprocessKill = ({ kill, options: { forceKillAfterDelay, killSignal }, onInternalError, context, controller }, signalOrError, errorArgument) => {
+  const { signal, error } = parseKillArguments(signalOrError, errorArgument, killSignal);
+  emitKillError(error, onInternalError);
+  const killResult = kill(signal);
+  setKillTimeout({
+    kill,
+    signal,
+    forceKillAfterDelay,
+    killSignal,
+    killResult,
+    context,
+    controller
   });
-}, ms = async ({ kill: e, forceKillAfterDelay: t, context: n, controllerSignal: r }) => {
-  if (t !== !1)
-    try {
-      await Jo(t, void 0, { signal: r }), e("SIGKILL") && (n.isForcefullyTerminated ?? (n.isForcefullyTerminated = !0));
-    } catch {
+  return killResult;
+};
+const parseKillArguments = (signalOrError, errorArgument, killSignal) => {
+  const [signal = killSignal, error] = isErrorInstance(signalOrError) ? [void 0, signalOrError] : [signalOrError, errorArgument];
+  if (typeof signal !== "string" && !Number.isInteger(signal)) {
+    throw new TypeError(`The first argument must be an error instance or a signal name string/integer: ${String(signal)}`);
+  }
+  if (error !== void 0 && !isErrorInstance(error)) {
+    throw new TypeError(`The second argument is optional. If specified, it must be an error instance: ${error}`);
+  }
+  return { signal: normalizeSignalArgument(signal), error };
+};
+const emitKillError = (error, onInternalError) => {
+  if (error !== void 0) {
+    onInternalError.reject(error);
+  }
+};
+const setKillTimeout = async ({ kill, signal, forceKillAfterDelay, killSignal, killResult, context, controller }) => {
+  if (signal === killSignal && killResult) {
+    killOnTimeout({
+      kill,
+      forceKillAfterDelay,
+      context,
+      controllerSignal: controller.signal
+    });
+  }
+};
+const killOnTimeout = async ({ kill, forceKillAfterDelay, context, controllerSignal }) => {
+  if (forceKillAfterDelay === false) {
+    return;
+  }
+  try {
+    await setTimeout$1(forceKillAfterDelay, void 0, { signal: controllerSignal });
+    if (kill("SIGKILL")) {
+      context.isForcefullyTerminated ?? (context.isForcefullyTerminated = true);
     }
-}, ps = async (e, t) => {
-  e.aborted || await Y(e, "abort", { signal: t });
-}, Eh = ({ cancelSignal: e }) => {
-  if (e !== void 0 && Object.prototype.toString.call(e) !== "[object AbortSignal]")
-    throw new Error(`The \`cancelSignal\` option must be an AbortSignal: ${String(e)}`);
-}, Th = ({ subprocess: e, cancelSignal: t, gracefulCancel: n, context: r, controller: o }) => t === void 0 || n ? [] : [$h(e, t, r, o)], $h = async (e, t, n, { signal: r }) => {
-  throw await ps(t, r), n.terminationReason ?? (n.terminationReason = "cancel"), e.kill(), t.reason;
-}, fr = ({ methodName: e, isSubprocess: t, ipc: n, isConnected: r }) => {
-  vh(e, t, n), ys(e, t, r);
-}, vh = (e, t, n) => {
-  if (!n)
-    throw new Error(`${ee(e, t)} can only be used if the \`ipc\` option is \`true\`.`);
-}, ys = (e, t, n) => {
-  if (!n)
-    throw new Error(`${ee(e, t)} cannot be used: the ${ge(t)} has already exited or disconnected.`);
-}, Oh = (e) => {
-  throw new Error(`${ee("getOneMessage", e)} could not complete: the ${ge(e)} exited or disconnected.`);
-}, Dh = (e) => {
-  throw new Error(`${ee("sendMessage", e)} failed: the ${ge(e)} is sending a message too, instead of listening to incoming messages.
+  } catch {
+  }
+};
+const onAbortedSignal = async (mainSignal, stopSignal) => {
+  if (!mainSignal.aborted) {
+    await once(mainSignal, "abort", { signal: stopSignal });
+  }
+};
+const validateCancelSignal = ({ cancelSignal }) => {
+  if (cancelSignal !== void 0 && Object.prototype.toString.call(cancelSignal) !== "[object AbortSignal]") {
+    throw new Error(`The \`cancelSignal\` option must be an AbortSignal: ${String(cancelSignal)}`);
+  }
+};
+const throwOnCancel = ({ subprocess, cancelSignal, gracefulCancel, context, controller }) => cancelSignal === void 0 || gracefulCancel ? [] : [terminateOnCancel(subprocess, cancelSignal, context, controller)];
+const terminateOnCancel = async (subprocess, cancelSignal, context, { signal }) => {
+  await onAbortedSignal(cancelSignal, signal);
+  context.terminationReason ?? (context.terminationReason = "cancel");
+  subprocess.kill();
+  throw cancelSignal.reason;
+};
+const validateIpcMethod = ({ methodName, isSubprocess, ipc, isConnected: isConnected2 }) => {
+  validateIpcOption(methodName, isSubprocess, ipc);
+  validateConnection(methodName, isSubprocess, isConnected2);
+};
+const validateIpcOption = (methodName, isSubprocess, ipc) => {
+  if (!ipc) {
+    throw new Error(`${getMethodName(methodName, isSubprocess)} can only be used if the \`ipc\` option is \`true\`.`);
+  }
+};
+const validateConnection = (methodName, isSubprocess, isConnected2) => {
+  if (!isConnected2) {
+    throw new Error(`${getMethodName(methodName, isSubprocess)} cannot be used: the ${getOtherProcessName(isSubprocess)} has already exited or disconnected.`);
+  }
+};
+const throwOnEarlyDisconnect = (isSubprocess) => {
+  throw new Error(`${getMethodName("getOneMessage", isSubprocess)} could not complete: the ${getOtherProcessName(isSubprocess)} exited or disconnected.`);
+};
+const throwOnStrictDeadlockError = (isSubprocess) => {
+  throw new Error(`${getMethodName("sendMessage", isSubprocess)} failed: the ${getOtherProcessName(isSubprocess)} is sending a message too, instead of listening to incoming messages.
 This can be fixed by both sending a message and listening to incoming messages at the same time:
 
 const [receivedMessage] = await Promise.all([
-	${ee("getOneMessage", e)},
-	${ee("sendMessage", e, "message, {strict: true}")},
+	${getMethodName("getOneMessage", isSubprocess)},
+	${getMethodName("sendMessage", isSubprocess, "message, {strict: true}")},
 ]);`);
-}, ws = (e, t) => new Error(`${ee("sendMessage", t)} failed when sending an acknowledgment response to the ${ge(t)}.`, { cause: e }), Ih = (e) => {
-  throw new Error(`${ee("sendMessage", e)} failed: the ${ge(e)} is not listening to incoming messages.`);
-}, xh = (e) => {
-  throw new Error(`${ee("sendMessage", e)} failed: the ${ge(e)} exited without listening to incoming messages.`);
-}, Rh = () => new Error(`\`cancelSignal\` aborted: the ${ge(!0)} disconnected.`), Ph = () => {
+};
+const getStrictResponseError = (error, isSubprocess) => new Error(`${getMethodName("sendMessage", isSubprocess)} failed when sending an acknowledgment response to the ${getOtherProcessName(isSubprocess)}.`, { cause: error });
+const throwOnMissingStrict = (isSubprocess) => {
+  throw new Error(`${getMethodName("sendMessage", isSubprocess)} failed: the ${getOtherProcessName(isSubprocess)} is not listening to incoming messages.`);
+};
+const throwOnStrictDisconnect = (isSubprocess) => {
+  throw new Error(`${getMethodName("sendMessage", isSubprocess)} failed: the ${getOtherProcessName(isSubprocess)} exited without listening to incoming messages.`);
+};
+const getAbortDisconnectError = () => new Error(`\`cancelSignal\` aborted: the ${getOtherProcessName(true)} disconnected.`);
+const throwOnMissingParent = () => {
   throw new Error("`getCancelSignal()` cannot be used without setting the `cancelSignal` subprocess option.");
-}, Ah = ({ error: e, methodName: t, isSubprocess: n }) => {
-  if (e.code === "EPIPE")
-    throw new Error(`${ee(t, n)} cannot be used: the ${ge(n)} is disconnecting.`, { cause: e });
-}, Ch = ({ error: e, methodName: t, isSubprocess: n, message: r }) => {
-  if (Fh(e))
-    throw new Error(`${ee(t, n)}'s argument type is invalid: the message cannot be serialized: ${String(r)}.`, { cause: e });
-}, Fh = ({ code: e, message: t }) => Lh.has(e) || Mh.some((n) => t.includes(n)), Lh = /* @__PURE__ */ new Set([
+};
+const handleEpipeError = ({ error, methodName, isSubprocess }) => {
+  if (error.code === "EPIPE") {
+    throw new Error(`${getMethodName(methodName, isSubprocess)} cannot be used: the ${getOtherProcessName(isSubprocess)} is disconnecting.`, { cause: error });
+  }
+};
+const handleSerializationError = ({ error, methodName, isSubprocess, message }) => {
+  if (isSerializationError(error)) {
+    throw new Error(`${getMethodName(methodName, isSubprocess)}'s argument type is invalid: the message cannot be serialized: ${String(message)}.`, { cause: error });
+  }
+};
+const isSerializationError = ({ code, message }) => SERIALIZATION_ERROR_CODES.has(code) || SERIALIZATION_ERROR_MESSAGES.some((serializationErrorMessage) => message.includes(serializationErrorMessage));
+const SERIALIZATION_ERROR_CODES = /* @__PURE__ */ new Set([
   // Message is `undefined`
   "ERR_MISSING_ARGS",
   // Message is a function, a bigint, a symbol
   "ERR_INVALID_ARG_TYPE"
-]), Mh = [
+]);
+const SERIALIZATION_ERROR_MESSAGES = [
   // Message is a promise or a proxy, with `serialization: 'advanced'`
   "could not be cloned",
   // Message has cycles, with `serialization: 'json'`
   "circular structure",
   // Message has cycles inside toJSON(), with `serialization: 'json'`
   "call stack size exceeded"
-], ee = (e, t, n = "") => e === "cancelSignal" ? "`cancelSignal`'s `controller.abort()`" : `${kh(t)}${e}(${n})`, kh = (e) => e ? "" : "subprocess.", ge = (e) => e ? "parent process" : "subprocess", dr = (e) => {
-  e.connected && e.disconnect();
-}, yt = () => {
-  const e = {}, t = new Promise((n, r) => {
-    Object.assign(e, { resolve: n, reject: r });
+];
+const getMethodName = (methodName, isSubprocess, parameters = "") => methodName === "cancelSignal" ? "`cancelSignal`'s `controller.abort()`" : `${getNamespaceName(isSubprocess)}${methodName}(${parameters})`;
+const getNamespaceName = (isSubprocess) => isSubprocess ? "" : "subprocess.";
+const getOtherProcessName = (isSubprocess) => isSubprocess ? "parent process" : "subprocess";
+const disconnect = (anyProcess) => {
+  if (anyProcess.connected) {
+    anyProcess.disconnect();
+  }
+};
+const createDeferred = () => {
+  const methods = {};
+  const promise = new Promise((resolve, reject) => {
+    Object.assign(methods, { resolve, reject });
   });
-  return Object.assign(t, e);
-}, gs = (e, t = "stdin") => {
-  const { options: r, fileDescriptors: o } = Oe.get(e), i = Ss(o, t, !0), s = e.stdio[i];
-  if (s === null)
-    throw new TypeError(bs(i, t, r, !0));
-  return s;
-}, hr = (e, t = "stdout") => {
-  const { options: r, fileDescriptors: o } = Oe.get(e), i = Ss(o, t, !1), s = i === "all" ? e.all : e.stdio[i];
-  if (s == null)
-    throw new TypeError(bs(i, t, r, !1));
-  return s;
-}, Oe = /* @__PURE__ */ new WeakMap(), Ss = (e, t, n) => {
-  const r = _h(t, n);
-  return jh(r, t, n, e), r;
-}, _h = (e, t) => {
-  const n = Wi(e);
-  if (n !== void 0)
-    return n;
-  const { validOptions: r, defaultValue: o } = t ? { validOptions: '"stdin"', defaultValue: "stdin" } : { validOptions: '"stdout", "stderr", "all"', defaultValue: "stdout" };
-  throw new TypeError(`"${tt(t)}" must not be "${e}".
-It must be ${r} or "fd3", "fd4" (and so on).
-It is optional and defaults to "${o}".`);
-}, jh = (e, t, n, r) => {
-  const o = r[Es(e)];
-  if (o === void 0)
-    throw new TypeError(`"${tt(n)}" must not be ${t}. That file descriptor does not exist.
+  return Object.assign(promise, methods);
+};
+const getToStream = (destination, to = "stdin") => {
+  const isWritable = true;
+  const { options, fileDescriptors } = SUBPROCESS_OPTIONS.get(destination);
+  const fdNumber = getFdNumber(fileDescriptors, to, isWritable);
+  const destinationStream = destination.stdio[fdNumber];
+  if (destinationStream === null) {
+    throw new TypeError(getInvalidStdioOptionMessage(fdNumber, to, options, isWritable));
+  }
+  return destinationStream;
+};
+const getFromStream = (source, from = "stdout") => {
+  const isWritable = false;
+  const { options, fileDescriptors } = SUBPROCESS_OPTIONS.get(source);
+  const fdNumber = getFdNumber(fileDescriptors, from, isWritable);
+  const sourceStream = fdNumber === "all" ? source.all : source.stdio[fdNumber];
+  if (sourceStream === null || sourceStream === void 0) {
+    throw new TypeError(getInvalidStdioOptionMessage(fdNumber, from, options, isWritable));
+  }
+  return sourceStream;
+};
+const SUBPROCESS_OPTIONS = /* @__PURE__ */ new WeakMap();
+const getFdNumber = (fileDescriptors, fdName, isWritable) => {
+  const fdNumber = parseFdNumber(fdName, isWritable);
+  validateFdNumber(fdNumber, fdName, isWritable, fileDescriptors);
+  return fdNumber;
+};
+const parseFdNumber = (fdName, isWritable) => {
+  const fdNumber = parseFd(fdName);
+  if (fdNumber !== void 0) {
+    return fdNumber;
+  }
+  const { validOptions, defaultValue } = isWritable ? { validOptions: '"stdin"', defaultValue: "stdin" } : { validOptions: '"stdout", "stderr", "all"', defaultValue: "stdout" };
+  throw new TypeError(`"${getOptionName(isWritable)}" must not be "${fdName}".
+It must be ${validOptions} or "fd3", "fd4" (and so on).
+It is optional and defaults to "${defaultValue}".`);
+};
+const validateFdNumber = (fdNumber, fdName, isWritable, fileDescriptors) => {
+  const fileDescriptor = fileDescriptors[getUsedDescriptor(fdNumber)];
+  if (fileDescriptor === void 0) {
+    throw new TypeError(`"${getOptionName(isWritable)}" must not be ${fdName}. That file descriptor does not exist.
 Please set the "stdio" option to ensure that file descriptor exists.`);
-  if (o.direction === "input" && !n)
-    throw new TypeError(`"${tt(n)}" must not be ${t}. It must be a readable stream, not writable.`);
-  if (o.direction !== "input" && n)
-    throw new TypeError(`"${tt(n)}" must not be ${t}. It must be a writable stream, not readable.`);
-}, bs = (e, t, n, r) => {
-  if (e === "all" && !n.all)
+  }
+  if (fileDescriptor.direction === "input" && !isWritable) {
+    throw new TypeError(`"${getOptionName(isWritable)}" must not be ${fdName}. It must be a readable stream, not writable.`);
+  }
+  if (fileDescriptor.direction !== "input" && isWritable) {
+    throw new TypeError(`"${getOptionName(isWritable)}" must not be ${fdName}. It must be a writable stream, not readable.`);
+  }
+};
+const getInvalidStdioOptionMessage = (fdNumber, fdName, options, isWritable) => {
+  if (fdNumber === "all" && !options.all) {
     return `The "all" option must be true to use "from: 'all'".`;
-  const { optionName: o, optionValue: i } = Bh(e, n);
-  return `The "${o}: ${Tn(i)}" option is incompatible with using "${tt(r)}: ${Tn(t)}".
+  }
+  const { optionName, optionValue } = getInvalidStdioOption(fdNumber, options);
+  return `The "${optionName}: ${serializeOptionValue(optionValue)}" option is incompatible with using "${getOptionName(isWritable)}: ${serializeOptionValue(fdName)}".
 Please set this option with "pipe" instead.`;
-}, Bh = (e, { stdin: t, stdout: n, stderr: r, stdio: o }) => {
-  const i = Es(e);
-  return i === 0 && t !== void 0 ? { optionName: "stdin", optionValue: t } : i === 1 && n !== void 0 ? { optionName: "stdout", optionValue: n } : i === 2 && r !== void 0 ? { optionName: "stderr", optionValue: r } : { optionName: `stdio[${i}]`, optionValue: o[i] };
-}, Es = (e) => e === "all" ? 1 : e, tt = (e) => e ? "to" : "from", Tn = (e) => typeof e == "string" ? `'${e}'` : typeof e == "number" ? `${e}` : "Stream", Mt = (e, t, n) => {
-  const r = e.getMaxListeners();
-  r === 0 || r === Number.POSITIVE_INFINITY || (e.setMaxListeners(r + t), Xo(n, () => {
-    e.setMaxListeners(e.getMaxListeners() - t);
-  }));
-}, Ts = (e, t) => {
-  t && $n(e);
-}, $n = (e) => {
-  e.refCounted();
-}, $s = (e, t) => {
-  t && vn(e);
-}, vn = (e) => {
-  e.unrefCounted();
-}, Uh = (e, t) => {
-  t && (vn(e), vn(e));
-}, Nh = (e, t) => {
-  t && ($n(e), $n(e));
-}, Gh = async ({ anyProcess: e, channel: t, isSubprocess: n, ipcEmitter: r }, o) => {
-  if (Jh(o) || am(o))
+};
+const getInvalidStdioOption = (fdNumber, { stdin, stdout, stderr, stdio }) => {
+  const usedDescriptor = getUsedDescriptor(fdNumber);
+  if (usedDescriptor === 0 && stdin !== void 0) {
+    return { optionName: "stdin", optionValue: stdin };
+  }
+  if (usedDescriptor === 1 && stdout !== void 0) {
+    return { optionName: "stdout", optionValue: stdout };
+  }
+  if (usedDescriptor === 2 && stderr !== void 0) {
+    return { optionName: "stderr", optionValue: stderr };
+  }
+  return { optionName: `stdio[${usedDescriptor}]`, optionValue: stdio[usedDescriptor] };
+};
+const getUsedDescriptor = (fdNumber) => fdNumber === "all" ? 1 : fdNumber;
+const getOptionName = (isWritable) => isWritable ? "to" : "from";
+const serializeOptionValue = (value) => {
+  if (typeof value === "string") {
+    return `'${value}'`;
+  }
+  return typeof value === "number" ? `${value}` : "Stream";
+};
+const incrementMaxListeners = (eventEmitter, maxListenersIncrement, signal) => {
+  const maxListeners = eventEmitter.getMaxListeners();
+  if (maxListeners === 0 || maxListeners === Number.POSITIVE_INFINITY) {
     return;
-  xt.has(e) || xt.set(e, []);
-  const i = xt.get(e);
-  if (i.push(o), !(i.length > 1))
-    for (; i.length > 0; ) {
-      await em(e, r, o), await Ko.yield();
-      const s = await Yh({
-        wrappedMessage: i[0],
-        anyProcess: e,
-        channel: t,
-        isSubprocess: n,
-        ipcEmitter: r
-      });
-      i.shift(), r.emit("message", s), r.emit("message:done");
-    }
-}, Wh = async ({ anyProcess: e, channel: t, isSubprocess: n, ipcEmitter: r, boundOnMessage: o }) => {
-  Rs();
-  const i = xt.get(e);
-  for (; (i == null ? void 0 : i.length) > 0; )
-    await Y(r, "message:done");
-  e.removeListener("message", o), Nh(t, n), r.connected = !1, r.emit("disconnect");
-}, xt = /* @__PURE__ */ new WeakMap(), Yt = (e, t, n) => {
-  if (Rt.has(e))
-    return Rt.get(e);
-  const r = new Dc();
-  return r.connected = !0, Rt.set(e, r), zh({
-    ipcEmitter: r,
-    anyProcess: e,
-    channel: t,
-    isSubprocess: n
-  }), r;
-}, Rt = /* @__PURE__ */ new WeakMap(), zh = ({ ipcEmitter: e, anyProcess: t, channel: n, isSubprocess: r }) => {
-  const o = Gh.bind(void 0, {
-    anyProcess: t,
-    channel: n,
-    isSubprocess: r,
-    ipcEmitter: e
+  }
+  eventEmitter.setMaxListeners(maxListeners + maxListenersIncrement);
+  addAbortListener(signal, () => {
+    eventEmitter.setMaxListeners(eventEmitter.getMaxListeners() - maxListenersIncrement);
   });
-  t.on("message", o), t.once("disconnect", Wh.bind(void 0, {
-    anyProcess: t,
-    channel: n,
-    isSubprocess: r,
-    ipcEmitter: e,
-    boundOnMessage: o
-  })), Uh(n, r);
-}, vs = (e) => {
-  const t = Rt.get(e);
-  return t === void 0 ? e.channel !== null : t.connected;
-}, Vh = ({ anyProcess: e, channel: t, isSubprocess: n, message: r, strict: o }) => {
-  if (!o)
-    return r;
-  const i = Yt(e, t, n), s = mr(e, i);
+};
+const addReference = (channel, reference) => {
+  if (reference) {
+    addReferenceCount(channel);
+  }
+};
+const addReferenceCount = (channel) => {
+  channel.refCounted();
+};
+const removeReference = (channel, reference) => {
+  if (reference) {
+    removeReferenceCount(channel);
+  }
+};
+const removeReferenceCount = (channel) => {
+  channel.unrefCounted();
+};
+const undoAddedReferences = (channel, isSubprocess) => {
+  if (isSubprocess) {
+    removeReferenceCount(channel);
+    removeReferenceCount(channel);
+  }
+};
+const redoAddedReferences = (channel, isSubprocess) => {
+  if (isSubprocess) {
+    addReferenceCount(channel);
+    addReferenceCount(channel);
+  }
+};
+const onMessage = async ({ anyProcess, channel, isSubprocess, ipcEmitter }, wrappedMessage) => {
+  if (handleStrictResponse(wrappedMessage) || handleAbort(wrappedMessage)) {
+    return;
+  }
+  if (!INCOMING_MESSAGES.has(anyProcess)) {
+    INCOMING_MESSAGES.set(anyProcess, []);
+  }
+  const incomingMessages = INCOMING_MESSAGES.get(anyProcess);
+  incomingMessages.push(wrappedMessage);
+  if (incomingMessages.length > 1) {
+    return;
+  }
+  while (incomingMessages.length > 0) {
+    await waitForOutgoingMessages(anyProcess, ipcEmitter, wrappedMessage);
+    await scheduler.yield();
+    const message = await handleStrictRequest({
+      wrappedMessage: incomingMessages[0],
+      anyProcess,
+      channel,
+      isSubprocess,
+      ipcEmitter
+    });
+    incomingMessages.shift();
+    ipcEmitter.emit("message", message);
+    ipcEmitter.emit("message:done");
+  }
+};
+const onDisconnect = async ({ anyProcess, channel, isSubprocess, ipcEmitter, boundOnMessage }) => {
+  abortOnDisconnect();
+  const incomingMessages = INCOMING_MESSAGES.get(anyProcess);
+  while ((incomingMessages == null ? void 0 : incomingMessages.length) > 0) {
+    await once(ipcEmitter, "message:done");
+  }
+  anyProcess.removeListener("message", boundOnMessage);
+  redoAddedReferences(channel, isSubprocess);
+  ipcEmitter.connected = false;
+  ipcEmitter.emit("disconnect");
+};
+const INCOMING_MESSAGES = /* @__PURE__ */ new WeakMap();
+const getIpcEmitter = (anyProcess, channel, isSubprocess) => {
+  if (IPC_EMITTERS.has(anyProcess)) {
+    return IPC_EMITTERS.get(anyProcess);
+  }
+  const ipcEmitter = new EventEmitter();
+  ipcEmitter.connected = true;
+  IPC_EMITTERS.set(anyProcess, ipcEmitter);
+  forwardEvents({
+    ipcEmitter,
+    anyProcess,
+    channel,
+    isSubprocess
+  });
+  return ipcEmitter;
+};
+const IPC_EMITTERS = /* @__PURE__ */ new WeakMap();
+const forwardEvents = ({ ipcEmitter, anyProcess, channel, isSubprocess }) => {
+  const boundOnMessage = onMessage.bind(void 0, {
+    anyProcess,
+    channel,
+    isSubprocess,
+    ipcEmitter
+  });
+  anyProcess.on("message", boundOnMessage);
+  anyProcess.once("disconnect", onDisconnect.bind(void 0, {
+    anyProcess,
+    channel,
+    isSubprocess,
+    ipcEmitter,
+    boundOnMessage
+  }));
+  undoAddedReferences(channel, isSubprocess);
+};
+const isConnected = (anyProcess) => {
+  const ipcEmitter = IPC_EMITTERS.get(anyProcess);
+  return ipcEmitter === void 0 ? anyProcess.channel !== null : ipcEmitter.connected;
+};
+const handleSendStrict = ({ anyProcess, channel, isSubprocess, message, strict }) => {
+  if (!strict) {
+    return message;
+  }
+  const ipcEmitter = getIpcEmitter(anyProcess, channel, isSubprocess);
+  const hasListeners = hasMessageListeners(anyProcess, ipcEmitter);
   return {
-    id: Hh++,
-    type: Jt,
-    message: r,
-    hasListeners: s
+    id: count++,
+    type: REQUEST_TYPE,
+    message,
+    hasListeners
   };
 };
-let Hh = 0n;
-const qh = (e, t) => {
-  if (!((t == null ? void 0 : t.type) !== Jt || t.hasListeners))
-    for (const { id: n } of e)
-      n !== void 0 && kt[n].resolve({ isDeadlock: !0, hasListeners: !1 });
-}, Yh = async ({ wrappedMessage: e, anyProcess: t, channel: n, isSubprocess: r, ipcEmitter: o }) => {
-  if ((e == null ? void 0 : e.type) !== Jt || !t.connected)
-    return e;
-  const { id: i, message: s } = e, a = { id: i, type: Os, message: mr(t, o) };
-  try {
-    await Ds({
-      anyProcess: t,
-      channel: n,
-      isSubprocess: r,
-      ipc: !0
-    }, a);
-  } catch (c) {
-    o.emit("strict:error", c);
-  }
-  return s;
-}, Jh = (e) => {
-  var r;
-  if ((e == null ? void 0 : e.type) !== Os)
-    return !1;
-  const { id: t, message: n } = e;
-  return (r = kt[t]) == null || r.resolve({ isDeadlock: !1, hasListeners: n }), !0;
-}, Kh = async (e, t, n) => {
-  if ((e == null ? void 0 : e.type) !== Jt)
+let count = 0n;
+const validateStrictDeadlock = (outgoingMessages, wrappedMessage) => {
+  if ((wrappedMessage == null ? void 0 : wrappedMessage.type) !== REQUEST_TYPE || wrappedMessage.hasListeners) {
     return;
-  const r = yt();
-  kt[e.id] = r;
-  const o = new AbortController();
+  }
+  for (const { id } of outgoingMessages) {
+    if (id !== void 0) {
+      STRICT_RESPONSES[id].resolve({ isDeadlock: true, hasListeners: false });
+    }
+  }
+};
+const handleStrictRequest = async ({ wrappedMessage, anyProcess, channel, isSubprocess, ipcEmitter }) => {
+  if ((wrappedMessage == null ? void 0 : wrappedMessage.type) !== REQUEST_TYPE || !anyProcess.connected) {
+    return wrappedMessage;
+  }
+  const { id, message } = wrappedMessage;
+  const response = { id, type: RESPONSE_TYPE, message: hasMessageListeners(anyProcess, ipcEmitter) };
   try {
-    const { isDeadlock: i, hasListeners: s } = await Promise.race([
-      r,
-      Xh(t, n, o)
+    await sendMessage({
+      anyProcess,
+      channel,
+      isSubprocess,
+      ipc: true
+    }, response);
+  } catch (error) {
+    ipcEmitter.emit("strict:error", error);
+  }
+  return message;
+};
+const handleStrictResponse = (wrappedMessage) => {
+  var _a2;
+  if ((wrappedMessage == null ? void 0 : wrappedMessage.type) !== RESPONSE_TYPE) {
+    return false;
+  }
+  const { id, message: hasListeners } = wrappedMessage;
+  (_a2 = STRICT_RESPONSES[id]) == null ? void 0 : _a2.resolve({ isDeadlock: false, hasListeners });
+  return true;
+};
+const waitForStrictResponse = async (wrappedMessage, anyProcess, isSubprocess) => {
+  if ((wrappedMessage == null ? void 0 : wrappedMessage.type) !== REQUEST_TYPE) {
+    return;
+  }
+  const deferred = createDeferred();
+  STRICT_RESPONSES[wrappedMessage.id] = deferred;
+  const controller = new AbortController();
+  try {
+    const { isDeadlock, hasListeners } = await Promise.race([
+      deferred,
+      throwOnDisconnect$1(anyProcess, isSubprocess, controller)
     ]);
-    i && Dh(n), s || Ih(n);
+    if (isDeadlock) {
+      throwOnStrictDeadlockError(isSubprocess);
+    }
+    if (!hasListeners) {
+      throwOnMissingStrict(isSubprocess);
+    }
   } finally {
-    o.abort(), delete kt[e.id];
+    controller.abort();
+    delete STRICT_RESPONSES[wrappedMessage.id];
   }
-}, kt = {}, Xh = async (e, t, { signal: n }) => {
-  Mt(e, 1, n), await Y(e, "disconnect", { signal: n }), xh(t);
-}, Jt = "execa:ipc:request", Os = "execa:ipc:response", Qh = (e, t, n) => {
-  nt.has(e) || nt.set(e, /* @__PURE__ */ new Set());
-  const r = nt.get(e), o = yt(), i = n ? t.id : void 0, s = { onMessageSent: o, id: i };
-  return r.add(s), { outgoingMessages: r, outgoingMessage: s };
-}, Zh = ({ outgoingMessages: e, outgoingMessage: t }) => {
-  e.delete(t), t.onMessageSent.resolve();
-}, em = async (e, t, n) => {
-  var r;
-  for (; !mr(e, t) && ((r = nt.get(e)) == null ? void 0 : r.size) > 0; ) {
-    const o = [...nt.get(e)];
-    qh(o, n), await Promise.all(o.map(({ onMessageSent: i }) => i));
+};
+const STRICT_RESPONSES = {};
+const throwOnDisconnect$1 = async (anyProcess, isSubprocess, { signal }) => {
+  incrementMaxListeners(anyProcess, 1, signal);
+  await once(anyProcess, "disconnect", { signal });
+  throwOnStrictDisconnect(isSubprocess);
+};
+const REQUEST_TYPE = "execa:ipc:request";
+const RESPONSE_TYPE = "execa:ipc:response";
+const startSendMessage = (anyProcess, wrappedMessage, strict) => {
+  if (!OUTGOING_MESSAGES.has(anyProcess)) {
+    OUTGOING_MESSAGES.set(anyProcess, /* @__PURE__ */ new Set());
   }
-}, nt = /* @__PURE__ */ new WeakMap(), mr = (e, t) => t.listenerCount("message") > tm(e), tm = (e) => Oe.has(e) && !ct(Oe.get(e).options.buffer, "ipc") ? 1 : 0, Ds = ({ anyProcess: e, channel: t, isSubprocess: n, ipc: r }, o, { strict: i = !1 } = {}) => {
-  const s = "sendMessage";
-  return fr({
-    methodName: s,
-    isSubprocess: n,
-    ipc: r,
-    isConnected: e.connected
-  }), nm({
-    anyProcess: e,
-    channel: t,
-    methodName: s,
-    isSubprocess: n,
-    message: o,
-    strict: i
+  const outgoingMessages = OUTGOING_MESSAGES.get(anyProcess);
+  const onMessageSent = createDeferred();
+  const id = strict ? wrappedMessage.id : void 0;
+  const outgoingMessage = { onMessageSent, id };
+  outgoingMessages.add(outgoingMessage);
+  return { outgoingMessages, outgoingMessage };
+};
+const endSendMessage = ({ outgoingMessages, outgoingMessage }) => {
+  outgoingMessages.delete(outgoingMessage);
+  outgoingMessage.onMessageSent.resolve();
+};
+const waitForOutgoingMessages = async (anyProcess, ipcEmitter, wrappedMessage) => {
+  var _a2;
+  while (!hasMessageListeners(anyProcess, ipcEmitter) && ((_a2 = OUTGOING_MESSAGES.get(anyProcess)) == null ? void 0 : _a2.size) > 0) {
+    const outgoingMessages = [...OUTGOING_MESSAGES.get(anyProcess)];
+    validateStrictDeadlock(outgoingMessages, wrappedMessage);
+    await Promise.all(outgoingMessages.map(({ onMessageSent }) => onMessageSent));
+  }
+};
+const OUTGOING_MESSAGES = /* @__PURE__ */ new WeakMap();
+const hasMessageListeners = (anyProcess, ipcEmitter) => ipcEmitter.listenerCount("message") > getMinListenerCount(anyProcess);
+const getMinListenerCount = (anyProcess) => SUBPROCESS_OPTIONS.has(anyProcess) && !getFdSpecificValue(SUBPROCESS_OPTIONS.get(anyProcess).options.buffer, "ipc") ? 1 : 0;
+const sendMessage = ({ anyProcess, channel, isSubprocess, ipc }, message, { strict = false } = {}) => {
+  const methodName = "sendMessage";
+  validateIpcMethod({
+    methodName,
+    isSubprocess,
+    ipc,
+    isConnected: anyProcess.connected
   });
-}, nm = async ({ anyProcess: e, channel: t, methodName: n, isSubprocess: r, message: o, strict: i }) => {
-  const s = Vh({
-    anyProcess: e,
-    channel: t,
-    isSubprocess: r,
-    message: o,
-    strict: i
-  }), a = Qh(e, s, i);
+  return sendMessageAsync({
+    anyProcess,
+    channel,
+    methodName,
+    isSubprocess,
+    message,
+    strict
+  });
+};
+const sendMessageAsync = async ({ anyProcess, channel, methodName, isSubprocess, message, strict }) => {
+  const wrappedMessage = handleSendStrict({
+    anyProcess,
+    channel,
+    isSubprocess,
+    message,
+    strict
+  });
+  const outgoingMessagesState = startSendMessage(anyProcess, wrappedMessage, strict);
   try {
-    await Is({
-      anyProcess: e,
-      methodName: n,
-      isSubprocess: r,
-      wrappedMessage: s,
-      message: o
+    await sendOneMessage({
+      anyProcess,
+      methodName,
+      isSubprocess,
+      wrappedMessage,
+      message
     });
-  } catch (c) {
-    throw dr(e), c;
+  } catch (error) {
+    disconnect(anyProcess);
+    throw error;
   } finally {
-    Zh(a);
+    endSendMessage(outgoingMessagesState);
   }
-}, Is = async ({ anyProcess: e, methodName: t, isSubprocess: n, wrappedMessage: r, message: o }) => {
-  const i = rm(e);
+};
+const sendOneMessage = async ({ anyProcess, methodName, isSubprocess, wrappedMessage, message }) => {
+  const sendMethod = getSendMethod(anyProcess);
   try {
     await Promise.all([
-      Kh(r, e, n),
-      i(r)
+      waitForStrictResponse(wrappedMessage, anyProcess, isSubprocess),
+      sendMethod(wrappedMessage)
     ]);
-  } catch (s) {
-    throw Ah({ error: s, methodName: t, isSubprocess: n }), Ch({
-      error: s,
-      methodName: t,
-      isSubprocess: n,
-      message: o
-    }), s;
-  }
-}, rm = (e) => {
-  if (ln.has(e))
-    return ln.get(e);
-  const t = Ho(e.send.bind(e));
-  return ln.set(e, t), t;
-}, ln = /* @__PURE__ */ new WeakMap(), om = (e, t) => {
-  const n = "cancelSignal";
-  return ys(n, !1, e.connected), Is({
-    anyProcess: e,
-    methodName: n,
-    isSubprocess: !1,
-    wrappedMessage: { type: xs, message: t },
-    message: t
-  });
-}, im = async ({ anyProcess: e, channel: t, isSubprocess: n, ipc: r }) => (await sm({
-  anyProcess: e,
-  channel: t,
-  isSubprocess: n,
-  ipc: r
-}), pr.signal), sm = async ({ anyProcess: e, channel: t, isSubprocess: n, ipc: r }) => {
-  if (!uo) {
-    if (uo = !0, !r) {
-      Ph();
-      return;
-    }
-    if (t === null) {
-      Rs();
-      return;
-    }
-    Yt(e, t, n), await Ko.yield();
+  } catch (error) {
+    handleEpipeError({ error, methodName, isSubprocess });
+    handleSerializationError({
+      error,
+      methodName,
+      isSubprocess,
+      message
+    });
+    throw error;
   }
 };
-let uo = !1;
-const am = (e) => (e == null ? void 0 : e.type) !== xs ? !1 : (pr.abort(e.message), !0), xs = "execa:ipc:cancel", Rs = () => {
-  pr.abort(Rh());
-}, pr = new AbortController(), cm = ({ gracefulCancel: e, cancelSignal: t, ipc: n, serialization: r }) => {
-  if (e) {
-    if (t === void 0)
-      throw new Error("The `cancelSignal` option must be defined when setting the `gracefulCancel` option.");
-    if (!n)
-      throw new Error("The `ipc` option cannot be false when setting the `gracefulCancel` option.");
-    if (r === "json")
-      throw new Error("The `serialization` option cannot be 'json' when setting the `gracefulCancel` option.");
+const getSendMethod = (anyProcess) => {
+  if (PROCESS_SEND_METHODS.has(anyProcess)) {
+    return PROCESS_SEND_METHODS.get(anyProcess);
   }
-}, lm = ({
-  subprocess: e,
-  cancelSignal: t,
-  gracefulCancel: n,
-  forceKillAfterDelay: r,
-  context: o,
-  controller: i
-}) => n ? [um({
-  subprocess: e,
-  cancelSignal: t,
-  forceKillAfterDelay: r,
-  context: o,
-  controller: i
-})] : [], um = async ({ subprocess: e, cancelSignal: t, forceKillAfterDelay: n, context: r, controller: { signal: o } }) => {
-  await ps(t, o);
-  const i = fm(t);
-  throw await om(e, i), ms({
-    kill: e.kill,
-    forceKillAfterDelay: n,
-    context: r,
-    controllerSignal: o
-  }), r.terminationReason ?? (r.terminationReason = "gracefulCancel"), t.reason;
-}, fm = ({ reason: e }) => {
-  if (!(e instanceof DOMException))
-    return e;
-  const t = new Error(e.message);
-  return Object.defineProperty(t, "stack", {
-    value: e.stack,
-    enumerable: !1,
-    configurable: !0,
-    writable: !0
-  }), t;
-}, dm = ({ timeout: e }) => {
-  if (e !== void 0 && (!Number.isFinite(e) || e < 0))
-    throw new TypeError(`Expected the \`timeout\` option to be a non-negative integer, got \`${e}\` (${typeof e})`);
-}, hm = (e, t, n, r) => t === 0 || t === void 0 ? [] : [mm(e, t, n, r)], mm = async (e, t, n, { signal: r }) => {
-  throw await Jo(t, void 0, { signal: r }), n.terminationReason ?? (n.terminationReason = "timeout"), e.kill(), new pt();
-}, pm = ({ options: e }) => {
-  if (e.node === !1)
+  const sendMethod = promisify(anyProcess.send.bind(anyProcess));
+  PROCESS_SEND_METHODS.set(anyProcess, sendMethod);
+  return sendMethod;
+};
+const PROCESS_SEND_METHODS = /* @__PURE__ */ new WeakMap();
+const sendAbort = (subprocess, message) => {
+  const methodName = "cancelSignal";
+  validateConnection(methodName, false, subprocess.connected);
+  return sendOneMessage({
+    anyProcess: subprocess,
+    methodName,
+    isSubprocess: false,
+    wrappedMessage: { type: GRACEFUL_CANCEL_TYPE, message },
+    message
+  });
+};
+const getCancelSignal = async ({ anyProcess, channel, isSubprocess, ipc }) => {
+  await startIpc({
+    anyProcess,
+    channel,
+    isSubprocess,
+    ipc
+  });
+  return cancelController.signal;
+};
+const startIpc = async ({ anyProcess, channel, isSubprocess, ipc }) => {
+  if (cancelListening) {
+    return;
+  }
+  cancelListening = true;
+  if (!ipc) {
+    throwOnMissingParent();
+    return;
+  }
+  if (channel === null) {
+    abortOnDisconnect();
+    return;
+  }
+  getIpcEmitter(anyProcess, channel, isSubprocess);
+  await scheduler.yield();
+};
+let cancelListening = false;
+const handleAbort = (wrappedMessage) => {
+  if ((wrappedMessage == null ? void 0 : wrappedMessage.type) !== GRACEFUL_CANCEL_TYPE) {
+    return false;
+  }
+  cancelController.abort(wrappedMessage.message);
+  return true;
+};
+const GRACEFUL_CANCEL_TYPE = "execa:ipc:cancel";
+const abortOnDisconnect = () => {
+  cancelController.abort(getAbortDisconnectError());
+};
+const cancelController = new AbortController();
+const validateGracefulCancel = ({ gracefulCancel, cancelSignal, ipc, serialization }) => {
+  if (!gracefulCancel) {
+    return;
+  }
+  if (cancelSignal === void 0) {
+    throw new Error("The `cancelSignal` option must be defined when setting the `gracefulCancel` option.");
+  }
+  if (!ipc) {
+    throw new Error("The `ipc` option cannot be false when setting the `gracefulCancel` option.");
+  }
+  if (serialization === "json") {
+    throw new Error("The `serialization` option cannot be 'json' when setting the `gracefulCancel` option.");
+  }
+};
+const throwOnGracefulCancel = ({
+  subprocess,
+  cancelSignal,
+  gracefulCancel,
+  forceKillAfterDelay,
+  context,
+  controller
+}) => gracefulCancel ? [sendOnAbort({
+  subprocess,
+  cancelSignal,
+  forceKillAfterDelay,
+  context,
+  controller
+})] : [];
+const sendOnAbort = async ({ subprocess, cancelSignal, forceKillAfterDelay, context, controller: { signal } }) => {
+  await onAbortedSignal(cancelSignal, signal);
+  const reason = getReason(cancelSignal);
+  await sendAbort(subprocess, reason);
+  killOnTimeout({
+    kill: subprocess.kill,
+    forceKillAfterDelay,
+    context,
+    controllerSignal: signal
+  });
+  context.terminationReason ?? (context.terminationReason = "gracefulCancel");
+  throw cancelSignal.reason;
+};
+const getReason = ({ reason }) => {
+  if (!(reason instanceof DOMException)) {
+    return reason;
+  }
+  const error = new Error(reason.message);
+  Object.defineProperty(error, "stack", {
+    value: reason.stack,
+    enumerable: false,
+    configurable: true,
+    writable: true
+  });
+  return error;
+};
+const validateTimeout = ({ timeout }) => {
+  if (timeout !== void 0 && (!Number.isFinite(timeout) || timeout < 0)) {
+    throw new TypeError(`Expected the \`timeout\` option to be a non-negative integer, got \`${timeout}\` (${typeof timeout})`);
+  }
+};
+const throwOnTimeout = (subprocess, timeout, context, controller) => timeout === 0 || timeout === void 0 ? [] : [killAfterTimeout(subprocess, timeout, context, controller)];
+const killAfterTimeout = async (subprocess, timeout, context, { signal }) => {
+  await setTimeout$1(timeout, void 0, { signal });
+  context.terminationReason ?? (context.terminationReason = "timeout");
+  subprocess.kill();
+  throw new DiscardedError();
+};
+const mapNode = ({ options }) => {
+  if (options.node === false) {
     throw new TypeError('The "node" option cannot be false with `execaNode()`.');
-  return { options: { ...e, node: !0 } };
-}, ym = (e, t, {
-  node: n = !1,
-  nodePath: r = Ec,
-  nodeOptions: o = Tc.filter((c) => !c.startsWith("--inspect")),
-  cwd: i,
-  execPath: s,
-  ...a
+  }
+  return { options: { ...options, node: true } };
+};
+const handleNodeOption = (file2, commandArguments, {
+  node: shouldHandleNode = false,
+  nodePath = execPath,
+  nodeOptions = execArgv.filter((nodeOption) => !nodeOption.startsWith("--inspect")),
+  cwd: cwd2,
+  execPath: formerNodePath,
+  ...options
 }) => {
-  if (s !== void 0)
+  if (formerNodePath !== void 0) {
     throw new TypeError('The "execPath" option has been removed. Please use the "nodePath" option instead.');
-  const c = Yn(r, 'The "nodePath" option'), u = A.resolve(i, c), l = {
-    ...a,
-    nodePath: u,
-    node: n,
-    cwd: i
+  }
+  const normalizedNodePath = safeNormalizeFileUrl(nodePath, 'The "nodePath" option');
+  const resolvedNodePath = path$g.resolve(cwd2, normalizedNodePath);
+  const newOptions = {
+    ...options,
+    nodePath: resolvedNodePath,
+    node: shouldHandleNode,
+    cwd: cwd2
   };
-  if (!n)
-    return [e, t, l];
-  if (A.basename(e, ".exe") === "node")
+  if (!shouldHandleNode) {
+    return [file2, commandArguments, newOptions];
+  }
+  if (path$g.basename(file2, ".exe") === "node") {
     throw new TypeError('When the "node" option is true, the first argument does not need to be "node".');
+  }
   return [
-    u,
-    [...o, e, ...t],
-    { ipc: !0, ...l, shell: !1 }
+    resolvedNodePath,
+    [...nodeOptions, file2, ...commandArguments],
+    { ipc: true, ...newOptions, shell: false }
   ];
-}, wm = ({ ipcInput: e, ipc: t, serialization: n }) => {
-  if (e !== void 0) {
-    if (!t)
-      throw new Error("The `ipcInput` option cannot be set unless the `ipc` option is `true`.");
-    bm[n](e);
-  }
-}, gm = (e) => {
-  try {
-    xc(e);
-  } catch (t) {
-    throw new Error("The `ipcInput` option is not serializable with a structured clone.", { cause: t });
-  }
-}, Sm = (e) => {
-  try {
-    JSON.stringify(e);
-  } catch (t) {
-    throw new Error("The `ipcInput` option is not serializable with JSON.", { cause: t });
-  }
-}, bm = {
-  advanced: gm,
-  json: Sm
-}, Em = async (e, t) => {
-  t !== void 0 && await e.sendMessage(t);
-}, Tm = ({ encoding: e }) => {
-  if (On.has(e))
+};
+const validateIpcInputOption = ({ ipcInput, ipc, serialization }) => {
+  if (ipcInput === void 0) {
     return;
-  const t = vm(e);
-  if (t !== void 0)
-    throw new TypeError(`Invalid option \`encoding: ${$t(e)}\`.
-Please rename it to ${$t(t)}.`);
-  const n = [...On].map((r) => $t(r)).join(", ");
-  throw new TypeError(`Invalid option \`encoding: ${$t(e)}\`.
-Please rename it to one of: ${n}.`);
-}, $m = /* @__PURE__ */ new Set(["utf8", "utf16le"]), xe = /* @__PURE__ */ new Set(["buffer", "hex", "base64", "base64url", "latin1", "ascii"]), On = /* @__PURE__ */ new Set([...$m, ...xe]), vm = (e) => {
-  if (e === null)
+  }
+  if (!ipc) {
+    throw new Error("The `ipcInput` option cannot be set unless the `ipc` option is `true`.");
+  }
+  validateIpcInput[serialization](ipcInput);
+};
+const validateAdvancedInput = (ipcInput) => {
+  try {
+    serialize(ipcInput);
+  } catch (error) {
+    throw new Error("The `ipcInput` option is not serializable with a structured clone.", { cause: error });
+  }
+};
+const validateJsonInput = (ipcInput) => {
+  try {
+    JSON.stringify(ipcInput);
+  } catch (error) {
+    throw new Error("The `ipcInput` option is not serializable with JSON.", { cause: error });
+  }
+};
+const validateIpcInput = {
+  advanced: validateAdvancedInput,
+  json: validateJsonInput
+};
+const sendIpcInput = async (subprocess, ipcInput) => {
+  if (ipcInput === void 0) {
+    return;
+  }
+  await subprocess.sendMessage(ipcInput);
+};
+const validateEncoding = ({ encoding }) => {
+  if (ENCODINGS.has(encoding)) {
+    return;
+  }
+  const correctEncoding = getCorrectEncoding(encoding);
+  if (correctEncoding !== void 0) {
+    throw new TypeError(`Invalid option \`encoding: ${serializeEncoding(encoding)}\`.
+Please rename it to ${serializeEncoding(correctEncoding)}.`);
+  }
+  const correctEncodings = [...ENCODINGS].map((correctEncoding2) => serializeEncoding(correctEncoding2)).join(", ");
+  throw new TypeError(`Invalid option \`encoding: ${serializeEncoding(encoding)}\`.
+Please rename it to one of: ${correctEncodings}.`);
+};
+const TEXT_ENCODINGS = /* @__PURE__ */ new Set(["utf8", "utf16le"]);
+const BINARY_ENCODINGS = /* @__PURE__ */ new Set(["buffer", "hex", "base64", "base64url", "latin1", "ascii"]);
+const ENCODINGS = /* @__PURE__ */ new Set([...TEXT_ENCODINGS, ...BINARY_ENCODINGS]);
+const getCorrectEncoding = (encoding) => {
+  if (encoding === null) {
     return "buffer";
-  if (typeof e != "string")
+  }
+  if (typeof encoding !== "string") {
     return;
-  const t = e.toLowerCase();
-  if (t in fo)
-    return fo[t];
-  if (On.has(t))
-    return t;
-}, fo = {
+  }
+  const lowerEncoding = encoding.toLowerCase();
+  if (lowerEncoding in ENCODING_ALIASES) {
+    return ENCODING_ALIASES[lowerEncoding];
+  }
+  if (ENCODINGS.has(lowerEncoding)) {
+    return lowerEncoding;
+  }
+};
+const ENCODING_ALIASES = {
   // eslint-disable-next-line unicorn/text-encoding-identifier-case
   "utf-8": "utf8",
   "utf-16le": "utf16le",
   "ucs-2": "utf16le",
   ucs2: "utf16le",
   binary: "latin1"
-}, $t = (e) => typeof e == "string" ? `"${e}"` : String(e), Om = (e = Ps()) => {
-  const t = Yn(e, 'The "cwd" option');
-  return A.resolve(t);
-}, Ps = () => {
+};
+const serializeEncoding = (encoding) => typeof encoding === "string" ? `"${encoding}"` : String(encoding);
+const normalizeCwd = (cwd2 = getDefaultCwd()) => {
+  const cwdString = safeNormalizeFileUrl(cwd2, 'The "cwd" option');
+  return path$g.resolve(cwdString);
+};
+const getDefaultCwd = () => {
   try {
-    return G.cwd();
-  } catch (e) {
-    throw e.message = `The current directory does not exist.
-${e.message}`, e;
+    return process$2.cwd();
+  } catch (error) {
+    error.message = `The current directory does not exist.
+${error.message}`;
+    throw error;
   }
-}, Dm = (e, t) => {
-  if (t === Ps())
-    return e;
-  let n;
+};
+const fixCwdError = (originalMessage, cwd2) => {
+  if (cwd2 === getDefaultCwd()) {
+    return originalMessage;
+  }
+  let cwdStat;
   try {
-    n = Rc(t);
-  } catch (r) {
-    return `The "cwd" option is invalid: ${t}.
-${r.message}
-${e}`;
+    cwdStat = statSync(cwd2);
+  } catch (error) {
+    return `The "cwd" option is invalid: ${cwd2}.
+${error.message}
+${originalMessage}`;
   }
-  return n.isDirectory() ? e : `The "cwd" option is not a directory: ${t}.
-${e}`;
-}, As = (e, t, n) => {
-  n.cwd = Om(n.cwd);
-  const [r, o, i] = ym(e, t, n), { command: s, args: a, options: c } = zd._parse(r, o, i), u = gf(c), l = Im(u);
-  return dm(l), Tm(l), wm(l), Eh(l), cm(l), l.shell = Mi(l.shell), l.env = xm(l), l.killSignal = ch(l.killSignal), l.forceKillAfterDelay = ph(l.forceKillAfterDelay), l.lines = l.lines.map((f, d) => f && !xe.has(l.encoding) && l.buffer[d]), G.platform === "win32" && A.basename(s, ".exe") === "cmd" && a.unshift("/q"), { file: s, commandArguments: a, options: l };
-}, Im = ({
-  extendEnv: e = !0,
-  preferLocal: t = !1,
-  cwd: n,
-  localDir: r = n,
-  encoding: o = "utf8",
-  reject: i = !0,
-  cleanup: s = !0,
-  all: a = !1,
-  windowsHide: c = !0,
-  killSignal: u = "SIGTERM",
-  forceKillAfterDelay: l = !0,
-  gracefulCancel: f = !1,
-  ipcInput: d,
-  ipc: h = d !== void 0 || f,
-  serialization: m = "advanced",
-  ...y
+  if (!cwdStat.isDirectory()) {
+    return `The "cwd" option is not a directory: ${cwd2}.
+${originalMessage}`;
+  }
+  return originalMessage;
+};
+const normalizeOptions = (filePath, rawArguments, rawOptions) => {
+  rawOptions.cwd = normalizeCwd(rawOptions.cwd);
+  const [processedFile, processedArguments, processedOptions] = handleNodeOption(filePath, rawArguments, rawOptions);
+  const { command: file2, args: commandArguments, options: initialOptions } = crossSpawn._parse(processedFile, processedArguments, processedOptions);
+  const fdOptions = normalizeFdSpecificOptions(initialOptions);
+  const options = addDefaultOptions(fdOptions);
+  validateTimeout(options);
+  validateEncoding(options);
+  validateIpcInputOption(options);
+  validateCancelSignal(options);
+  validateGracefulCancel(options);
+  options.shell = normalizeFileUrl(options.shell);
+  options.env = getEnv(options);
+  options.killSignal = normalizeKillSignal(options.killSignal);
+  options.forceKillAfterDelay = normalizeForceKillAfterDelay(options.forceKillAfterDelay);
+  options.lines = options.lines.map((lines, fdNumber) => lines && !BINARY_ENCODINGS.has(options.encoding) && options.buffer[fdNumber]);
+  if (process$2.platform === "win32" && path$g.basename(file2, ".exe") === "cmd") {
+    commandArguments.unshift("/q");
+  }
+  return { file: file2, commandArguments, options };
+};
+const addDefaultOptions = ({
+  extendEnv = true,
+  preferLocal = false,
+  cwd: cwd2,
+  localDir: localDirectory = cwd2,
+  encoding = "utf8",
+  reject = true,
+  cleanup = true,
+  all = false,
+  windowsHide = true,
+  killSignal = "SIGTERM",
+  forceKillAfterDelay = true,
+  gracefulCancel = false,
+  ipcInput,
+  ipc = ipcInput !== void 0 || gracefulCancel,
+  serialization = "advanced",
+  ...options
 }) => ({
-  ...y,
-  extendEnv: e,
-  preferLocal: t,
-  cwd: n,
-  localDirectory: r,
-  encoding: o,
-  reject: i,
-  cleanup: s,
-  all: a,
-  windowsHide: c,
-  killSignal: u,
-  forceKillAfterDelay: l,
-  gracefulCancel: f,
-  ipcInput: d,
-  ipc: h,
-  serialization: m
-}), xm = ({ env: e, extendEnv: t, preferLocal: n, node: r, localDirectory: o, nodePath: i }) => {
-  const s = t ? { ...G.env, ...e } : e;
-  return n || r ? Jd({
-    env: s,
-    cwd: o,
-    execPath: i,
-    preferLocal: n,
-    addExecPath: r
-  }) : s;
-}, Cs = (e, t, n) => n.shell && t.length > 0 ? [[e, ...t].join(" "), [], n] : [e, t, n];
-function yr(e) {
-  if (typeof e == "string")
-    return Rm(e);
-  if (!(ArrayBuffer.isView(e) && e.BYTES_PER_ELEMENT === 1))
+  ...options,
+  extendEnv,
+  preferLocal,
+  cwd: cwd2,
+  localDirectory,
+  encoding,
+  reject,
+  cleanup,
+  all,
+  windowsHide,
+  killSignal,
+  forceKillAfterDelay,
+  gracefulCancel,
+  ipcInput,
+  ipc,
+  serialization
+});
+const getEnv = ({ env: envOption, extendEnv, preferLocal, node, localDirectory, nodePath }) => {
+  const env = extendEnv ? { ...process$2.env, ...envOption } : envOption;
+  if (preferLocal || node) {
+    return npmRunPathEnv({
+      env,
+      cwd: localDirectory,
+      execPath: nodePath,
+      preferLocal,
+      addExecPath: node
+    });
+  }
+  return env;
+};
+const concatenateShell = (file2, commandArguments, options) => options.shell && commandArguments.length > 0 ? [[file2, ...commandArguments].join(" "), [], options] : [file2, commandArguments, options];
+function stripFinalNewline(input) {
+  if (typeof input === "string") {
+    return stripFinalNewlineString(input);
+  }
+  if (!(ArrayBuffer.isView(input) && input.BYTES_PER_ELEMENT === 1)) {
     throw new Error("Input must be a string or a Uint8Array");
-  return Pm(e);
+  }
+  return stripFinalNewlineBinary(input);
 }
-const Rm = (e) => e.at(-1) === Fs ? e.slice(0, e.at(-2) === Ls ? -2 : -1) : e, Pm = (e) => e.at(-1) === Am ? e.subarray(0, e.at(-2) === Cm ? -2 : -1) : e, Fs = `
-`, Am = Fs.codePointAt(0), Ls = "\r", Cm = Ls.codePointAt(0);
-function Re(e, { checkOpen: t = !0 } = {}) {
-  return e !== null && typeof e == "object" && (e.writable || e.readable || !t || e.writable === void 0 && e.readable === void 0) && typeof e.pipe == "function";
+const stripFinalNewlineString = (input) => input.at(-1) === LF ? input.slice(0, input.at(-2) === CR ? -2 : -1) : input;
+const stripFinalNewlineBinary = (input) => input.at(-1) === LF_BINARY ? input.subarray(0, input.at(-2) === CR_BINARY ? -2 : -1) : input;
+const LF = "\n";
+const LF_BINARY = LF.codePointAt(0);
+const CR = "\r";
+const CR_BINARY = CR.codePointAt(0);
+function isStream(stream, { checkOpen = true } = {}) {
+  return stream !== null && typeof stream === "object" && (stream.writable || stream.readable || !checkOpen || stream.writable === void 0 && stream.readable === void 0) && typeof stream.pipe === "function";
 }
-function Ms(e, { checkOpen: t = !0 } = {}) {
-  return Re(e, { checkOpen: t }) && (e.writable || !t) && typeof e.write == "function" && typeof e.end == "function" && typeof e.writable == "boolean" && typeof e.writableObjectMode == "boolean" && typeof e.destroy == "function" && typeof e.destroyed == "boolean";
+function isWritableStream$1(stream, { checkOpen = true } = {}) {
+  return isStream(stream, { checkOpen }) && (stream.writable || !checkOpen) && typeof stream.write === "function" && typeof stream.end === "function" && typeof stream.writable === "boolean" && typeof stream.writableObjectMode === "boolean" && typeof stream.destroy === "function" && typeof stream.destroyed === "boolean";
 }
-function Kt(e, { checkOpen: t = !0 } = {}) {
-  return Re(e, { checkOpen: t }) && (e.readable || !t) && typeof e.read == "function" && typeof e.readable == "boolean" && typeof e.readableObjectMode == "boolean" && typeof e.destroy == "function" && typeof e.destroyed == "boolean";
+function isReadableStream$1(stream, { checkOpen = true } = {}) {
+  return isStream(stream, { checkOpen }) && (stream.readable || !checkOpen) && typeof stream.read === "function" && typeof stream.readable === "boolean" && typeof stream.readableObjectMode === "boolean" && typeof stream.destroy === "function" && typeof stream.destroyed === "boolean";
 }
-function ks(e, t) {
-  return Ms(e, t) && Kt(e, t);
+function isDuplexStream(stream, options) {
+  return isWritableStream$1(stream, options) && isReadableStream$1(stream, options);
 }
-const Fm = Object.getPrototypeOf(
+const a = Object.getPrototypeOf(
   Object.getPrototypeOf(
     /* istanbul ignore next */
     async function* () {
     }
   ).prototype
 );
-var re, lt, he, Z, Ve, _s, js;
-class Lm {
-  constructor(t, n) {
-    C(this, Ve);
-    C(this, re);
-    C(this, lt);
-    C(this, he, !1);
-    C(this, Z);
-    W(this, re, t), W(this, lt, n);
+class c {
+  constructor(e, t) {
+    __privateAdd(this, _c_instances);
+    __privateAdd(this, _t);
+    __privateAdd(this, _n);
+    __privateAdd(this, _r, false);
+    __privateAdd(this, _e);
+    __privateSet(this, _t, e), __privateSet(this, _n, t);
   }
   next() {
-    const t = () => Xe(this, Ve, _s).call(this);
-    return W(this, Z, p(this, Z) ? p(this, Z).then(t, t) : t()), p(this, Z);
+    const e = () => __privateMethod(this, _c_instances, s_fn).call(this);
+    return __privateSet(this, _e, __privateGet(this, _e) ? __privateGet(this, _e).then(e, e) : e()), __privateGet(this, _e);
   }
-  return(t) {
-    const n = () => Xe(this, Ve, js).call(this, t);
-    return p(this, Z) ? p(this, Z).then(n, n) : n();
+  return(e) {
+    const t = () => __privateMethod(this, _c_instances, i_fn).call(this, e);
+    return __privateGet(this, _e) ? __privateGet(this, _e).then(t, t) : t();
   }
 }
-re = new WeakMap(), lt = new WeakMap(), he = new WeakMap(), Z = new WeakMap(), Ve = new WeakSet(), _s = async function() {
-  if (p(this, he))
+_t = new WeakMap();
+_n = new WeakMap();
+_r = new WeakMap();
+_e = new WeakMap();
+_c_instances = new WeakSet();
+s_fn = async function() {
+  if (__privateGet(this, _r))
     return {
-      done: !0,
+      done: true,
       value: void 0
     };
-  let t;
+  let e;
   try {
-    t = await p(this, re).read();
-  } catch (n) {
-    throw W(this, Z, void 0), W(this, he, !0), p(this, re).releaseLock(), n;
+    e = await __privateGet(this, _t).read();
+  } catch (t) {
+    throw __privateSet(this, _e, void 0), __privateSet(this, _r, true), __privateGet(this, _t).releaseLock(), t;
   }
-  return t.done && (W(this, Z, void 0), W(this, he, !0), p(this, re).releaseLock()), t;
-}, js = async function(t) {
-  if (p(this, he))
+  return e.done && (__privateSet(this, _e, void 0), __privateSet(this, _r, true), __privateGet(this, _t).releaseLock()), e;
+};
+i_fn = async function(e) {
+  if (__privateGet(this, _r))
     return {
-      done: !0,
-      value: t
+      done: true,
+      value: e
     };
-  if (W(this, he, !0), !p(this, lt)) {
-    const n = p(this, re).cancel(t);
-    return p(this, re).releaseLock(), await n, {
-      done: !0,
-      value: t
+  if (__privateSet(this, _r, true), !__privateGet(this, _n)) {
+    const t = __privateGet(this, _t).cancel(e);
+    return __privateGet(this, _t).releaseLock(), await t, {
+      done: true,
+      value: e
     };
   }
-  return p(this, re).releaseLock(), {
-    done: !0,
-    value: t
+  return __privateGet(this, _t).releaseLock(), {
+    done: true,
+    value: e
   };
 };
-const wr = Symbol();
-function Bs() {
-  return this[wr].next();
+const n = Symbol();
+function i() {
+  return this[n].next();
 }
-Object.defineProperty(Bs, "name", { value: "next" });
-function Us(e) {
-  return this[wr].return(e);
+Object.defineProperty(i, "name", { value: "next" });
+function o(r) {
+  return this[n].return(r);
 }
-Object.defineProperty(Us, "name", { value: "return" });
-const Mm = Object.create(Fm, {
+Object.defineProperty(o, "name", { value: "return" });
+const u = Object.create(a, {
   next: {
-    enumerable: !0,
-    configurable: !0,
-    writable: !0,
-    value: Bs
+    enumerable: true,
+    configurable: true,
+    writable: true,
+    value: i
   },
   return: {
-    enumerable: !0,
-    configurable: !0,
-    writable: !0,
-    value: Us
+    enumerable: true,
+    configurable: true,
+    writable: true,
+    value: o
   }
 });
-function km({ preventCancel: e = !1 } = {}) {
-  const t = this.getReader(), n = new Lm(
-    t,
-    e
-  ), r = Object.create(Mm);
-  return r[wr] = n, r;
+function h({ preventCancel: r = false } = {}) {
+  const e = this.getReader(), t = new c(
+    e,
+    r
+  ), s = Object.create(u);
+  return s[n] = t, s;
 }
-const _m = (e) => {
-  if (Kt(e, { checkOpen: !1 }) && gr.on !== void 0)
-    return Bm(e);
-  if (typeof (e == null ? void 0 : e[Symbol.asyncIterator]) == "function")
-    return e;
-  if (jm.call(e) === "[object ReadableStream]")
-    return km.call(e);
+const getAsyncIterable = (stream) => {
+  if (isReadableStream$1(stream, { checkOpen: false }) && nodeImports.on !== void 0) {
+    return getStreamIterable(stream);
+  }
+  if (typeof (stream == null ? void 0 : stream[Symbol.asyncIterator]) === "function") {
+    return stream;
+  }
+  if (toString.call(stream) === "[object ReadableStream]") {
+    return h.call(stream);
+  }
   throw new TypeError("The first argument must be a Readable, a ReadableStream, or an async iterable.");
-}, { toString: jm } = Object.prototype, Bm = async function* (e) {
-  const t = new AbortController(), n = {};
-  Um(e, t, n);
+};
+const { toString } = Object.prototype;
+const getStreamIterable = async function* (stream) {
+  const controller = new AbortController();
+  const state = {};
+  handleStreamEnd(stream, controller, state);
   try {
-    for await (const [r] of gr.on(e, "data", { signal: t.signal }))
-      yield r;
-  } catch (r) {
-    if (n.error !== void 0)
-      throw n.error;
-    if (!t.signal.aborted)
-      throw r;
+    for await (const [chunk] of nodeImports.on(stream, "data", { signal: controller.signal })) {
+      yield chunk;
+    }
+  } catch (error) {
+    if (state.error !== void 0) {
+      throw state.error;
+    } else if (!controller.signal.aborted) {
+      throw error;
+    }
   } finally {
-    e.destroy();
+    stream.destroy();
   }
-}, Um = async (e, t, n) => {
+};
+const handleStreamEnd = async (stream, controller, state) => {
   try {
-    await gr.finished(e, {
-      cleanup: !0,
-      readable: !0,
-      writable: !1,
-      error: !1
+    await nodeImports.finished(stream, {
+      cleanup: true,
+      readable: true,
+      writable: false,
+      error: false
     });
-  } catch (r) {
-    n.error = r;
+  } catch (error) {
+    state.error = error;
   } finally {
-    t.abort();
+    controller.abort();
   }
-}, gr = {}, Sr = async (e, { init: t, convertChunk: n, getSize: r, truncateChunk: o, addChunk: i, getFinalChunk: s, finalize: a }, { maxBuffer: c = Number.POSITIVE_INFINITY } = {}) => {
-  const u = _m(e), l = t();
-  l.length = 0;
+};
+const nodeImports = {};
+const getStreamContents$1 = async (stream, { init, convertChunk, getSize, truncateChunk, addChunk, getFinalChunk, finalize }, { maxBuffer = Number.POSITIVE_INFINITY } = {}) => {
+  const asyncIterable = getAsyncIterable(stream);
+  const state = init();
+  state.length = 0;
   try {
-    for await (const f of u) {
-      const d = Gm(f), h = n[d](f, l);
-      Ns({
-        convertedChunk: h,
-        state: l,
-        getSize: r,
-        truncateChunk: o,
-        addChunk: i,
-        maxBuffer: c
+    for await (const chunk of asyncIterable) {
+      const chunkType = getChunkType(chunk);
+      const convertedChunk = convertChunk[chunkType](chunk, state);
+      appendChunk({
+        convertedChunk,
+        state,
+        getSize,
+        truncateChunk,
+        addChunk,
+        maxBuffer
       });
     }
-    return Nm({
-      state: l,
-      convertChunk: n,
-      getSize: r,
-      truncateChunk: o,
-      addChunk: i,
-      getFinalChunk: s,
-      maxBuffer: c
-    }), a(l);
-  } catch (f) {
-    const d = typeof f == "object" && f !== null ? f : new Error(f);
-    throw d.bufferedData = a(l), d;
+    appendFinalChunk({
+      state,
+      convertChunk,
+      getSize,
+      truncateChunk,
+      addChunk,
+      getFinalChunk,
+      maxBuffer
+    });
+    return finalize(state);
+  } catch (error) {
+    const normalizedError = typeof error === "object" && error !== null ? error : new Error(error);
+    normalizedError.bufferedData = finalize(state);
+    throw normalizedError;
   }
-}, Nm = ({ state: e, getSize: t, truncateChunk: n, addChunk: r, getFinalChunk: o, maxBuffer: i }) => {
-  const s = o(e);
-  s !== void 0 && Ns({
-    convertedChunk: s,
-    state: e,
-    getSize: t,
-    truncateChunk: n,
-    addChunk: r,
-    maxBuffer: i
-  });
-}, Ns = ({ convertedChunk: e, state: t, getSize: n, truncateChunk: r, addChunk: o, maxBuffer: i }) => {
-  const s = n(e), a = t.length + s;
-  if (a <= i) {
-    ho(e, t, o, a);
+};
+const appendFinalChunk = ({ state, getSize, truncateChunk, addChunk, getFinalChunk, maxBuffer }) => {
+  const convertedChunk = getFinalChunk(state);
+  if (convertedChunk !== void 0) {
+    appendChunk({
+      convertedChunk,
+      state,
+      getSize,
+      truncateChunk,
+      addChunk,
+      maxBuffer
+    });
+  }
+};
+const appendChunk = ({ convertedChunk, state, getSize, truncateChunk, addChunk, maxBuffer }) => {
+  const chunkSize = getSize(convertedChunk);
+  const newLength = state.length + chunkSize;
+  if (newLength <= maxBuffer) {
+    addNewChunk(convertedChunk, state, addChunk, newLength);
     return;
   }
-  const c = r(e, i - t.length);
-  throw c !== void 0 && ho(c, t, o, i), new Xt();
-}, ho = (e, t, n, r) => {
-  t.contents = n(e, t, r), t.length = r;
-}, Gm = (e) => {
-  var r;
-  const t = typeof e;
-  if (t === "string")
+  const truncatedChunk = truncateChunk(convertedChunk, maxBuffer - state.length);
+  if (truncatedChunk !== void 0) {
+    addNewChunk(truncatedChunk, state, addChunk, maxBuffer);
+  }
+  throw new MaxBufferError();
+};
+const addNewChunk = (convertedChunk, state, addChunk, newLength) => {
+  state.contents = addChunk(convertedChunk, state, newLength);
+  state.length = newLength;
+};
+const getChunkType = (chunk) => {
+  var _a2;
+  const typeOfChunk = typeof chunk;
+  if (typeOfChunk === "string") {
     return "string";
-  if (t !== "object" || e === null)
+  }
+  if (typeOfChunk !== "object" || chunk === null) {
     return "others";
-  if ((r = globalThis.Buffer) != null && r.isBuffer(e))
+  }
+  if ((_a2 = globalThis.Buffer) == null ? void 0 : _a2.isBuffer(chunk)) {
     return "buffer";
-  const n = mo.call(e);
-  return n === "[object ArrayBuffer]" ? "arrayBuffer" : n === "[object DataView]" ? "dataView" : Number.isInteger(e.byteLength) && Number.isInteger(e.byteOffset) && mo.call(e.buffer) === "[object ArrayBuffer]" ? "typedArray" : "others";
-}, { toString: mo } = Object.prototype;
-class Xt extends Error {
+  }
+  const prototypeName = objectToString.call(chunk);
+  if (prototypeName === "[object ArrayBuffer]") {
+    return "arrayBuffer";
+  }
+  if (prototypeName === "[object DataView]") {
+    return "dataView";
+  }
+  if (Number.isInteger(chunk.byteLength) && Number.isInteger(chunk.byteOffset) && objectToString.call(chunk.buffer) === "[object ArrayBuffer]") {
+    return "typedArray";
+  }
+  return "others";
+};
+const { toString: objectToString } = Object.prototype;
+class MaxBufferError extends Error {
   constructor() {
     super("maxBuffer exceeded");
-    Ae(this, "name", "MaxBufferError");
+    __publicField(this, "name", "MaxBufferError");
   }
 }
-const Se = (e) => e, Dn = () => {
-}, Gs = ({ contents: e }) => e, Ws = (e) => {
-  throw new Error(`Streams in object mode are not supported: ${String(e)}`);
-}, zs = (e) => e.length;
-async function Wm(e, t) {
-  return Sr(e, qm, t);
-}
-const zm = () => ({ contents: [] }), Vm = () => 1, Hm = (e, { contents: t }) => (t.push(e), t), qm = {
-  init: zm,
-  convertChunk: {
-    string: Se,
-    buffer: Se,
-    arrayBuffer: Se,
-    dataView: Se,
-    typedArray: Se,
-    others: Se
-  },
-  getSize: Vm,
-  truncateChunk: Dn,
-  addChunk: Hm,
-  getFinalChunk: Dn,
-  finalize: Gs
+const identity = (value) => value;
+const noop$1 = () => void 0;
+const getContentsProperty = ({ contents }) => contents;
+const throwObjectStream = (chunk) => {
+  throw new Error(`Streams in object mode are not supported: ${String(chunk)}`);
 };
-async function Ym(e, t) {
-  return Sr(e, rp, t);
+const getLengthProperty = (convertedChunk) => convertedChunk.length;
+async function getStreamAsArray(stream, options) {
+  return getStreamContents$1(stream, arrayMethods, options);
 }
-const Jm = () => ({ contents: new ArrayBuffer(0) }), Km = (e) => Xm.encode(e), Xm = new TextEncoder(), po = (e) => new Uint8Array(e), yo = (e) => new Uint8Array(e.buffer, e.byteOffset, e.byteLength), Qm = (e, t) => e.slice(0, t), Zm = (e, { contents: t, length: n }, r) => {
-  const o = Hs() ? tp(t, r) : ep(t, r);
-  return new Uint8Array(o).set(e, n), o;
-}, ep = (e, t) => {
-  if (t <= e.byteLength)
-    return e;
-  const n = new ArrayBuffer(Vs(t));
-  return new Uint8Array(n).set(new Uint8Array(e), 0), n;
-}, tp = (e, t) => {
-  if (t <= e.maxByteLength)
-    return e.resize(t), e;
-  const n = new ArrayBuffer(t, { maxByteLength: Vs(t) });
-  return new Uint8Array(n).set(new Uint8Array(e), 0), n;
-}, Vs = (e) => wo ** Math.ceil(Math.log(e) / Math.log(wo)), wo = 2, np = ({ contents: e, length: t }) => Hs() ? e : e.slice(0, t), Hs = () => "resize" in ArrayBuffer.prototype, rp = {
-  init: Jm,
-  convertChunk: {
-    string: Km,
-    buffer: po,
-    arrayBuffer: po,
-    dataView: yo,
-    typedArray: yo,
-    others: Ws
-  },
-  getSize: zs,
-  truncateChunk: Qm,
-  addChunk: Zm,
-  getFinalChunk: Dn,
-  finalize: np
+const initArray = () => ({ contents: [] });
+const increment = () => 1;
+const addArrayChunk = (convertedChunk, { contents }) => {
+  contents.push(convertedChunk);
+  return contents;
 };
-async function op(e, t) {
-  return Sr(e, lp, t);
-}
-const ip = () => ({ contents: "", textDecoder: new TextDecoder() }), vt = (e, { textDecoder: t }) => t.decode(e, { stream: !0 }), sp = (e, { contents: t }) => t + e, ap = (e, t) => e.slice(0, t), cp = ({ textDecoder: e }) => {
-  const t = e.decode();
-  return t === "" ? void 0 : t;
-}, lp = {
-  init: ip,
+const arrayMethods = {
+  init: initArray,
   convertChunk: {
-    string: Se,
-    buffer: vt,
-    arrayBuffer: vt,
-    dataView: vt,
-    typedArray: vt,
-    others: Ws
+    string: identity,
+    buffer: identity,
+    arrayBuffer: identity,
+    dataView: identity,
+    typedArray: identity,
+    others: identity
   },
-  getSize: zs,
-  truncateChunk: ap,
-  addChunk: sp,
-  getFinalChunk: cp,
-  finalize: Gs
-}, up = ({ error: e, stream: t, readableObjectMode: n, lines: r, encoding: o, fdNumber: i }) => {
-  if (!(e instanceof Xt))
-    throw e;
-  if (i === "all")
-    return e;
-  const s = fp(n, r, o);
-  throw e.maxBufferInfo = { fdNumber: i, unit: s }, t.destroy(), e;
-}, fp = (e, t, n) => e ? "objects" : t ? "lines" : n === "buffer" ? "bytes" : "characters", dp = (e, t, n) => {
-  if (t.length !== n)
+  getSize: increment,
+  truncateChunk: noop$1,
+  addChunk: addArrayChunk,
+  getFinalChunk: noop$1,
+  finalize: getContentsProperty
+};
+async function getStreamAsArrayBuffer(stream, options) {
+  return getStreamContents$1(stream, arrayBufferMethods, options);
+}
+const initArrayBuffer = () => ({ contents: new ArrayBuffer(0) });
+const useTextEncoder = (chunk) => textEncoder.encode(chunk);
+const textEncoder = new TextEncoder();
+const useUint8Array = (chunk) => new Uint8Array(chunk);
+const useUint8ArrayWithOffset = (chunk) => new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength);
+const truncateArrayBufferChunk = (convertedChunk, chunkSize) => convertedChunk.slice(0, chunkSize);
+const addArrayBufferChunk = (convertedChunk, { contents, length: previousLength }, length) => {
+  const newContents = hasArrayBufferResize() ? resizeArrayBuffer(contents, length) : resizeArrayBufferSlow(contents, length);
+  new Uint8Array(newContents).set(convertedChunk, previousLength);
+  return newContents;
+};
+const resizeArrayBufferSlow = (contents, length) => {
+  if (length <= contents.byteLength) {
+    return contents;
+  }
+  const arrayBuffer = new ArrayBuffer(getNewContentsLength(length));
+  new Uint8Array(arrayBuffer).set(new Uint8Array(contents), 0);
+  return arrayBuffer;
+};
+const resizeArrayBuffer = (contents, length) => {
+  if (length <= contents.maxByteLength) {
+    contents.resize(length);
+    return contents;
+  }
+  const arrayBuffer = new ArrayBuffer(length, { maxByteLength: getNewContentsLength(length) });
+  new Uint8Array(arrayBuffer).set(new Uint8Array(contents), 0);
+  return arrayBuffer;
+};
+const getNewContentsLength = (length) => SCALE_FACTOR ** Math.ceil(Math.log(length) / Math.log(SCALE_FACTOR));
+const SCALE_FACTOR = 2;
+const finalizeArrayBuffer = ({ contents, length }) => hasArrayBufferResize() ? contents : contents.slice(0, length);
+const hasArrayBufferResize = () => "resize" in ArrayBuffer.prototype;
+const arrayBufferMethods = {
+  init: initArrayBuffer,
+  convertChunk: {
+    string: useTextEncoder,
+    buffer: useUint8Array,
+    arrayBuffer: useUint8Array,
+    dataView: useUint8ArrayWithOffset,
+    typedArray: useUint8ArrayWithOffset,
+    others: throwObjectStream
+  },
+  getSize: getLengthProperty,
+  truncateChunk: truncateArrayBufferChunk,
+  addChunk: addArrayBufferChunk,
+  getFinalChunk: noop$1,
+  finalize: finalizeArrayBuffer
+};
+async function getStreamAsString(stream, options) {
+  return getStreamContents$1(stream, stringMethods, options);
+}
+const initString = () => ({ contents: "", textDecoder: new TextDecoder() });
+const useTextDecoder = (chunk, { textDecoder: textDecoder2 }) => textDecoder2.decode(chunk, { stream: true });
+const addStringChunk = (convertedChunk, { contents }) => contents + convertedChunk;
+const truncateStringChunk = (convertedChunk, chunkSize) => convertedChunk.slice(0, chunkSize);
+const getFinalStringChunk = ({ textDecoder: textDecoder2 }) => {
+  const finalChunk = textDecoder2.decode();
+  return finalChunk === "" ? void 0 : finalChunk;
+};
+const stringMethods = {
+  init: initString,
+  convertChunk: {
+    string: identity,
+    buffer: useTextDecoder,
+    arrayBuffer: useTextDecoder,
+    dataView: useTextDecoder,
+    typedArray: useTextDecoder,
+    others: throwObjectStream
+  },
+  getSize: getLengthProperty,
+  truncateChunk: truncateStringChunk,
+  addChunk: addStringChunk,
+  getFinalChunk: getFinalStringChunk,
+  finalize: getContentsProperty
+};
+const handleMaxBuffer = ({ error, stream, readableObjectMode, lines, encoding, fdNumber }) => {
+  if (!(error instanceof MaxBufferError)) {
+    throw error;
+  }
+  if (fdNumber === "all") {
+    return error;
+  }
+  const unit = getMaxBufferUnit(readableObjectMode, lines, encoding);
+  error.maxBufferInfo = { fdNumber, unit };
+  stream.destroy();
+  throw error;
+};
+const getMaxBufferUnit = (readableObjectMode, lines, encoding) => {
+  if (readableObjectMode) {
+    return "objects";
+  }
+  if (lines) {
+    return "lines";
+  }
+  if (encoding === "buffer") {
+    return "bytes";
+  }
+  return "characters";
+};
+const checkIpcMaxBuffer = (subprocess, ipcOutput, maxBuffer) => {
+  if (ipcOutput.length !== maxBuffer) {
     return;
-  const r = new Xt();
-  throw r.maxBufferInfo = { fdNumber: "ipc" }, r;
-}, hp = (e, t) => {
-  const { streamName: n, threshold: r, unit: o } = mp(e, t);
-  return `Command's ${n} was larger than ${r} ${o}`;
-}, mp = (e, t) => {
-  if ((e == null ? void 0 : e.maxBufferInfo) === void 0)
-    return { streamName: "output", threshold: t[1], unit: "bytes" };
-  const { maxBufferInfo: { fdNumber: n, unit: r } } = e;
-  delete e.maxBufferInfo;
-  const o = ct(t, n);
-  return n === "ipc" ? { streamName: "IPC output", threshold: o, unit: "messages" } : { streamName: Ni(n), threshold: o, unit: r };
-}, pp = (e, t, n) => (e == null ? void 0 : e.code) === "ENOBUFS" && t !== null && t.some((r) => r !== null && r.length > br(n)), yp = (e, t, n) => {
-  if (!t)
-    return e;
-  const r = br(n);
-  return e.length > r ? e.slice(0, r) : e;
-}, br = ([, e]) => e, wp = ({
-  stdio: e,
-  all: t,
-  ipcOutput: n,
-  originalError: r,
-  signal: o,
-  signalDescription: i,
-  exitCode: s,
-  escapedCommand: a,
-  timedOut: c,
-  isCanceled: u,
-  isGracefullyCanceled: l,
-  isMaxBuffer: f,
-  isForcefullyTerminated: d,
-  forceKillAfterDelay: h,
-  killSignal: m,
-  maxBuffer: y,
-  timeout: g,
-  cwd: S
+  }
+  const error = new MaxBufferError();
+  error.maxBufferInfo = { fdNumber: "ipc" };
+  throw error;
+};
+const getMaxBufferMessage = (error, maxBuffer) => {
+  const { streamName, threshold, unit } = getMaxBufferInfo(error, maxBuffer);
+  return `Command's ${streamName} was larger than ${threshold} ${unit}`;
+};
+const getMaxBufferInfo = (error, maxBuffer) => {
+  if ((error == null ? void 0 : error.maxBufferInfo) === void 0) {
+    return { streamName: "output", threshold: maxBuffer[1], unit: "bytes" };
+  }
+  const { maxBufferInfo: { fdNumber, unit } } = error;
+  delete error.maxBufferInfo;
+  const threshold = getFdSpecificValue(maxBuffer, fdNumber);
+  if (fdNumber === "ipc") {
+    return { streamName: "IPC output", threshold, unit: "messages" };
+  }
+  return { streamName: getStreamName(fdNumber), threshold, unit };
+};
+const isMaxBufferSync = (resultError, output, maxBuffer) => (resultError == null ? void 0 : resultError.code) === "ENOBUFS" && output !== null && output.some((result) => result !== null && result.length > getMaxBufferSync(maxBuffer));
+const truncateMaxBufferSync = (result, isMaxBuffer, maxBuffer) => {
+  if (!isMaxBuffer) {
+    return result;
+  }
+  const maxBufferValue = getMaxBufferSync(maxBuffer);
+  return result.length > maxBufferValue ? result.slice(0, maxBufferValue) : result;
+};
+const getMaxBufferSync = ([, stdoutMaxBuffer]) => stdoutMaxBuffer;
+const createMessages = ({
+  stdio,
+  all,
+  ipcOutput,
+  originalError,
+  signal,
+  signalDescription,
+  exitCode,
+  escapedCommand,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  forceKillAfterDelay,
+  killSignal,
+  maxBuffer,
+  timeout,
+  cwd: cwd2
 }) => {
-  const E = r == null ? void 0 : r.code, v = gp({
-    originalError: r,
-    timedOut: c,
-    timeout: g,
-    isMaxBuffer: f,
-    maxBuffer: y,
-    errorCode: E,
-    signal: o,
-    signalDescription: i,
-    exitCode: s,
-    isCanceled: u,
-    isGracefullyCanceled: l,
-    isForcefullyTerminated: d,
-    forceKillAfterDelay: h,
-    killSignal: m
-  }), M = bp(r, S), K = M === void 0 ? "" : `
-${M}`, Q = `${v}: ${a}${K}`, ce = t === void 0 ? [e[2], e[1]] : [t], ne = [
-    Q,
-    ...ce,
-    ...e.slice(3),
-    n.map((w) => Ep(w)).join(`
-`)
-  ].map((w) => tr(yr(Tp(w)))).filter(Boolean).join(`
-
-`);
-  return { originalMessage: M, shortMessage: Q, message: ne };
-}, gp = ({
-  originalError: e,
-  timedOut: t,
-  timeout: n,
-  isMaxBuffer: r,
-  maxBuffer: o,
-  errorCode: i,
-  signal: s,
-  signalDescription: a,
-  exitCode: c,
-  isCanceled: u,
-  isGracefullyCanceled: l,
-  isForcefullyTerminated: f,
-  forceKillAfterDelay: d,
-  killSignal: h
+  const errorCode = originalError == null ? void 0 : originalError.code;
+  const prefix = getErrorPrefix({
+    originalError,
+    timedOut,
+    timeout,
+    isMaxBuffer,
+    maxBuffer,
+    errorCode,
+    signal,
+    signalDescription,
+    exitCode,
+    isCanceled,
+    isGracefullyCanceled,
+    isForcefullyTerminated,
+    forceKillAfterDelay,
+    killSignal
+  });
+  const originalMessage = getOriginalMessage(originalError, cwd2);
+  const suffix = originalMessage === void 0 ? "" : `
+${originalMessage}`;
+  const shortMessage = `${prefix}: ${escapedCommand}${suffix}`;
+  const messageStdio = all === void 0 ? [stdio[2], stdio[1]] : [all];
+  const message = [
+    shortMessage,
+    ...messageStdio,
+    ...stdio.slice(3),
+    ipcOutput.map((ipcMessage) => serializeIpcMessage(ipcMessage)).join("\n")
+  ].map((messagePart) => escapeLines(stripFinalNewline(serializeMessagePart(messagePart)))).filter(Boolean).join("\n\n");
+  return { originalMessage, shortMessage, message };
+};
+const getErrorPrefix = ({
+  originalError,
+  timedOut,
+  timeout,
+  isMaxBuffer,
+  maxBuffer,
+  errorCode,
+  signal,
+  signalDescription,
+  exitCode,
+  isCanceled,
+  isGracefullyCanceled,
+  isForcefullyTerminated,
+  forceKillAfterDelay,
+  killSignal
 }) => {
-  const m = Sp(f, d);
-  return t ? `Command timed out after ${n} milliseconds${m}` : l ? s === void 0 ? `Command was gracefully canceled with exit code ${c}` : f ? `Command was gracefully canceled${m}` : `Command was gracefully canceled with ${s} (${a})` : u ? `Command was canceled${m}` : r ? `${hp(e, o)}${m}` : i !== void 0 ? `Command failed with ${i}${m}` : f ? `Command was killed with ${h} (${hs(h)})${m}` : s !== void 0 ? `Command was killed with ${s} (${a})` : c !== void 0 ? `Command failed with exit code ${c}` : "Command failed";
-}, Sp = (e, t) => e ? ` and was forcefully terminated after ${t} milliseconds` : "", bp = (e, t) => {
-  if (e instanceof pt)
+  const forcefulSuffix = getForcefulSuffix(isForcefullyTerminated, forceKillAfterDelay);
+  if (timedOut) {
+    return `Command timed out after ${timeout} milliseconds${forcefulSuffix}`;
+  }
+  if (isGracefullyCanceled) {
+    if (signal === void 0) {
+      return `Command was gracefully canceled with exit code ${exitCode}`;
+    }
+    return isForcefullyTerminated ? `Command was gracefully canceled${forcefulSuffix}` : `Command was gracefully canceled with ${signal} (${signalDescription})`;
+  }
+  if (isCanceled) {
+    return `Command was canceled${forcefulSuffix}`;
+  }
+  if (isMaxBuffer) {
+    return `${getMaxBufferMessage(originalError, maxBuffer)}${forcefulSuffix}`;
+  }
+  if (errorCode !== void 0) {
+    return `Command failed with ${errorCode}${forcefulSuffix}`;
+  }
+  if (isForcefullyTerminated) {
+    return `Command was killed with ${killSignal} (${getSignalDescription(killSignal)})${forcefulSuffix}`;
+  }
+  if (signal !== void 0) {
+    return `Command was killed with ${signal} (${signalDescription})`;
+  }
+  if (exitCode !== void 0) {
+    return `Command failed with exit code ${exitCode}`;
+  }
+  return "Command failed";
+};
+const getForcefulSuffix = (isForcefullyTerminated, forceKillAfterDelay) => isForcefullyTerminated ? ` and was forcefully terminated after ${forceKillAfterDelay} milliseconds` : "";
+const getOriginalMessage = (originalError, cwd2) => {
+  if (originalError instanceof DiscardedError) {
     return;
-  const n = Xd(e) ? e.originalMessage : String((e == null ? void 0 : e.message) ?? e), r = tr(Dm(n, t));
-  return r === "" ? void 0 : r;
-}, Ep = (e) => typeof e == "string" ? e : Vo(e), Tp = (e) => Array.isArray(e) ? e.map((t) => yr(go(t))).filter(Boolean).join(`
-`) : go(e), go = (e) => typeof e == "string" ? e : te(e) ? Bi(e) : "", qs = ({
-  command: e,
-  escapedCommand: t,
-  stdio: n,
-  all: r,
-  ipcOutput: o,
-  options: { cwd: i },
-  startTime: s
-}) => Ys({
-  command: e,
-  escapedCommand: t,
-  cwd: i,
-  durationMs: Ji(s),
-  failed: !1,
-  timedOut: !1,
-  isCanceled: !1,
-  isGracefullyCanceled: !1,
-  isTerminated: !1,
-  isMaxBuffer: !1,
-  isForcefullyTerminated: !1,
+  }
+  const originalMessage = isExecaError(originalError) ? originalError.originalMessage : String((originalError == null ? void 0 : originalError.message) ?? originalError);
+  const escapedOriginalMessage = escapeLines(fixCwdError(originalMessage, cwd2));
+  return escapedOriginalMessage === "" ? void 0 : escapedOriginalMessage;
+};
+const serializeIpcMessage = (ipcMessage) => typeof ipcMessage === "string" ? ipcMessage : inspect(ipcMessage);
+const serializeMessagePart = (messagePart) => Array.isArray(messagePart) ? messagePart.map((messageItem) => stripFinalNewline(serializeMessageItem(messageItem))).filter(Boolean).join("\n") : serializeMessageItem(messagePart);
+const serializeMessageItem = (messageItem) => {
+  if (typeof messageItem === "string") {
+    return messageItem;
+  }
+  if (isUint8Array(messageItem)) {
+    return uint8ArrayToString(messageItem);
+  }
+  return "";
+};
+const makeSuccessResult = ({
+  command,
+  escapedCommand,
+  stdio,
+  all,
+  ipcOutput,
+  options: { cwd: cwd2 },
+  startTime
+}) => omitUndefinedProperties({
+  command,
+  escapedCommand,
+  cwd: cwd2,
+  durationMs: getDurationMs(startTime),
+  failed: false,
+  timedOut: false,
+  isCanceled: false,
+  isGracefullyCanceled: false,
+  isTerminated: false,
+  isMaxBuffer: false,
+  isForcefullyTerminated: false,
   exitCode: 0,
-  stdout: n[1],
-  stderr: n[2],
-  all: r,
-  stdio: n,
-  ipcOutput: o,
+  stdout: stdio[1],
+  stderr: stdio[2],
+  all,
+  stdio,
+  ipcOutput,
   pipedFrom: []
-}), Er = ({
-  error: e,
-  command: t,
-  escapedCommand: n,
-  fileDescriptors: r,
-  options: o,
-  startTime: i,
-  isSync: s
-}) => Tr({
-  error: e,
-  command: t,
-  escapedCommand: n,
-  startTime: i,
-  timedOut: !1,
-  isCanceled: !1,
-  isGracefullyCanceled: !1,
-  isMaxBuffer: !1,
-  isForcefullyTerminated: !1,
-  stdio: Array.from({ length: r.length }),
+});
+const makeEarlyError = ({
+  error,
+  command,
+  escapedCommand,
+  fileDescriptors,
+  options,
+  startTime,
+  isSync
+}) => makeError({
+  error,
+  command,
+  escapedCommand,
+  startTime,
+  timedOut: false,
+  isCanceled: false,
+  isGracefullyCanceled: false,
+  isMaxBuffer: false,
+  isForcefullyTerminated: false,
+  stdio: Array.from({ length: fileDescriptors.length }),
   ipcOutput: [],
-  options: o,
-  isSync: s
-}), Tr = ({
-  error: e,
-  command: t,
-  escapedCommand: n,
-  startTime: r,
-  timedOut: o,
-  isCanceled: i,
-  isGracefullyCanceled: s,
-  isMaxBuffer: a,
-  isForcefullyTerminated: c,
-  exitCode: u,
-  signal: l,
-  stdio: f,
-  all: d,
-  ipcOutput: h,
+  options,
+  isSync
+});
+const makeError = ({
+  error: originalError,
+  command,
+  escapedCommand,
+  startTime,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  exitCode: rawExitCode,
+  signal: rawSignal,
+  stdio,
+  all,
+  ipcOutput,
   options: {
-    timeoutDuration: m,
-    timeout: y = m,
-    forceKillAfterDelay: g,
-    killSignal: S,
-    cwd: E,
-    maxBuffer: v
+    timeoutDuration,
+    timeout = timeoutDuration,
+    forceKillAfterDelay,
+    killSignal,
+    cwd: cwd2,
+    maxBuffer
   },
-  isSync: M
+  isSync
 }) => {
-  const { exitCode: K, signal: Q, signalDescription: ce } = vp(u, l), { originalMessage: ne, shortMessage: w, message: $ } = wp({
-    stdio: f,
-    all: d,
-    ipcOutput: h,
-    originalError: e,
-    signal: Q,
-    signalDescription: ce,
-    exitCode: K,
-    escapedCommand: n,
-    timedOut: o,
-    isCanceled: i,
-    isGracefullyCanceled: s,
-    isMaxBuffer: a,
-    isForcefullyTerminated: c,
-    forceKillAfterDelay: g,
-    killSignal: S,
-    maxBuffer: v,
-    timeout: y,
-    cwd: E
-  }), b = Kd(e, $, M);
-  return Object.assign(b, $p({
-    error: b,
-    command: t,
-    escapedCommand: n,
-    startTime: r,
-    timedOut: o,
-    isCanceled: i,
-    isGracefullyCanceled: s,
-    isMaxBuffer: a,
-    isForcefullyTerminated: c,
-    exitCode: K,
-    signal: Q,
-    signalDescription: ce,
-    stdio: f,
-    all: d,
-    ipcOutput: h,
-    cwd: E,
-    originalMessage: ne,
-    shortMessage: w
-  })), b;
-}, $p = ({
-  error: e,
-  command: t,
-  escapedCommand: n,
-  startTime: r,
-  timedOut: o,
-  isCanceled: i,
-  isGracefullyCanceled: s,
-  isMaxBuffer: a,
-  isForcefullyTerminated: c,
-  exitCode: u,
-  signal: l,
-  signalDescription: f,
-  stdio: d,
-  all: h,
-  ipcOutput: m,
-  cwd: y,
-  originalMessage: g,
-  shortMessage: S
+  const { exitCode, signal, signalDescription } = normalizeExitPayload(rawExitCode, rawSignal);
+  const { originalMessage, shortMessage, message } = createMessages({
+    stdio,
+    all,
+    ipcOutput,
+    originalError,
+    signal,
+    signalDescription,
+    exitCode,
+    escapedCommand,
+    timedOut,
+    isCanceled,
+    isGracefullyCanceled,
+    isMaxBuffer,
+    isForcefullyTerminated,
+    forceKillAfterDelay,
+    killSignal,
+    maxBuffer,
+    timeout,
+    cwd: cwd2
+  });
+  const error = getFinalError(originalError, message, isSync);
+  Object.assign(error, getErrorProperties({
+    error,
+    command,
+    escapedCommand,
+    startTime,
+    timedOut,
+    isCanceled,
+    isGracefullyCanceled,
+    isMaxBuffer,
+    isForcefullyTerminated,
+    exitCode,
+    signal,
+    signalDescription,
+    stdio,
+    all,
+    ipcOutput,
+    cwd: cwd2,
+    originalMessage,
+    shortMessage
+  }));
+  return error;
+};
+const getErrorProperties = ({
+  error,
+  command,
+  escapedCommand,
+  startTime,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  exitCode,
+  signal,
+  signalDescription,
+  stdio,
+  all,
+  ipcOutput,
+  cwd: cwd2,
+  originalMessage,
+  shortMessage
 }) => {
-  var E;
-  return Ys({
-    shortMessage: S,
-    originalMessage: g,
-    command: t,
-    escapedCommand: n,
-    cwd: y,
-    durationMs: Ji(r),
-    failed: !0,
-    timedOut: o,
-    isCanceled: i,
-    isGracefullyCanceled: s,
-    isTerminated: l !== void 0,
-    isMaxBuffer: a,
-    isForcefullyTerminated: c,
-    exitCode: u,
-    signal: l,
-    signalDescription: f,
-    code: (E = e.cause) == null ? void 0 : E.code,
-    stdout: d[1],
-    stderr: d[2],
-    all: h,
-    stdio: d,
-    ipcOutput: m,
+  var _a2;
+  return omitUndefinedProperties({
+    shortMessage,
+    originalMessage,
+    command,
+    escapedCommand,
+    cwd: cwd2,
+    durationMs: getDurationMs(startTime),
+    failed: true,
+    timedOut,
+    isCanceled,
+    isGracefullyCanceled,
+    isTerminated: signal !== void 0,
+    isMaxBuffer,
+    isForcefullyTerminated,
+    exitCode,
+    signal,
+    signalDescription,
+    code: (_a2 = error.cause) == null ? void 0 : _a2.code,
+    stdout: stdio[1],
+    stderr: stdio[2],
+    all,
+    stdio,
+    ipcOutput,
     pipedFrom: []
   });
-}, Ys = (e) => Object.fromEntries(Object.entries(e).filter(([, t]) => t !== void 0)), vp = (e, t) => {
-  const n = e === null ? void 0 : e, r = t === null ? void 0 : t, o = r === void 0 ? void 0 : hs(t);
-  return { exitCode: n, signal: r, signalDescription: o };
-}, So = (e) => Number.isFinite(e) ? e : 0;
-function Op(e) {
+};
+const omitUndefinedProperties = (result) => Object.fromEntries(Object.entries(result).filter(([, value]) => value !== void 0));
+const normalizeExitPayload = (rawExitCode, rawSignal) => {
+  const exitCode = rawExitCode === null ? void 0 : rawExitCode;
+  const signal = rawSignal === null ? void 0 : rawSignal;
+  const signalDescription = signal === void 0 ? void 0 : getSignalDescription(rawSignal);
+  return { exitCode, signal, signalDescription };
+};
+const toZeroIfInfinity = (value) => Number.isFinite(value) ? value : 0;
+function parseNumber(milliseconds) {
   return {
-    days: Math.trunc(e / 864e5),
-    hours: Math.trunc(e / 36e5 % 24),
-    minutes: Math.trunc(e / 6e4 % 60),
-    seconds: Math.trunc(e / 1e3 % 60),
-    milliseconds: Math.trunc(e % 1e3),
-    microseconds: Math.trunc(So(e * 1e3) % 1e3),
-    nanoseconds: Math.trunc(So(e * 1e6) % 1e3)
+    days: Math.trunc(milliseconds / 864e5),
+    hours: Math.trunc(milliseconds / 36e5 % 24),
+    minutes: Math.trunc(milliseconds / 6e4 % 60),
+    seconds: Math.trunc(milliseconds / 1e3 % 60),
+    milliseconds: Math.trunc(milliseconds % 1e3),
+    microseconds: Math.trunc(toZeroIfInfinity(milliseconds * 1e3) % 1e3),
+    nanoseconds: Math.trunc(toZeroIfInfinity(milliseconds * 1e6) % 1e3)
   };
 }
-function Dp(e) {
+function parseBigint(milliseconds) {
   return {
-    days: e / 86400000n,
-    hours: e / 3600000n % 24n,
-    minutes: e / 60000n % 60n,
-    seconds: e / 1000n % 60n,
-    milliseconds: e % 1000n,
+    days: milliseconds / 86400000n,
+    hours: milliseconds / 3600000n % 24n,
+    minutes: milliseconds / 60000n % 60n,
+    seconds: milliseconds / 1000n % 60n,
+    milliseconds: milliseconds % 1000n,
     microseconds: 0n,
     nanoseconds: 0n
   };
 }
-function Ip(e) {
-  switch (typeof e) {
+function parseMilliseconds(milliseconds) {
+  switch (typeof milliseconds) {
     case "number": {
-      if (Number.isFinite(e))
-        return Op(e);
+      if (Number.isFinite(milliseconds)) {
+        return parseNumber(milliseconds);
+      }
       break;
     }
-    case "bigint":
-      return Dp(e);
+    case "bigint": {
+      return parseBigint(milliseconds);
+    }
   }
   throw new TypeError("Expected a finite number or bigint");
 }
-const xp = (e) => e === 0 || e === 0n, Rp = (e, t) => t === 1 || t === 1n ? e : `${e}s`, Pp = 1e-7, Ap = 24n * 60n * 60n * 1000n;
-function Cp(e, t) {
-  const n = typeof e == "bigint";
-  if (!n && !Number.isFinite(e))
+const isZero = (value) => value === 0 || value === 0n;
+const pluralize = (word, count2) => count2 === 1 || count2 === 1n ? word : `${word}s`;
+const SECOND_ROUNDING_EPSILON = 1e-7;
+const ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
+function prettyMilliseconds(milliseconds, options) {
+  const isBigInt = typeof milliseconds === "bigint";
+  if (!isBigInt && !Number.isFinite(milliseconds)) {
     throw new TypeError("Expected a finite number or bigint");
-  t = { ...t };
-  const r = e < 0 ? "-" : "";
-  e = e < 0 ? -e : e, t.colonNotation && (t.compact = !1, t.formatSubMilliseconds = !1, t.separateMilliseconds = !1, t.verbose = !1), t.compact && (t.unitCount = 1, t.secondsDecimalDigits = 0, t.millisecondsDecimalDigits = 0);
-  let o = [];
-  const i = (l, f) => {
-    const d = Math.floor(l * 10 ** f + Pp);
-    return (Math.round(d) / 10 ** f).toFixed(f);
-  }, s = (l, f, d, h) => {
-    if (!((o.length === 0 || !t.colonNotation) && xp(l) && !(t.colonNotation && d === "m"))) {
-      if (h ?? (h = String(l)), t.colonNotation) {
-        const m = h.includes(".") ? h.split(".")[0].length : h.length, y = o.length > 0 ? 2 : 1;
-        h = "0".repeat(Math.max(0, y - m)) + h;
-      } else
-        h += t.verbose ? " " + Rp(f, l) : d;
-      o.push(h);
+  }
+  options = { ...options };
+  const sign = milliseconds < 0 ? "-" : "";
+  milliseconds = milliseconds < 0 ? -milliseconds : milliseconds;
+  if (options.colonNotation) {
+    options.compact = false;
+    options.formatSubMilliseconds = false;
+    options.separateMilliseconds = false;
+    options.verbose = false;
+  }
+  if (options.compact) {
+    options.unitCount = 1;
+    options.secondsDecimalDigits = 0;
+    options.millisecondsDecimalDigits = 0;
+  }
+  let result = [];
+  const floorDecimals = (value, decimalDigits) => {
+    const flooredInterimValue = Math.floor(value * 10 ** decimalDigits + SECOND_ROUNDING_EPSILON);
+    const flooredValue = Math.round(flooredInterimValue) / 10 ** decimalDigits;
+    return flooredValue.toFixed(decimalDigits);
+  };
+  const add = (value, long, short, valueString) => {
+    if ((result.length === 0 || !options.colonNotation) && isZero(value) && !(options.colonNotation && short === "m")) {
+      return;
     }
-  }, a = Ip(e), c = BigInt(a.days);
-  if (t.hideYearAndDays ? s(BigInt(c) * 24n + BigInt(a.hours), "hour", "h") : (t.hideYear ? s(c, "day", "d") : (s(c / 365n, "year", "y"), s(c % 365n, "day", "d")), s(Number(a.hours), "hour", "h")), s(Number(a.minutes), "minute", "m"), !t.hideSeconds)
-    if (t.separateMilliseconds || t.formatSubMilliseconds || !t.colonNotation && e < 1e3 && !t.subSecondsAsDecimals) {
-      const l = Number(a.seconds), f = Number(a.milliseconds), d = Number(a.microseconds), h = Number(a.nanoseconds);
-      if (s(l, "second", "s"), t.formatSubMilliseconds)
-        s(f, "millisecond", "ms"), s(d, "microsecond", "µs"), s(h, "nanosecond", "ns");
-      else {
-        const m = f + d / 1e3 + h / 1e6, y = typeof t.millisecondsDecimalDigits == "number" ? t.millisecondsDecimalDigits : 0, g = m >= 1 ? Math.round(m) : Math.ceil(m), S = y ? m.toFixed(y) : g;
-        s(
-          Number.parseFloat(S),
+    valueString ?? (valueString = String(value));
+    if (options.colonNotation) {
+      const wholeDigits = valueString.includes(".") ? valueString.split(".")[0].length : valueString.length;
+      const minLength = result.length > 0 ? 2 : 1;
+      valueString = "0".repeat(Math.max(0, minLength - wholeDigits)) + valueString;
+    } else {
+      valueString += options.verbose ? " " + pluralize(long, value) : short;
+    }
+    result.push(valueString);
+  };
+  const parsed = parseMilliseconds(milliseconds);
+  const days = BigInt(parsed.days);
+  if (options.hideYearAndDays) {
+    add(BigInt(days) * 24n + BigInt(parsed.hours), "hour", "h");
+  } else {
+    if (options.hideYear) {
+      add(days, "day", "d");
+    } else {
+      add(days / 365n, "year", "y");
+      add(days % 365n, "day", "d");
+    }
+    add(Number(parsed.hours), "hour", "h");
+  }
+  add(Number(parsed.minutes), "minute", "m");
+  if (!options.hideSeconds) {
+    if (options.separateMilliseconds || options.formatSubMilliseconds || !options.colonNotation && milliseconds < 1e3 && !options.subSecondsAsDecimals) {
+      const seconds = Number(parsed.seconds);
+      const milliseconds2 = Number(parsed.milliseconds);
+      const microseconds = Number(parsed.microseconds);
+      const nanoseconds = Number(parsed.nanoseconds);
+      add(seconds, "second", "s");
+      if (options.formatSubMilliseconds) {
+        add(milliseconds2, "millisecond", "ms");
+        add(microseconds, "microsecond", "µs");
+        add(nanoseconds, "nanosecond", "ns");
+      } else {
+        const millisecondsAndBelow = milliseconds2 + microseconds / 1e3 + nanoseconds / 1e6;
+        const millisecondsDecimalDigits = typeof options.millisecondsDecimalDigits === "number" ? options.millisecondsDecimalDigits : 0;
+        const roundedMilliseconds = millisecondsAndBelow >= 1 ? Math.round(millisecondsAndBelow) : Math.ceil(millisecondsAndBelow);
+        const millisecondsString = millisecondsDecimalDigits ? millisecondsAndBelow.toFixed(millisecondsDecimalDigits) : roundedMilliseconds;
+        add(
+          Number.parseFloat(millisecondsString),
           "millisecond",
           "ms",
-          S
+          millisecondsString
         );
       }
     } else {
-      const l = (n ? Number(e % Ap) : e) / 1e3 % 60, f = typeof t.secondsDecimalDigits == "number" ? t.secondsDecimalDigits : 1, d = i(l, f), h = t.keepDecimalsOnWholeSeconds ? d : d.replace(/\.0+$/, "");
-      s(Number.parseFloat(h), "second", "s", h);
+      const seconds = (isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds) / 1e3 % 60;
+      const secondsDecimalDigits = typeof options.secondsDecimalDigits === "number" ? options.secondsDecimalDigits : 1;
+      const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
+      const secondsString = options.keepDecimalsOnWholeSeconds ? secondsFixed : secondsFixed.replace(/\.0+$/, "");
+      add(Number.parseFloat(secondsString), "second", "s", secondsString);
     }
-  if (o.length === 0)
-    return r + "0" + (t.verbose ? " milliseconds" : "ms");
-  const u = t.colonNotation ? ":" : " ";
-  return typeof t.unitCount == "number" && (o = o.slice(0, Math.max(t.unitCount, 1))), r + o.join(u);
+  }
+  if (result.length === 0) {
+    return sign + "0" + (options.verbose ? " milliseconds" : "ms");
+  }
+  const separator = options.colonNotation ? ":" : " ";
+  if (typeof options.unitCount === "number") {
+    result = result.slice(0, Math.max(options.unitCount, 1));
+  }
+  return sign + result.join(separator);
 }
-const Fp = (e, t) => {
-  e.failed && mt({
-    type: "error",
-    verboseMessage: e.shortMessage,
-    verboseInfo: t,
-    result: e
-  });
-}, Lp = (e, t) => {
-  Xn(t) && (Fp(e, t), Mp(e, t));
-}, Mp = (e, t) => {
-  const n = `(done in ${Cp(e.durationMs)})`;
-  mt({
+const logError = (result, verboseInfo) => {
+  if (result.failed) {
+    verboseLog({
+      type: "error",
+      verboseMessage: result.shortMessage,
+      verboseInfo,
+      result
+    });
+  }
+};
+const logResult = (result, verboseInfo) => {
+  if (!isVerbose(verboseInfo)) {
+    return;
+  }
+  logError(result, verboseInfo);
+  logDuration(result, verboseInfo);
+};
+const logDuration = (result, verboseInfo) => {
+  const verboseMessage = `(done in ${prettyMilliseconds(result.durationMs)})`;
+  verboseLog({
     type: "duration",
-    verboseMessage: n,
-    verboseInfo: t,
-    result: e
+    verboseMessage,
+    verboseInfo,
+    result
   });
-}, $r = (e, t, { reject: n }) => {
-  if (Lp(e, t), e.failed && n)
-    throw e;
-  return e;
-}, kp = (e, t) => We(e) ? "asyncGenerator" : Xs(e) ? "generator" : vr(e) ? "fileUrl" : Gp(e) ? "filePath" : Hp(e) ? "webStream" : Re(e, { checkOpen: !1 }) ? "native" : te(e) ? "uint8Array" : qp(e) ? "asyncIterable" : Yp(e) ? "iterable" : Dr(e) ? Js({}, t) : Up(e) ? _p(e, t) : "native", _p = (e, t) => ks(e.transform, { checkOpen: !1 }) ? jp(e, t) : Dr(e.transform) ? Js(e, t) : Bp(e, t), jp = (e, t) => (Ks(e, t, "Duplex stream"), "duplex"), Js = (e, t) => (Ks(e, t, "web TransformStream"), "webTransform"), Ks = ({ final: e, binary: t, objectMode: n }, r, o) => {
-  bo(e, `${r}.final`, o), bo(t, `${r}.binary`, o), In(n, `${r}.objectMode`);
-}, bo = (e, t, n) => {
-  if (e !== void 0)
-    throw new TypeError(`The \`${t}\` option can only be defined when using a generator, not a ${n}.`);
-}, Bp = ({ transform: e, final: t, binary: n, objectMode: r }, o) => {
-  if (e !== void 0 && !Eo(e))
-    throw new TypeError(`The \`${o}.transform\` option must be a generator, a Duplex stream or a web TransformStream.`);
-  if (ks(t, { checkOpen: !1 }))
-    throw new TypeError(`The \`${o}.final\` option must not be a Duplex stream.`);
-  if (Dr(t))
-    throw new TypeError(`The \`${o}.final\` option must not be a web TransformStream.`);
-  if (t !== void 0 && !Eo(t))
-    throw new TypeError(`The \`${o}.final\` option must be a generator.`);
-  return In(n, `${o}.binary`), In(r, `${o}.objectMode`), We(e) || We(t) ? "asyncGenerator" : "generator";
-}, In = (e, t) => {
-  if (e !== void 0 && typeof e != "boolean")
-    throw new TypeError(`The \`${t}\` option must use a boolean.`);
-}, Eo = (e) => We(e) || Xs(e), We = (e) => Object.prototype.toString.call(e) === "[object AsyncGeneratorFunction]", Xs = (e) => Object.prototype.toString.call(e) === "[object GeneratorFunction]", Up = (e) => X(e) && (e.transform !== void 0 || e.final !== void 0), vr = (e) => Object.prototype.toString.call(e) === "[object URL]", Np = (e) => vr(e) && e.protocol !== "file:", Gp = (e) => X(e) && Object.keys(e).length > 0 && Object.keys(e).every((t) => Wp.has(t)) && Qs(e.file), Wp = /* @__PURE__ */ new Set(["file", "append"]), Qs = (e) => typeof e == "string", zp = (e, t) => e === "native" && typeof t == "string" && !Vp.has(t), Vp = /* @__PURE__ */ new Set(["ipc", "ignore", "inherit", "overlapped", "pipe"]), Zs = (e) => Object.prototype.toString.call(e) === "[object ReadableStream]", Or = (e) => Object.prototype.toString.call(e) === "[object WritableStream]", Hp = (e) => Zs(e) || Or(e), Dr = (e) => Zs(e == null ? void 0 : e.readable) && Or(e == null ? void 0 : e.writable), qp = (e) => ea(e) && typeof e[Symbol.asyncIterator] == "function", Yp = (e) => ea(e) && typeof e[Symbol.iterator] == "function", ea = (e) => typeof e == "object" && e !== null, De = /* @__PURE__ */ new Set(["generator", "asyncGenerator", "duplex", "webTransform"]), ta = /* @__PURE__ */ new Set(["fileUrl", "filePath", "fileNumber"]), na = /* @__PURE__ */ new Set(["fileUrl", "filePath"]), Jp = /* @__PURE__ */ new Set([...na, "webStream", "nodeStream"]), Kp = /* @__PURE__ */ new Set(["webTransform", "duplex"]), Qt = {
+};
+const handleResult = (result, verboseInfo, { reject }) => {
+  logResult(result, verboseInfo);
+  if (result.failed && reject) {
+    throw result;
+  }
+  return result;
+};
+const getStdioItemType = (value, optionName) => {
+  if (isAsyncGenerator(value)) {
+    return "asyncGenerator";
+  }
+  if (isSyncGenerator(value)) {
+    return "generator";
+  }
+  if (isUrl(value)) {
+    return "fileUrl";
+  }
+  if (isFilePathObject(value)) {
+    return "filePath";
+  }
+  if (isWebStream(value)) {
+    return "webStream";
+  }
+  if (isStream(value, { checkOpen: false })) {
+    return "native";
+  }
+  if (isUint8Array(value)) {
+    return "uint8Array";
+  }
+  if (isAsyncIterableObject(value)) {
+    return "asyncIterable";
+  }
+  if (isIterableObject(value)) {
+    return "iterable";
+  }
+  if (isTransformStream(value)) {
+    return getTransformStreamType({}, optionName);
+  }
+  if (isTransformOptions(value)) {
+    return getTransformObjectType(value, optionName);
+  }
+  return "native";
+};
+const getTransformObjectType = (value, optionName) => {
+  if (isDuplexStream(value.transform, { checkOpen: false })) {
+    return getDuplexType(value, optionName);
+  }
+  if (isTransformStream(value.transform)) {
+    return getTransformStreamType(value, optionName);
+  }
+  return getGeneratorObjectType(value, optionName);
+};
+const getDuplexType = (value, optionName) => {
+  validateNonGeneratorType(value, optionName, "Duplex stream");
+  return "duplex";
+};
+const getTransformStreamType = (value, optionName) => {
+  validateNonGeneratorType(value, optionName, "web TransformStream");
+  return "webTransform";
+};
+const validateNonGeneratorType = ({ final, binary, objectMode }, optionName, typeName) => {
+  checkUndefinedOption(final, `${optionName}.final`, typeName);
+  checkUndefinedOption(binary, `${optionName}.binary`, typeName);
+  checkBooleanOption(objectMode, `${optionName}.objectMode`);
+};
+const checkUndefinedOption = (value, optionName, typeName) => {
+  if (value !== void 0) {
+    throw new TypeError(`The \`${optionName}\` option can only be defined when using a generator, not a ${typeName}.`);
+  }
+};
+const getGeneratorObjectType = ({ transform, final, binary, objectMode }, optionName) => {
+  if (transform !== void 0 && !isGenerator(transform)) {
+    throw new TypeError(`The \`${optionName}.transform\` option must be a generator, a Duplex stream or a web TransformStream.`);
+  }
+  if (isDuplexStream(final, { checkOpen: false })) {
+    throw new TypeError(`The \`${optionName}.final\` option must not be a Duplex stream.`);
+  }
+  if (isTransformStream(final)) {
+    throw new TypeError(`The \`${optionName}.final\` option must not be a web TransformStream.`);
+  }
+  if (final !== void 0 && !isGenerator(final)) {
+    throw new TypeError(`The \`${optionName}.final\` option must be a generator.`);
+  }
+  checkBooleanOption(binary, `${optionName}.binary`);
+  checkBooleanOption(objectMode, `${optionName}.objectMode`);
+  return isAsyncGenerator(transform) || isAsyncGenerator(final) ? "asyncGenerator" : "generator";
+};
+const checkBooleanOption = (value, optionName) => {
+  if (value !== void 0 && typeof value !== "boolean") {
+    throw new TypeError(`The \`${optionName}\` option must use a boolean.`);
+  }
+};
+const isGenerator = (value) => isAsyncGenerator(value) || isSyncGenerator(value);
+const isAsyncGenerator = (value) => Object.prototype.toString.call(value) === "[object AsyncGeneratorFunction]";
+const isSyncGenerator = (value) => Object.prototype.toString.call(value) === "[object GeneratorFunction]";
+const isTransformOptions = (value) => isPlainObject(value) && (value.transform !== void 0 || value.final !== void 0);
+const isUrl = (value) => Object.prototype.toString.call(value) === "[object URL]";
+const isRegularUrl = (value) => isUrl(value) && value.protocol !== "file:";
+const isFilePathObject = (value) => isPlainObject(value) && Object.keys(value).length > 0 && Object.keys(value).every((key) => FILE_PATH_KEYS.has(key)) && isFilePathString(value.file);
+const FILE_PATH_KEYS = /* @__PURE__ */ new Set(["file", "append"]);
+const isFilePathString = (file2) => typeof file2 === "string";
+const isUnknownStdioString = (type, value) => type === "native" && typeof value === "string" && !KNOWN_STDIO_STRINGS.has(value);
+const KNOWN_STDIO_STRINGS = /* @__PURE__ */ new Set(["ipc", "ignore", "inherit", "overlapped", "pipe"]);
+const isReadableStream = (value) => Object.prototype.toString.call(value) === "[object ReadableStream]";
+const isWritableStream = (value) => Object.prototype.toString.call(value) === "[object WritableStream]";
+const isWebStream = (value) => isReadableStream(value) || isWritableStream(value);
+const isTransformStream = (value) => isReadableStream(value == null ? void 0 : value.readable) && isWritableStream(value == null ? void 0 : value.writable);
+const isAsyncIterableObject = (value) => isObject(value) && typeof value[Symbol.asyncIterator] === "function";
+const isIterableObject = (value) => isObject(value) && typeof value[Symbol.iterator] === "function";
+const isObject = (value) => typeof value === "object" && value !== null;
+const TRANSFORM_TYPES = /* @__PURE__ */ new Set(["generator", "asyncGenerator", "duplex", "webTransform"]);
+const FILE_TYPES = /* @__PURE__ */ new Set(["fileUrl", "filePath", "fileNumber"]);
+const SPECIAL_DUPLICATE_TYPES_SYNC = /* @__PURE__ */ new Set(["fileUrl", "filePath"]);
+const SPECIAL_DUPLICATE_TYPES = /* @__PURE__ */ new Set([...SPECIAL_DUPLICATE_TYPES_SYNC, "webStream", "nodeStream"]);
+const FORBID_DUPLICATE_TYPES = /* @__PURE__ */ new Set(["webTransform", "duplex"]);
+const TYPE_TO_MESSAGE = {
   generator: "a generator",
   asyncGenerator: "an async generator",
   fileUrl: "a file URL",
@@ -3881,1251 +5484,1852 @@ const Fp = (e, t) => {
   asyncIterable: "an async iterable",
   string: "a string",
   uint8Array: "a Uint8Array"
-}, ra = (e, t, n, r) => r === "output" ? Xp(e, t, n) : Qp(e, t, n), Xp = (e, t, n) => {
-  const r = t !== 0 && n[t - 1].value.readableObjectMode;
-  return { writableObjectMode: r, readableObjectMode: e ?? r };
-}, Qp = (e, t, n) => {
-  const r = t === 0 ? e === !0 : n[t - 1].value.readableObjectMode, o = t !== n.length - 1 && (e ?? r);
-  return { writableObjectMode: r, readableObjectMode: o };
-}, Zp = (e, t) => {
-  const n = e.findLast(({ type: r }) => De.has(r));
-  return n === void 0 ? !1 : t === "input" ? n.value.writableObjectMode : n.value.readableObjectMode;
-}, ey = (e, t, n, r) => [
-  ...e.filter(({ type: o }) => !De.has(o)),
-  ...ty(e, t, n, r)
-], ty = (e, t, n, { encoding: r }) => {
-  const o = e.filter(({ type: s }) => De.has(s)), i = Array.from({ length: o.length });
-  for (const [s, a] of Object.entries(o))
-    i[s] = ny({
-      stdioItem: a,
-      index: Number(s),
-      newTransforms: i,
-      optionName: t,
-      direction: n,
-      encoding: r
+};
+const getTransformObjectModes = (objectMode, index, newTransforms, direction) => direction === "output" ? getOutputObjectModes(objectMode, index, newTransforms) : getInputObjectModes(objectMode, index, newTransforms);
+const getOutputObjectModes = (objectMode, index, newTransforms) => {
+  const writableObjectMode = index !== 0 && newTransforms[index - 1].value.readableObjectMode;
+  const readableObjectMode = objectMode ?? writableObjectMode;
+  return { writableObjectMode, readableObjectMode };
+};
+const getInputObjectModes = (objectMode, index, newTransforms) => {
+  const writableObjectMode = index === 0 ? objectMode === true : newTransforms[index - 1].value.readableObjectMode;
+  const readableObjectMode = index !== newTransforms.length - 1 && (objectMode ?? writableObjectMode);
+  return { writableObjectMode, readableObjectMode };
+};
+const getFdObjectMode = (stdioItems, direction) => {
+  const lastTransform = stdioItems.findLast(({ type }) => TRANSFORM_TYPES.has(type));
+  if (lastTransform === void 0) {
+    return false;
+  }
+  return direction === "input" ? lastTransform.value.writableObjectMode : lastTransform.value.readableObjectMode;
+};
+const normalizeTransforms = (stdioItems, optionName, direction, options) => [
+  ...stdioItems.filter(({ type }) => !TRANSFORM_TYPES.has(type)),
+  ...getTransforms(stdioItems, optionName, direction, options)
+];
+const getTransforms = (stdioItems, optionName, direction, { encoding }) => {
+  const transforms = stdioItems.filter(({ type }) => TRANSFORM_TYPES.has(type));
+  const newTransforms = Array.from({ length: transforms.length });
+  for (const [index, stdioItem] of Object.entries(transforms)) {
+    newTransforms[index] = normalizeTransform({
+      stdioItem,
+      index: Number(index),
+      newTransforms,
+      optionName,
+      direction,
+      encoding
     });
-  return sy(i, n);
-}, ny = ({ stdioItem: e, stdioItem: { type: t }, index: n, newTransforms: r, optionName: o, direction: i, encoding: s }) => t === "duplex" ? ry({ stdioItem: e, optionName: o }) : t === "webTransform" ? oy({
-  stdioItem: e,
-  index: n,
-  newTransforms: r,
-  direction: i
-}) : iy({
-  stdioItem: e,
-  index: n,
-  newTransforms: r,
-  direction: i,
-  encoding: s
-}), ry = ({
-  stdioItem: e,
+  }
+  return sortTransforms(newTransforms, direction);
+};
+const normalizeTransform = ({ stdioItem, stdioItem: { type }, index, newTransforms, optionName, direction, encoding }) => {
+  if (type === "duplex") {
+    return normalizeDuplex({ stdioItem, optionName });
+  }
+  if (type === "webTransform") {
+    return normalizeTransformStream({
+      stdioItem,
+      index,
+      newTransforms,
+      direction
+    });
+  }
+  return normalizeGenerator({
+    stdioItem,
+    index,
+    newTransforms,
+    direction,
+    encoding
+  });
+};
+const normalizeDuplex = ({
+  stdioItem,
   stdioItem: {
     value: {
-      transform: t,
-      transform: { writableObjectMode: n, readableObjectMode: r },
-      objectMode: o = r
+      transform,
+      transform: { writableObjectMode, readableObjectMode },
+      objectMode = readableObjectMode
     }
   },
-  optionName: i
+  optionName
 }) => {
-  if (o && !r)
-    throw new TypeError(`The \`${i}.objectMode\` option can only be \`true\` if \`new Duplex({objectMode: true})\` is used.`);
-  if (!o && r)
-    throw new TypeError(`The \`${i}.objectMode\` option cannot be \`false\` if \`new Duplex({objectMode: true})\` is used.`);
+  if (objectMode && !readableObjectMode) {
+    throw new TypeError(`The \`${optionName}.objectMode\` option can only be \`true\` if \`new Duplex({objectMode: true})\` is used.`);
+  }
+  if (!objectMode && readableObjectMode) {
+    throw new TypeError(`The \`${optionName}.objectMode\` option cannot be \`false\` if \`new Duplex({objectMode: true})\` is used.`);
+  }
   return {
-    ...e,
-    value: { transform: t, writableObjectMode: n, readableObjectMode: r }
+    ...stdioItem,
+    value: { transform, writableObjectMode, readableObjectMode }
   };
-}, oy = ({ stdioItem: e, stdioItem: { value: t }, index: n, newTransforms: r, direction: o }) => {
-  const { transform: i, objectMode: s } = X(t) ? t : { transform: t }, { writableObjectMode: a, readableObjectMode: c } = ra(s, n, r, o);
+};
+const normalizeTransformStream = ({ stdioItem, stdioItem: { value }, index, newTransforms, direction }) => {
+  const { transform, objectMode } = isPlainObject(value) ? value : { transform: value };
+  const { writableObjectMode, readableObjectMode } = getTransformObjectModes(objectMode, index, newTransforms, direction);
   return {
-    ...e,
-    value: { transform: i, writableObjectMode: a, readableObjectMode: c }
+    ...stdioItem,
+    value: { transform, writableObjectMode, readableObjectMode }
   };
-}, iy = ({ stdioItem: e, stdioItem: { value: t }, index: n, newTransforms: r, direction: o, encoding: i }) => {
+};
+const normalizeGenerator = ({ stdioItem, stdioItem: { value }, index, newTransforms, direction, encoding }) => {
   const {
-    transform: s,
-    final: a,
-    binary: c = !1,
-    preserveNewlines: u = !1,
-    objectMode: l
-  } = X(t) ? t : { transform: t }, f = c || xe.has(i), { writableObjectMode: d, readableObjectMode: h } = ra(l, n, r, o);
+    transform,
+    final,
+    binary: binaryOption = false,
+    preserveNewlines = false,
+    objectMode
+  } = isPlainObject(value) ? value : { transform: value };
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const { writableObjectMode, readableObjectMode } = getTransformObjectModes(objectMode, index, newTransforms, direction);
   return {
-    ...e,
+    ...stdioItem,
     value: {
-      transform: s,
-      final: a,
-      binary: f,
-      preserveNewlines: u,
-      writableObjectMode: d,
-      readableObjectMode: h
+      transform,
+      final,
+      binary,
+      preserveNewlines,
+      writableObjectMode,
+      readableObjectMode
     }
   };
-}, sy = (e, t) => t === "input" ? e.reverse() : e, ay = (e, t, n) => {
-  const r = e.map((o) => cy(o, t));
-  if (r.includes("input") && r.includes("output"))
-    throw new TypeError(`The \`${n}\` option must not be an array of both readable and writable values.`);
-  return r.find(Boolean) ?? fy;
-}, cy = ({ type: e, value: t }, n) => ly[n] ?? oa[e](t), ly = ["input", "output", "output"], Fe = () => {
-}, un = () => "input", oa = {
-  generator: Fe,
-  asyncGenerator: Fe,
-  fileUrl: Fe,
-  filePath: Fe,
-  iterable: un,
-  asyncIterable: un,
-  uint8Array: un,
-  webStream: (e) => Or(e) ? "output" : "input",
-  nodeStream(e) {
-    return Kt(e, { checkOpen: !1 }) ? Ms(e, { checkOpen: !1 }) ? void 0 : "input" : "output";
-  },
-  webTransform: Fe,
-  duplex: Fe,
-  native(e) {
-    const t = uy(e);
-    if (t !== void 0)
-      return t;
-    if (Re(e, { checkOpen: !1 }))
-      return oa.nodeStream(e);
+};
+const sortTransforms = (newTransforms, direction) => direction === "input" ? newTransforms.reverse() : newTransforms;
+const getStreamDirection = (stdioItems, fdNumber, optionName) => {
+  const directions = stdioItems.map((stdioItem) => getStdioItemDirection(stdioItem, fdNumber));
+  if (directions.includes("input") && directions.includes("output")) {
+    throw new TypeError(`The \`${optionName}\` option must not be an array of both readable and writable values.`);
   }
-}, uy = (e) => {
-  if ([0, G.stdin].includes(e))
-    return "input";
-  if ([1, 2, G.stdout, G.stderr].includes(e))
-    return "output";
-}, fy = "output", dy = (e, t) => t && !e.includes("ipc") ? [...e, "ipc"] : e, hy = ({ stdio: e, ipc: t, buffer: n, ...r }, o, i) => {
-  const s = my(e, r).map((a, c) => ia(a, c));
-  return i ? yy(s, n, o) : dy(s, t);
-}, my = (e, t) => {
-  if (e === void 0)
-    return se.map((r) => t[r]);
-  if (py(t))
-    throw new Error(`It's not possible to provide \`stdio\` in combination with one of ${se.map((r) => `\`${r}\``).join(", ")}`);
-  if (typeof e == "string")
-    return [e, e, e];
-  if (!Array.isArray(e))
-    throw new TypeError(`Expected \`stdio\` to be of type \`string\` or \`Array\`, got \`${typeof e}\``);
-  const n = Math.max(e.length, se.length);
-  return Array.from({ length: n }, (r, o) => e[o]);
-}, py = (e) => se.some((t) => e[t] !== void 0), ia = (e, t) => Array.isArray(e) ? e.map((n) => ia(n, t)) : e ?? (t >= se.length ? "ignore" : "pipe"), yy = (e, t, n) => e.map((r, o) => !t[o] && o !== 0 && !Qn(n, o) && wy(r) ? "ignore" : r), wy = (e) => e === "pipe" || Array.isArray(e) && e.every((t) => t === "pipe"), gy = ({ stdioItem: e, stdioItem: { type: t }, isStdioArray: n, fdNumber: r, direction: o, isSync: i }) => !n || t !== "native" ? e : i ? Sy({ stdioItem: e, fdNumber: r, direction: o }) : Ty({ stdioItem: e, fdNumber: r }), Sy = ({ stdioItem: e, stdioItem: { value: t, optionName: n }, fdNumber: r, direction: o }) => {
-  const i = by({
-    value: t,
-    optionName: n,
-    fdNumber: r,
-    direction: o
-  });
-  if (i !== void 0)
-    return i;
-  if (Re(t, { checkOpen: !1 }))
-    throw new TypeError(`The \`${n}: Stream\` option cannot both be an array and include a stream with synchronous methods.`);
-  return e;
-}, by = ({ value: e, optionName: t, fdNumber: n, direction: r }) => {
-  const o = Ey(e, n);
-  if (o !== void 0) {
-    if (r === "output")
-      return { type: "fileNumber", value: o, optionName: t };
-    if (Yo.isatty(o))
-      throw new TypeError(`The \`${t}: ${Tn(e)}\` option is invalid: it cannot be a TTY with synchronous methods.`);
-    return { type: "uint8Array", value: at(hn(o)), optionName: t };
-  }
-}, Ey = (e, t) => {
-  if (e === "inherit")
-    return t;
-  if (typeof e == "number")
-    return e;
-  const n = Kn.indexOf(e);
-  if (n !== -1)
-    return n;
-}, Ty = ({ stdioItem: e, stdioItem: { value: t, optionName: n }, fdNumber: r }) => t === "inherit" ? { type: "nodeStream", value: To(r, t, n), optionName: n } : typeof t == "number" ? { type: "nodeStream", value: To(t, t, n), optionName: n } : Re(t, { checkOpen: !1 }) ? { type: "nodeStream", value: t, optionName: n } : e, To = (e, t, n) => {
-  const r = Kn[e];
-  if (r === void 0)
-    throw new TypeError(`The \`${n}: ${t}\` option is invalid: no such standard stream.`);
-  return r;
-}, $y = ({ input: e, inputFile: t }, n) => n === 0 ? [
-  ...vy(e),
-  ...Dy(t)
-] : [], vy = (e) => e === void 0 ? [] : [{
-  type: Oy(e),
-  value: e,
-  optionName: "input"
-}], Oy = (e) => {
-  if (Kt(e, { checkOpen: !1 }))
-    return "nodeStream";
-  if (typeof e == "string")
-    return "string";
-  if (te(e))
-    return "uint8Array";
-  throw new Error("The `input` option must be a string, a Uint8Array or a Node.js Readable stream.");
-}, Dy = (e) => e === void 0 ? [] : [{
-  ...Iy(e),
-  optionName: "inputFile"
-}], Iy = (e) => {
-  if (vr(e))
-    return { type: "fileUrl", value: e };
-  if (Qs(e))
-    return { type: "filePath", value: { file: e } };
-  throw new Error("The `inputFile` option must be a file path string or a file URL.");
-}, xy = (e) => e.filter((t, n) => e.every((r, o) => t.value !== r.value || n >= o || t.type === "generator" || t.type === "asyncGenerator")), Ry = ({ stdioItem: { type: e, value: t, optionName: n }, direction: r, fileDescriptors: o, isSync: i }) => {
-  const s = Py(o, e);
-  if (s.length !== 0) {
-    if (i) {
-      Ay({
-        otherStdioItems: s,
-        type: e,
-        value: t,
-        optionName: n,
-        direction: r
-      });
-      return;
+  return directions.find(Boolean) ?? DEFAULT_DIRECTION;
+};
+const getStdioItemDirection = ({ type, value }, fdNumber) => KNOWN_DIRECTIONS[fdNumber] ?? guessStreamDirection[type](value);
+const KNOWN_DIRECTIONS = ["input", "output", "output"];
+const anyDirection = () => void 0;
+const alwaysInput = () => "input";
+const guessStreamDirection = {
+  generator: anyDirection,
+  asyncGenerator: anyDirection,
+  fileUrl: anyDirection,
+  filePath: anyDirection,
+  iterable: alwaysInput,
+  asyncIterable: alwaysInput,
+  uint8Array: alwaysInput,
+  webStream: (value) => isWritableStream(value) ? "output" : "input",
+  nodeStream(value) {
+    if (!isReadableStream$1(value, { checkOpen: false })) {
+      return "output";
     }
-    if (Jp.has(e))
-      return sa({
-        otherStdioItems: s,
-        type: e,
-        value: t,
-        optionName: n,
-        direction: r
-      });
-    Kp.has(e) && Fy({
-      otherStdioItems: s,
-      type: e,
-      value: t,
-      optionName: n
+    return isWritableStream$1(value, { checkOpen: false }) ? void 0 : "input";
+  },
+  webTransform: anyDirection,
+  duplex: anyDirection,
+  native(value) {
+    const standardStreamDirection = getStandardStreamDirection(value);
+    if (standardStreamDirection !== void 0) {
+      return standardStreamDirection;
+    }
+    if (isStream(value, { checkOpen: false })) {
+      return guessStreamDirection.nodeStream(value);
+    }
+  }
+};
+const getStandardStreamDirection = (value) => {
+  if ([0, process$2.stdin].includes(value)) {
+    return "input";
+  }
+  if ([1, 2, process$2.stdout, process$2.stderr].includes(value)) {
+    return "output";
+  }
+};
+const DEFAULT_DIRECTION = "output";
+const normalizeIpcStdioArray = (stdioArray, ipc) => ipc && !stdioArray.includes("ipc") ? [...stdioArray, "ipc"] : stdioArray;
+const normalizeStdioOption = ({ stdio, ipc, buffer, ...options }, verboseInfo, isSync) => {
+  const stdioArray = getStdioArray(stdio, options).map((stdioOption, fdNumber) => addDefaultValue(stdioOption, fdNumber));
+  return isSync ? normalizeStdioSync(stdioArray, buffer, verboseInfo) : normalizeIpcStdioArray(stdioArray, ipc);
+};
+const getStdioArray = (stdio, options) => {
+  if (stdio === void 0) {
+    return STANDARD_STREAMS_ALIASES.map((alias) => options[alias]);
+  }
+  if (hasAlias(options)) {
+    throw new Error(`It's not possible to provide \`stdio\` in combination with one of ${STANDARD_STREAMS_ALIASES.map((alias) => `\`${alias}\``).join(", ")}`);
+  }
+  if (typeof stdio === "string") {
+    return [stdio, stdio, stdio];
+  }
+  if (!Array.isArray(stdio)) {
+    throw new TypeError(`Expected \`stdio\` to be of type \`string\` or \`Array\`, got \`${typeof stdio}\``);
+  }
+  const length = Math.max(stdio.length, STANDARD_STREAMS_ALIASES.length);
+  return Array.from({ length }, (_, fdNumber) => stdio[fdNumber]);
+};
+const hasAlias = (options) => STANDARD_STREAMS_ALIASES.some((alias) => options[alias] !== void 0);
+const addDefaultValue = (stdioOption, fdNumber) => {
+  if (Array.isArray(stdioOption)) {
+    return stdioOption.map((item) => addDefaultValue(item, fdNumber));
+  }
+  if (stdioOption === null || stdioOption === void 0) {
+    return fdNumber >= STANDARD_STREAMS_ALIASES.length ? "ignore" : "pipe";
+  }
+  return stdioOption;
+};
+const normalizeStdioSync = (stdioArray, buffer, verboseInfo) => stdioArray.map((stdioOption, fdNumber) => !buffer[fdNumber] && fdNumber !== 0 && !isFullVerbose(verboseInfo, fdNumber) && isOutputPipeOnly(stdioOption) ? "ignore" : stdioOption);
+const isOutputPipeOnly = (stdioOption) => stdioOption === "pipe" || Array.isArray(stdioOption) && stdioOption.every((item) => item === "pipe");
+const handleNativeStream = ({ stdioItem, stdioItem: { type }, isStdioArray, fdNumber, direction, isSync }) => {
+  if (!isStdioArray || type !== "native") {
+    return stdioItem;
+  }
+  return isSync ? handleNativeStreamSync({ stdioItem, fdNumber, direction }) : handleNativeStreamAsync({ stdioItem, fdNumber });
+};
+const handleNativeStreamSync = ({ stdioItem, stdioItem: { value, optionName }, fdNumber, direction }) => {
+  const targetFd = getTargetFd({
+    value,
+    optionName,
+    fdNumber,
+    direction
+  });
+  if (targetFd !== void 0) {
+    return targetFd;
+  }
+  if (isStream(value, { checkOpen: false })) {
+    throw new TypeError(`The \`${optionName}: Stream\` option cannot both be an array and include a stream with synchronous methods.`);
+  }
+  return stdioItem;
+};
+const getTargetFd = ({ value, optionName, fdNumber, direction }) => {
+  const targetFdNumber = getTargetFdNumber(value, fdNumber);
+  if (targetFdNumber === void 0) {
+    return;
+  }
+  if (direction === "output") {
+    return { type: "fileNumber", value: targetFdNumber, optionName };
+  }
+  if (tty.isatty(targetFdNumber)) {
+    throw new TypeError(`The \`${optionName}: ${serializeOptionValue(value)}\` option is invalid: it cannot be a TTY with synchronous methods.`);
+  }
+  return { type: "uint8Array", value: bufferToUint8Array(readFileSync$1(targetFdNumber)), optionName };
+};
+const getTargetFdNumber = (value, fdNumber) => {
+  if (value === "inherit") {
+    return fdNumber;
+  }
+  if (typeof value === "number") {
+    return value;
+  }
+  const standardStreamIndex = STANDARD_STREAMS.indexOf(value);
+  if (standardStreamIndex !== -1) {
+    return standardStreamIndex;
+  }
+};
+const handleNativeStreamAsync = ({ stdioItem, stdioItem: { value, optionName }, fdNumber }) => {
+  if (value === "inherit") {
+    return { type: "nodeStream", value: getStandardStream(fdNumber, value, optionName), optionName };
+  }
+  if (typeof value === "number") {
+    return { type: "nodeStream", value: getStandardStream(value, value, optionName), optionName };
+  }
+  if (isStream(value, { checkOpen: false })) {
+    return { type: "nodeStream", value, optionName };
+  }
+  return stdioItem;
+};
+const getStandardStream = (fdNumber, value, optionName) => {
+  const standardStream = STANDARD_STREAMS[fdNumber];
+  if (standardStream === void 0) {
+    throw new TypeError(`The \`${optionName}: ${value}\` option is invalid: no such standard stream.`);
+  }
+  return standardStream;
+};
+const handleInputOptions = ({ input, inputFile }, fdNumber) => fdNumber === 0 ? [
+  ...handleInputOption(input),
+  ...handleInputFileOption(inputFile)
+] : [];
+const handleInputOption = (input) => input === void 0 ? [] : [{
+  type: getInputType(input),
+  value: input,
+  optionName: "input"
+}];
+const getInputType = (input) => {
+  if (isReadableStream$1(input, { checkOpen: false })) {
+    return "nodeStream";
+  }
+  if (typeof input === "string") {
+    return "string";
+  }
+  if (isUint8Array(input)) {
+    return "uint8Array";
+  }
+  throw new Error("The `input` option must be a string, a Uint8Array or a Node.js Readable stream.");
+};
+const handleInputFileOption = (inputFile) => inputFile === void 0 ? [] : [{
+  ...getInputFileType(inputFile),
+  optionName: "inputFile"
+}];
+const getInputFileType = (inputFile) => {
+  if (isUrl(inputFile)) {
+    return { type: "fileUrl", value: inputFile };
+  }
+  if (isFilePathString(inputFile)) {
+    return { type: "filePath", value: { file: inputFile } };
+  }
+  throw new Error("The `inputFile` option must be a file path string or a file URL.");
+};
+const filterDuplicates = (stdioItems) => stdioItems.filter((stdioItemOne, indexOne) => stdioItems.every((stdioItemTwo, indexTwo) => stdioItemOne.value !== stdioItemTwo.value || indexOne >= indexTwo || stdioItemOne.type === "generator" || stdioItemOne.type === "asyncGenerator"));
+const getDuplicateStream = ({ stdioItem: { type, value, optionName }, direction, fileDescriptors, isSync }) => {
+  const otherStdioItems = getOtherStdioItems(fileDescriptors, type);
+  if (otherStdioItems.length === 0) {
+    return;
+  }
+  if (isSync) {
+    validateDuplicateStreamSync({
+      otherStdioItems,
+      type,
+      value,
+      optionName,
+      direction
+    });
+    return;
+  }
+  if (SPECIAL_DUPLICATE_TYPES.has(type)) {
+    return getDuplicateStreamInstance({
+      otherStdioItems,
+      type,
+      value,
+      optionName,
+      direction
     });
   }
-}, Py = (e, t) => e.flatMap(({ direction: n, stdioItems: r }) => r.filter((o) => o.type === t).map((o) => ({ ...o, direction: n }))), Ay = ({ otherStdioItems: e, type: t, value: n, optionName: r, direction: o }) => {
-  na.has(t) && sa({
-    otherStdioItems: e,
-    type: t,
-    value: n,
-    optionName: r,
-    direction: o
-  });
-}, sa = ({ otherStdioItems: e, type: t, value: n, optionName: r, direction: o }) => {
-  const i = e.filter((a) => Cy(a, n));
-  if (i.length === 0)
-    return;
-  const s = i.find((a) => a.direction !== o);
-  return aa(s, r, t), o === "output" ? i[0].stream : void 0;
-}, Cy = ({ type: e, value: t }, n) => e === "filePath" ? t.file === n.file : e === "fileUrl" ? t.href === n.href : t === n, Fy = ({ otherStdioItems: e, type: t, value: n, optionName: r }) => {
-  const o = e.find(({ value: { transform: i } }) => i === n.transform);
-  aa(o, r, t);
-}, aa = (e, t, n) => {
-  if (e !== void 0)
-    throw new TypeError(`The \`${e.optionName}\` and \`${t}\` options must not target ${Qt[n]} that is the same.`);
-}, ca = (e, t, n, r) => {
-  const i = hy(t, n, r).map((a, c) => Ly({
-    stdioOption: a,
-    fdNumber: c,
-    options: t,
-    isSync: r
-  })), s = Gy({
-    initialFileDescriptors: i,
-    addProperties: e,
-    options: t,
-    isSync: r
-  });
-  return t.stdio = s.map(({ stdioItems: a }) => Vy(a)), s;
-}, Ly = ({ stdioOption: e, fdNumber: t, options: n, isSync: r }) => {
-  const o = Ni(t), { stdioItems: i, isStdioArray: s } = My({
-    stdioOption: e,
-    fdNumber: t,
-    options: n,
-    optionName: o
-  }), a = ay(i, t, o), c = i.map((f) => gy({
-    stdioItem: f,
-    isStdioArray: s,
-    fdNumber: t,
-    direction: a,
-    isSync: r
-  })), u = ey(c, o, a, n), l = Zp(u, a);
-  return Ny(u, l), { direction: a, objectMode: l, stdioItems: u };
-}, My = ({ stdioOption: e, fdNumber: t, options: n, optionName: r }) => {
-  const i = [
-    ...(Array.isArray(e) ? e : [e]).map((c) => ky(c, r)),
-    ...$y(n, t)
-  ], s = xy(i), a = s.length > 1;
-  return _y(s, a, r), By(s), { stdioItems: s, isStdioArray: a };
-}, ky = (e, t) => ({
-  type: kp(e, t),
-  value: e,
-  optionName: t
-}), _y = (e, t, n) => {
-  if (e.length === 0)
-    throw new TypeError(`The \`${n}\` option must not be an empty array.`);
-  if (t) {
-    for (const { value: r, optionName: o } of e)
-      if (jy.has(r))
-        throw new Error(`The \`${o}\` option must not include \`${r}\`.`);
+  if (FORBID_DUPLICATE_TYPES.has(type)) {
+    validateDuplicateTransform({
+      otherStdioItems,
+      type,
+      value,
+      optionName
+    });
   }
-}, jy = /* @__PURE__ */ new Set(["ignore", "ipc"]), By = (e) => {
-  for (const t of e)
-    Uy(t);
-}, Uy = ({ type: e, value: t, optionName: n }) => {
-  if (Np(t))
-    throw new TypeError(`The \`${n}: URL\` option must use the \`file:\` scheme.
-For example, you can use the \`pathToFileURL()\` method of the \`url\` core module.`);
-  if (zp(e, t))
-    throw new TypeError(`The \`${n}: { file: '...' }\` option must be used instead of \`${n}: '...'\`.`);
-}, Ny = (e, t) => {
-  if (!t)
-    return;
-  const n = e.find(({ type: r }) => ta.has(r));
-  if (n !== void 0)
-    throw new TypeError(`The \`${n.optionName}\` option cannot use both files and transforms in objectMode.`);
-}, Gy = ({ initialFileDescriptors: e, addProperties: t, options: n, isSync: r }) => {
-  const o = [];
-  try {
-    for (const i of e)
-      o.push(Wy({
-        fileDescriptor: i,
-        fileDescriptors: o,
-        addProperties: t,
-        options: n,
-        isSync: r
-      }));
-    return o;
-  } catch (i) {
-    throw la(o), i;
+};
+const getOtherStdioItems = (fileDescriptors, type) => fileDescriptors.flatMap(({ direction, stdioItems }) => stdioItems.filter((stdioItem) => stdioItem.type === type).map((stdioItem) => ({ ...stdioItem, direction })));
+const validateDuplicateStreamSync = ({ otherStdioItems, type, value, optionName, direction }) => {
+  if (SPECIAL_DUPLICATE_TYPES_SYNC.has(type)) {
+    getDuplicateStreamInstance({
+      otherStdioItems,
+      type,
+      value,
+      optionName,
+      direction
+    });
   }
-}, Wy = ({
-  fileDescriptor: { direction: e, objectMode: t, stdioItems: n },
-  fileDescriptors: r,
-  addProperties: o,
-  options: i,
-  isSync: s
-}) => {
-  const a = n.map((c) => zy({
-    stdioItem: c,
-    addProperties: o,
-    direction: e,
-    options: i,
-    fileDescriptors: r,
-    isSync: s
+};
+const getDuplicateStreamInstance = ({ otherStdioItems, type, value, optionName, direction }) => {
+  const duplicateStdioItems = otherStdioItems.filter((stdioItem) => hasSameValue(stdioItem, value));
+  if (duplicateStdioItems.length === 0) {
+    return;
+  }
+  const differentStdioItem = duplicateStdioItems.find((stdioItem) => stdioItem.direction !== direction);
+  throwOnDuplicateStream(differentStdioItem, optionName, type);
+  return direction === "output" ? duplicateStdioItems[0].stream : void 0;
+};
+const hasSameValue = ({ type, value }, secondValue) => {
+  if (type === "filePath") {
+    return value.file === secondValue.file;
+  }
+  if (type === "fileUrl") {
+    return value.href === secondValue.href;
+  }
+  return value === secondValue;
+};
+const validateDuplicateTransform = ({ otherStdioItems, type, value, optionName }) => {
+  const duplicateStdioItem = otherStdioItems.find(({ value: { transform } }) => transform === value.transform);
+  throwOnDuplicateStream(duplicateStdioItem, optionName, type);
+};
+const throwOnDuplicateStream = (stdioItem, optionName, type) => {
+  if (stdioItem !== void 0) {
+    throw new TypeError(`The \`${stdioItem.optionName}\` and \`${optionName}\` options must not target ${TYPE_TO_MESSAGE[type]} that is the same.`);
+  }
+};
+const handleStdio = (addProperties2, options, verboseInfo, isSync) => {
+  const stdio = normalizeStdioOption(options, verboseInfo, isSync);
+  const initialFileDescriptors = stdio.map((stdioOption, fdNumber) => getFileDescriptor({
+    stdioOption,
+    fdNumber,
+    options,
+    isSync
   }));
-  return { direction: e, objectMode: t, stdioItems: a };
-}, zy = ({ stdioItem: e, addProperties: t, direction: n, options: r, fileDescriptors: o, isSync: i }) => {
-  const s = Ry({
-    stdioItem: e,
-    direction: n,
-    fileDescriptors: o,
-    isSync: i
+  const fileDescriptors = getFinalFileDescriptors({
+    initialFileDescriptors,
+    addProperties: addProperties2,
+    options,
+    isSync
   });
-  return s !== void 0 ? { ...e, stream: s } : {
-    ...e,
-    ...t[n][e.type](e, r)
+  options.stdio = fileDescriptors.map(({ stdioItems }) => forwardStdio(stdioItems));
+  return fileDescriptors;
+};
+const getFileDescriptor = ({ stdioOption, fdNumber, options, isSync }) => {
+  const optionName = getStreamName(fdNumber);
+  const { stdioItems: initialStdioItems, isStdioArray } = initializeStdioItems({
+    stdioOption,
+    fdNumber,
+    options,
+    optionName
+  });
+  const direction = getStreamDirection(initialStdioItems, fdNumber, optionName);
+  const stdioItems = initialStdioItems.map((stdioItem) => handleNativeStream({
+    stdioItem,
+    isStdioArray,
+    fdNumber,
+    direction,
+    isSync
+  }));
+  const normalizedStdioItems = normalizeTransforms(stdioItems, optionName, direction, options);
+  const objectMode = getFdObjectMode(normalizedStdioItems, direction);
+  validateFileObjectMode(normalizedStdioItems, objectMode);
+  return { direction, objectMode, stdioItems: normalizedStdioItems };
+};
+const initializeStdioItems = ({ stdioOption, fdNumber, options, optionName }) => {
+  const values = Array.isArray(stdioOption) ? stdioOption : [stdioOption];
+  const initialStdioItems = [
+    ...values.map((value) => initializeStdioItem(value, optionName)),
+    ...handleInputOptions(options, fdNumber)
+  ];
+  const stdioItems = filterDuplicates(initialStdioItems);
+  const isStdioArray = stdioItems.length > 1;
+  validateStdioArray(stdioItems, isStdioArray, optionName);
+  validateStreams(stdioItems);
+  return { stdioItems, isStdioArray };
+};
+const initializeStdioItem = (value, optionName) => ({
+  type: getStdioItemType(value, optionName),
+  value,
+  optionName
+});
+const validateStdioArray = (stdioItems, isStdioArray, optionName) => {
+  if (stdioItems.length === 0) {
+    throw new TypeError(`The \`${optionName}\` option must not be an empty array.`);
+  }
+  if (!isStdioArray) {
+    return;
+  }
+  for (const { value, optionName: optionName2 } of stdioItems) {
+    if (INVALID_STDIO_ARRAY_OPTIONS.has(value)) {
+      throw new Error(`The \`${optionName2}\` option must not include \`${value}\`.`);
+    }
+  }
+};
+const INVALID_STDIO_ARRAY_OPTIONS = /* @__PURE__ */ new Set(["ignore", "ipc"]);
+const validateStreams = (stdioItems) => {
+  for (const stdioItem of stdioItems) {
+    validateFileStdio(stdioItem);
+  }
+};
+const validateFileStdio = ({ type, value, optionName }) => {
+  if (isRegularUrl(value)) {
+    throw new TypeError(`The \`${optionName}: URL\` option must use the \`file:\` scheme.
+For example, you can use the \`pathToFileURL()\` method of the \`url\` core module.`);
+  }
+  if (isUnknownStdioString(type, value)) {
+    throw new TypeError(`The \`${optionName}: { file: '...' }\` option must be used instead of \`${optionName}: '...'\`.`);
+  }
+};
+const validateFileObjectMode = (stdioItems, objectMode) => {
+  if (!objectMode) {
+    return;
+  }
+  const fileStdioItem = stdioItems.find(({ type }) => FILE_TYPES.has(type));
+  if (fileStdioItem !== void 0) {
+    throw new TypeError(`The \`${fileStdioItem.optionName}\` option cannot use both files and transforms in objectMode.`);
+  }
+};
+const getFinalFileDescriptors = ({ initialFileDescriptors, addProperties: addProperties2, options, isSync }) => {
+  const fileDescriptors = [];
+  try {
+    for (const fileDescriptor of initialFileDescriptors) {
+      fileDescriptors.push(getFinalFileDescriptor({
+        fileDescriptor,
+        fileDescriptors,
+        addProperties: addProperties2,
+        options,
+        isSync
+      }));
+    }
+    return fileDescriptors;
+  } catch (error) {
+    cleanupCustomStreams(fileDescriptors);
+    throw error;
+  }
+};
+const getFinalFileDescriptor = ({
+  fileDescriptor: { direction, objectMode, stdioItems },
+  fileDescriptors,
+  addProperties: addProperties2,
+  options,
+  isSync
+}) => {
+  const finalStdioItems = stdioItems.map((stdioItem) => addStreamProperties({
+    stdioItem,
+    addProperties: addProperties2,
+    direction,
+    options,
+    fileDescriptors,
+    isSync
+  }));
+  return { direction, objectMode, stdioItems: finalStdioItems };
+};
+const addStreamProperties = ({ stdioItem, addProperties: addProperties2, direction, options, fileDescriptors, isSync }) => {
+  const duplicateStream = getDuplicateStream({
+    stdioItem,
+    direction,
+    fileDescriptors,
+    isSync
+  });
+  if (duplicateStream !== void 0) {
+    return { ...stdioItem, stream: duplicateStream };
+  }
+  return {
+    ...stdioItem,
+    ...addProperties2[direction][stdioItem.type](stdioItem, options)
   };
-}, la = (e) => {
-  for (const { stdioItems: t } of e)
-    for (const { stream: n } of t)
-      n !== void 0 && !ve(n) && n.destroy();
-}, Vy = (e) => {
-  if (e.length > 1)
-    return e.some(({ value: r }) => r === "overlapped") ? "overlapped" : "pipe";
-  const [{ type: t, value: n }] = e;
-  return t === "native" ? n : "pipe";
-}, Hy = (e, t) => ca(Yy, e, t, !0), ie = ({ type: e, optionName: t }) => {
-  ua(t, Qt[e]);
-}, qy = ({ optionName: e, value: t }) => ((t === "ipc" || t === "overlapped") && ua(e, `"${t}"`), {}), ua = (e, t) => {
-  throw new TypeError(`The \`${e}\` option cannot be ${t} with synchronous methods.`);
-}, $o = {
+};
+const cleanupCustomStreams = (fileDescriptors) => {
+  for (const { stdioItems } of fileDescriptors) {
+    for (const { stream } of stdioItems) {
+      if (stream !== void 0 && !isStandardStream(stream)) {
+        stream.destroy();
+      }
+    }
+  }
+};
+const forwardStdio = (stdioItems) => {
+  if (stdioItems.length > 1) {
+    return stdioItems.some(({ value: value2 }) => value2 === "overlapped") ? "overlapped" : "pipe";
+  }
+  const [{ type, value }] = stdioItems;
+  return type === "native" ? value : "pipe";
+};
+const handleStdioSync = (options, verboseInfo) => handleStdio(addPropertiesSync, options, verboseInfo, true);
+const forbiddenIfSync = ({ type, optionName }) => {
+  throwInvalidSyncValue(optionName, TYPE_TO_MESSAGE[type]);
+};
+const forbiddenNativeIfSync = ({ optionName, value }) => {
+  if (value === "ipc" || value === "overlapped") {
+    throwInvalidSyncValue(optionName, `"${value}"`);
+  }
+  return {};
+};
+const throwInvalidSyncValue = (optionName, value) => {
+  throw new TypeError(`The \`${optionName}\` option cannot be ${value} with synchronous methods.`);
+};
+const addProperties$1 = {
   generator() {
   },
-  asyncGenerator: ie,
-  webStream: ie,
-  nodeStream: ie,
-  webTransform: ie,
-  duplex: ie,
-  asyncIterable: ie,
-  native: qy
-}, Yy = {
+  asyncGenerator: forbiddenIfSync,
+  webStream: forbiddenIfSync,
+  nodeStream: forbiddenIfSync,
+  webTransform: forbiddenIfSync,
+  duplex: forbiddenIfSync,
+  asyncIterable: forbiddenIfSync,
+  native: forbiddenNativeIfSync
+};
+const addPropertiesSync = {
   input: {
-    ...$o,
-    fileUrl: ({ value: e }) => ({ contents: [at(hn(e))] }),
-    filePath: ({ value: { file: e } }) => ({ contents: [at(hn(e))] }),
-    fileNumber: ie,
-    iterable: ({ value: e }) => ({ contents: [...e] }),
-    string: ({ value: e }) => ({ contents: [e] }),
-    uint8Array: ({ value: e }) => ({ contents: [e] })
+    ...addProperties$1,
+    fileUrl: ({ value }) => ({ contents: [bufferToUint8Array(readFileSync$1(value))] }),
+    filePath: ({ value: { file: file2 } }) => ({ contents: [bufferToUint8Array(readFileSync$1(file2))] }),
+    fileNumber: forbiddenIfSync,
+    iterable: ({ value }) => ({ contents: [...value] }),
+    string: ({ value }) => ({ contents: [value] }),
+    uint8Array: ({ value }) => ({ contents: [value] })
   },
   output: {
-    ...$o,
-    fileUrl: ({ value: e }) => ({ path: e }),
-    filePath: ({ value: { file: e, append: t } }) => ({ path: e, append: t }),
-    fileNumber: ({ value: e }) => ({ path: e }),
-    iterable: ie,
-    string: ie,
-    uint8Array: ie
+    ...addProperties$1,
+    fileUrl: ({ value }) => ({ path: value }),
+    filePath: ({ value: { file: file2, append } }) => ({ path: file2, append }),
+    fileNumber: ({ value }) => ({ path: value }),
+    iterable: forbiddenIfSync,
+    string: forbiddenIfSync,
+    uint8Array: forbiddenIfSync
   }
-}, ze = (e, { stripFinalNewline: t }, n) => fa(t, n) && e !== void 0 && !Array.isArray(e) ? yr(e) : e, fa = (e, t) => t === "all" ? e[1] || e[2] : e[t], da = (e, t, n, r) => e || n ? void 0 : ma(t, r), ha = (e, t, n) => n ? e.flatMap((r) => vo(r, t)) : vo(e, t), vo = (e, t) => {
-  const { transform: n, final: r } = ma(t, {});
-  return [...n(e), ...r()];
-}, ma = (e, t) => (t.previousChunks = "", {
-  transform: Jy.bind(void 0, t, e),
-  final: Xy.bind(void 0, t)
-}), Jy = function* (e, t, n) {
-  if (typeof n != "string") {
-    yield n;
+};
+const stripNewline = (value, { stripFinalNewline: stripFinalNewline$1 }, fdNumber) => getStripFinalNewline(stripFinalNewline$1, fdNumber) && value !== void 0 && !Array.isArray(value) ? stripFinalNewline(value) : value;
+const getStripFinalNewline = (stripFinalNewline2, fdNumber) => fdNumber === "all" ? stripFinalNewline2[1] || stripFinalNewline2[2] : stripFinalNewline2[fdNumber];
+const getSplitLinesGenerator = (binary, preserveNewlines, skipped, state) => binary || skipped ? void 0 : initializeSplitLines(preserveNewlines, state);
+const splitLinesSync = (chunk, preserveNewlines, objectMode) => objectMode ? chunk.flatMap((item) => splitLinesItemSync(item, preserveNewlines)) : splitLinesItemSync(chunk, preserveNewlines);
+const splitLinesItemSync = (chunk, preserveNewlines) => {
+  const { transform, final } = initializeSplitLines(preserveNewlines, {});
+  return [...transform(chunk), ...final()];
+};
+const initializeSplitLines = (preserveNewlines, state) => {
+  state.previousChunks = "";
+  return {
+    transform: splitGenerator.bind(void 0, state, preserveNewlines),
+    final: linesFinal.bind(void 0, state)
+  };
+};
+const splitGenerator = function* (state, preserveNewlines, chunk) {
+  if (typeof chunk !== "string") {
+    yield chunk;
     return;
   }
-  let { previousChunks: r } = e, o = -1;
-  for (let i = 0; i < n.length; i += 1)
-    if (n[i] === `
-`) {
-      const s = Ky(n, i, t, e);
-      let a = n.slice(o + 1, i + 1 - s);
-      r.length > 0 && (a = xn(r, a), r = ""), yield a, o = i;
+  let { previousChunks } = state;
+  let start = -1;
+  for (let end = 0; end < chunk.length; end += 1) {
+    if (chunk[end] === "\n") {
+      const newlineLength = getNewlineLength(chunk, end, preserveNewlines, state);
+      let line = chunk.slice(start + 1, end + 1 - newlineLength);
+      if (previousChunks.length > 0) {
+        line = concatString(previousChunks, line);
+        previousChunks = "";
+      }
+      yield line;
+      start = end;
     }
-  o !== n.length - 1 && (r = xn(r, n.slice(o + 1))), e.previousChunks = r;
-}, Ky = (e, t, n, r) => n ? 0 : (r.isWindowsNewline = t !== 0 && e[t - 1] === "\r", r.isWindowsNewline ? 2 : 1), Xy = function* ({ previousChunks: e }) {
-  e.length > 0 && (yield e);
-}, Qy = ({ binary: e, preserveNewlines: t, readableObjectMode: n, state: r }) => e || t || n ? void 0 : { transform: Zy.bind(void 0, r) }, Zy = function* ({ isWindowsNewline: e = !1 }, t) {
-  const { unixNewline: n, windowsNewline: r, LF: o, concatBytes: i } = typeof t == "string" ? ew : nw;
-  if (t.at(-1) === o) {
-    yield t;
+  }
+  if (start !== chunk.length - 1) {
+    previousChunks = concatString(previousChunks, chunk.slice(start + 1));
+  }
+  state.previousChunks = previousChunks;
+};
+const getNewlineLength = (chunk, end, preserveNewlines, state) => {
+  if (preserveNewlines) {
+    return 0;
+  }
+  state.isWindowsNewline = end !== 0 && chunk[end - 1] === "\r";
+  return state.isWindowsNewline ? 2 : 1;
+};
+const linesFinal = function* ({ previousChunks }) {
+  if (previousChunks.length > 0) {
+    yield previousChunks;
+  }
+};
+const getAppendNewlineGenerator = ({ binary, preserveNewlines, readableObjectMode, state }) => binary || preserveNewlines || readableObjectMode ? void 0 : { transform: appendNewlineGenerator.bind(void 0, state) };
+const appendNewlineGenerator = function* ({ isWindowsNewline = false }, chunk) {
+  const { unixNewline, windowsNewline, LF: LF2, concatBytes } = typeof chunk === "string" ? linesStringInfo : linesUint8ArrayInfo;
+  if (chunk.at(-1) === LF2) {
+    yield chunk;
     return;
   }
-  yield i(t, e ? r : n);
-}, xn = (e, t) => `${e}${t}`, ew = {
-  windowsNewline: `\r
-`,
-  unixNewline: `
-`,
-  LF: `
-`,
-  concatBytes: xn
-}, tw = (e, t) => {
-  const n = new Uint8Array(e.length + t.length);
-  return n.set(e, 0), n.set(t, e.length), n;
-}, nw = {
+  const newline = isWindowsNewline ? windowsNewline : unixNewline;
+  yield concatBytes(chunk, newline);
+};
+const concatString = (firstChunk, secondChunk) => `${firstChunk}${secondChunk}`;
+const linesStringInfo = {
+  windowsNewline: "\r\n",
+  unixNewline: "\n",
+  LF: "\n",
+  concatBytes: concatString
+};
+const concatUint8Array = (firstChunk, secondChunk) => {
+  const chunk = new Uint8Array(firstChunk.length + secondChunk.length);
+  chunk.set(firstChunk, 0);
+  chunk.set(secondChunk, firstChunk.length);
+  return chunk;
+};
+const linesUint8ArrayInfo = {
   windowsNewline: new Uint8Array([13, 10]),
   unixNewline: new Uint8Array([10]),
   LF: 10,
-  concatBytes: tw
-}, rw = (e, t) => e ? void 0 : ow.bind(void 0, t), ow = function* (e, t) {
-  if (typeof t != "string" && !te(t) && !Bn.isBuffer(t))
-    throw new TypeError(`The \`${e}\` option's transform must use "objectMode: true" to receive as input: ${typeof t}.`);
-  yield t;
-}, iw = (e, t) => e ? sw.bind(void 0, t) : aw.bind(void 0, t), sw = function* (e, t) {
-  pa(e, t), yield t;
-}, aw = function* (e, t) {
-  if (pa(e, t), typeof t != "string" && !te(t))
-    throw new TypeError(`The \`${e}\` option's function must yield a string or an Uint8Array, not ${typeof t}.`);
-  yield t;
-}, pa = (e, t) => {
-  if (t == null)
-    throw new TypeError(`The \`${e}\` option's function must not call \`yield ${t}\`.
+  concatBytes: concatUint8Array
+};
+const getValidateTransformInput = (writableObjectMode, optionName) => writableObjectMode ? void 0 : validateStringTransformInput.bind(void 0, optionName);
+const validateStringTransformInput = function* (optionName, chunk) {
+  if (typeof chunk !== "string" && !isUint8Array(chunk) && !Buffer$1.isBuffer(chunk)) {
+    throw new TypeError(`The \`${optionName}\` option's transform must use "objectMode: true" to receive as input: ${typeof chunk}.`);
+  }
+  yield chunk;
+};
+const getValidateTransformReturn = (readableObjectMode, optionName) => readableObjectMode ? validateObjectTransformReturn.bind(void 0, optionName) : validateStringTransformReturn.bind(void 0, optionName);
+const validateObjectTransformReturn = function* (optionName, chunk) {
+  validateEmptyReturn(optionName, chunk);
+  yield chunk;
+};
+const validateStringTransformReturn = function* (optionName, chunk) {
+  validateEmptyReturn(optionName, chunk);
+  if (typeof chunk !== "string" && !isUint8Array(chunk)) {
+    throw new TypeError(`The \`${optionName}\` option's function must yield a string or an Uint8Array, not ${typeof chunk}.`);
+  }
+  yield chunk;
+};
+const validateEmptyReturn = (optionName, chunk) => {
+  if (chunk === null || chunk === void 0) {
+    throw new TypeError(`The \`${optionName}\` option's function must not call \`yield ${chunk}\`.
 Instead, \`yield\` should either be called with a value, or not be called at all. For example:
   if (condition) { yield value; }`);
-}, ya = (e, t, n) => {
-  if (n)
+  }
+};
+const getEncodingTransformGenerator = (binary, encoding, skipped) => {
+  if (skipped) {
     return;
-  if (e)
-    return { transform: cw.bind(void 0, new TextEncoder()) };
-  const r = new zo(t);
+  }
+  if (binary) {
+    return { transform: encodingUint8ArrayGenerator.bind(void 0, new TextEncoder()) };
+  }
+  const stringDecoder = new StringDecoder(encoding);
   return {
-    transform: lw.bind(void 0, r),
-    final: uw.bind(void 0, r)
+    transform: encodingStringGenerator.bind(void 0, stringDecoder),
+    final: encodingStringFinal.bind(void 0, stringDecoder)
   };
-}, cw = function* (e, t) {
-  Bn.isBuffer(t) ? yield at(t) : typeof t == "string" ? yield e.encode(t) : yield t;
-}, lw = function* (e, t) {
-  yield te(t) ? e.write(t) : t;
-}, uw = function* (e) {
-  const t = e.end();
-  t !== "" && (yield t);
-}, Oo = qe(async (e, t, n, r) => {
-  t.currentIterable = e(...n);
+};
+const encodingUint8ArrayGenerator = function* (textEncoder2, chunk) {
+  if (Buffer$1.isBuffer(chunk)) {
+    yield bufferToUint8Array(chunk);
+  } else if (typeof chunk === "string") {
+    yield textEncoder2.encode(chunk);
+  } else {
+    yield chunk;
+  }
+};
+const encodingStringGenerator = function* (stringDecoder, chunk) {
+  yield isUint8Array(chunk) ? stringDecoder.write(chunk) : chunk;
+};
+const encodingStringFinal = function* (stringDecoder) {
+  const lastChunk = stringDecoder.end();
+  if (lastChunk !== "") {
+    yield lastChunk;
+  }
+};
+const pushChunks = callbackify(async (getChunks, state, getChunksArguments, transformStream) => {
+  state.currentIterable = getChunks(...getChunksArguments);
   try {
-    for await (const o of t.currentIterable)
-      r.push(o);
+    for await (const chunk of state.currentIterable) {
+      transformStream.push(chunk);
+    }
   } finally {
-    delete t.currentIterable;
+    delete state.currentIterable;
   }
-}), Ir = async function* (e, t, n) {
-  if (n === t.length) {
-    yield e;
+});
+const transformChunk = async function* (chunk, generators, index) {
+  if (index === generators.length) {
+    yield chunk;
     return;
   }
-  const { transform: r = mw } = t[n];
-  for await (const o of r(e))
-    yield* Ir(o, t, n + 1);
-}, fw = async function* (e) {
-  for (const [t, { final: n }] of Object.entries(e))
-    yield* dw(n, Number(t), e);
-}, dw = async function* (e, t, n) {
-  if (e !== void 0)
-    for await (const r of e())
-      yield* Ir(r, n, t + 1);
-}, hw = qe(async ({ currentIterable: e }, t) => {
-  if (e !== void 0) {
-    await (t ? e.throw(t) : e.return());
+  const { transform = identityGenerator$1 } = generators[index];
+  for await (const transformedChunk of transform(chunk)) {
+    yield* transformChunk(transformedChunk, generators, index + 1);
+  }
+};
+const finalChunks = async function* (generators) {
+  for (const [index, { final }] of Object.entries(generators)) {
+    yield* generatorFinalChunks(final, Number(index), generators);
+  }
+};
+const generatorFinalChunks = async function* (final, index, generators) {
+  if (final === void 0) {
     return;
   }
-  if (t)
-    throw t;
-}), mw = function* (e) {
-  yield e;
-}, Do = (e, t, n, r) => {
+  for await (const finalChunk of final()) {
+    yield* transformChunk(finalChunk, generators, index + 1);
+  }
+};
+const destroyTransform = callbackify(async ({ currentIterable }, error) => {
+  if (currentIterable !== void 0) {
+    await (error ? currentIterable.throw(error) : currentIterable.return());
+    return;
+  }
+  if (error) {
+    throw error;
+  }
+});
+const identityGenerator$1 = function* (chunk) {
+  yield chunk;
+};
+const pushChunksSync = (getChunksSync, getChunksArguments, transformStream, done) => {
   try {
-    for (const o of e(...t))
-      n.push(o);
-    r();
-  } catch (o) {
-    r(o);
+    for (const chunk of getChunksSync(...getChunksArguments)) {
+      transformStream.push(chunk);
+    }
+    done();
+  } catch (error) {
+    done(error);
   }
-}, pw = (e, t) => [
-  ...t.flatMap((n) => [...wt(n, e, 0)]),
-  ...xr(e)
-], wt = function* (e, t, n) {
-  if (n === t.length) {
-    yield e;
+};
+const runTransformSync = (generators, chunks) => [
+  ...chunks.flatMap((chunk) => [...transformChunkSync(chunk, generators, 0)]),
+  ...finalChunksSync(generators)
+];
+const transformChunkSync = function* (chunk, generators, index) {
+  if (index === generators.length) {
+    yield chunk;
     return;
   }
-  const { transform: r = ww } = t[n];
-  for (const o of r(e))
-    yield* wt(o, t, n + 1);
-}, xr = function* (e) {
-  for (const [t, { final: n }] of Object.entries(e))
-    yield* yw(n, Number(t), e);
-}, yw = function* (e, t, n) {
-  if (e !== void 0)
-    for (const r of e())
-      yield* wt(r, n, t + 1);
-}, ww = function* (e) {
-  yield e;
-}, Io = ({
-  value: e,
-  value: { transform: t, final: n, writableObjectMode: r, readableObjectMode: o },
-  optionName: i
-}, { encoding: s }) => {
-  const a = {}, c = ga(e, s, i), u = We(t), l = We(n), f = u ? Oo.bind(void 0, Ir, a) : Do.bind(void 0, wt), d = u || l ? Oo.bind(void 0, fw, a) : Do.bind(void 0, xr), h = u || l ? hw.bind(void 0, a) : void 0;
-  return { stream: new Cc({
-    writableObjectMode: r,
-    writableHighWaterMark: At(r),
-    readableObjectMode: o,
-    readableHighWaterMark: At(o),
-    transform(y, g, S) {
-      f([y, c, 0], this, S);
-    },
-    flush(y) {
-      d([c], this, y);
-    },
-    destroy: h
-  }) };
-}, wa = (e, t, n, r) => {
-  const o = t.filter(({ type: s }) => s === "generator"), i = r ? o.reverse() : o;
-  for (const { value: s, optionName: a } of i) {
-    const c = ga(s, n, a);
-    e = pw(c, e);
+  const { transform = identityGenerator } = generators[index];
+  for (const transformedChunk of transform(chunk)) {
+    yield* transformChunkSync(transformedChunk, generators, index + 1);
   }
-  return e;
-}, ga = ({ transform: e, final: t, binary: n, writableObjectMode: r, readableObjectMode: o, preserveNewlines: i }, s, a) => {
-  const c = {};
+};
+const finalChunksSync = function* (generators) {
+  for (const [index, { final }] of Object.entries(generators)) {
+    yield* generatorFinalChunksSync(final, Number(index), generators);
+  }
+};
+const generatorFinalChunksSync = function* (final, index, generators) {
+  if (final === void 0) {
+    return;
+  }
+  for (const finalChunk of final()) {
+    yield* transformChunkSync(finalChunk, generators, index + 1);
+  }
+};
+const identityGenerator = function* (chunk) {
+  yield chunk;
+};
+const generatorToStream = ({
+  value,
+  value: { transform, final, writableObjectMode, readableObjectMode },
+  optionName
+}, { encoding }) => {
+  const state = {};
+  const generators = addInternalGenerators(value, encoding, optionName);
+  const transformAsync = isAsyncGenerator(transform);
+  const finalAsync = isAsyncGenerator(final);
+  const transformMethod = transformAsync ? pushChunks.bind(void 0, transformChunk, state) : pushChunksSync.bind(void 0, transformChunkSync);
+  const finalMethod = transformAsync || finalAsync ? pushChunks.bind(void 0, finalChunks, state) : pushChunksSync.bind(void 0, finalChunksSync);
+  const destroyMethod = transformAsync || finalAsync ? destroyTransform.bind(void 0, state) : void 0;
+  const stream = new Transform({
+    writableObjectMode,
+    writableHighWaterMark: getDefaultHighWaterMark(writableObjectMode),
+    readableObjectMode,
+    readableHighWaterMark: getDefaultHighWaterMark(readableObjectMode),
+    transform(chunk, encoding2, done) {
+      transformMethod([chunk, generators, 0], this, done);
+    },
+    flush(done) {
+      finalMethod([generators], this, done);
+    },
+    destroy: destroyMethod
+  });
+  return { stream };
+};
+const runGeneratorsSync = (chunks, stdioItems, encoding, isInput) => {
+  const generators = stdioItems.filter(({ type }) => type === "generator");
+  const reversedGenerators = isInput ? generators.reverse() : generators;
+  for (const { value, optionName } of reversedGenerators) {
+    const generators2 = addInternalGenerators(value, encoding, optionName);
+    chunks = runTransformSync(generators2, chunks);
+  }
+  return chunks;
+};
+const addInternalGenerators = ({ transform, final, binary, writableObjectMode, readableObjectMode, preserveNewlines }, encoding, optionName) => {
+  const state = {};
   return [
-    { transform: rw(r, a) },
-    ya(n, s, r),
-    da(n, i, r, c),
-    { transform: e, final: t },
-    { transform: iw(o, a) },
-    Qy({
-      binary: n,
-      preserveNewlines: i,
-      readableObjectMode: o,
-      state: c
+    { transform: getValidateTransformInput(writableObjectMode, optionName) },
+    getEncodingTransformGenerator(binary, encoding, writableObjectMode),
+    getSplitLinesGenerator(binary, preserveNewlines, writableObjectMode, state),
+    { transform, final },
+    { transform: getValidateTransformReturn(readableObjectMode, optionName) },
+    getAppendNewlineGenerator({
+      binary,
+      preserveNewlines,
+      readableObjectMode,
+      state
     })
   ].filter(Boolean);
-}, gw = (e, t) => {
-  for (const n of Sw(e))
-    bw(e, n, t);
-}, Sw = (e) => new Set(Object.entries(e).filter(([, { direction: t }]) => t === "input").map(([t]) => Number(t))), bw = (e, t, n) => {
-  const { stdioItems: r } = e[t], o = r.filter(({ contents: a }) => a !== void 0);
-  if (o.length === 0)
-    return;
-  if (t !== 0) {
-    const [{ type: a, optionName: c }] = o;
-    throw new TypeError(`Only the \`stdin\` option, not \`${c}\`, can be ${Qt[a]} with synchronous methods.`);
+};
+const addInputOptionsSync = (fileDescriptors, options) => {
+  for (const fdNumber of getInputFdNumbers(fileDescriptors)) {
+    addInputOptionSync(fileDescriptors, fdNumber, options);
   }
-  const s = o.map(({ contents: a }) => a).map((a) => Ew(a, r));
-  n.input = Jn(s);
-}, Ew = (e, t) => {
-  const n = wa(e, t, "utf8", !0);
-  return Tw(n), Jn(n);
-}, Tw = (e) => {
-  const t = e.find((n) => typeof n != "string" && !te(n));
-  if (t !== void 0)
-    throw new TypeError(`The \`stdin\` option is invalid: when passing objects as input, a transform must be used to serialize them to strings or Uint8Arrays: ${t}.`);
-}, Sa = ({ stdioItems: e, encoding: t, verboseInfo: n, fdNumber: r }) => r !== "all" && Qn(n, r) && !xe.has(t) && $w(r) && (e.some(({ type: o, value: i }) => o === "native" && vw.has(i)) || e.every(({ type: o }) => De.has(o))), $w = (e) => e === 1 || e === 2, vw = /* @__PURE__ */ new Set(["pipe", "overlapped"]), Ow = async (e, t, n, r) => {
-  for await (const o of e)
-    Iw(t) || ba(o, n, r);
-}, Dw = (e, t, n) => {
-  for (const r of e)
-    ba(r, t, n);
-}, Iw = (e) => e._readableState.pipes.length > 0, ba = (e, t, n) => {
-  const r = qi(e);
-  mt({
+};
+const getInputFdNumbers = (fileDescriptors) => new Set(Object.entries(fileDescriptors).filter(([, { direction }]) => direction === "input").map(([fdNumber]) => Number(fdNumber)));
+const addInputOptionSync = (fileDescriptors, fdNumber, options) => {
+  const { stdioItems } = fileDescriptors[fdNumber];
+  const allStdioItems = stdioItems.filter(({ contents }) => contents !== void 0);
+  if (allStdioItems.length === 0) {
+    return;
+  }
+  if (fdNumber !== 0) {
+    const [{ type, optionName }] = allStdioItems;
+    throw new TypeError(`Only the \`stdin\` option, not \`${optionName}\`, can be ${TYPE_TO_MESSAGE[type]} with synchronous methods.`);
+  }
+  const allContents = allStdioItems.map(({ contents }) => contents);
+  const transformedContents = allContents.map((contents) => applySingleInputGeneratorsSync(contents, stdioItems));
+  options.input = joinToUint8Array(transformedContents);
+};
+const applySingleInputGeneratorsSync = (contents, stdioItems) => {
+  const newContents = runGeneratorsSync(contents, stdioItems, "utf8", true);
+  validateSerializable(newContents);
+  return joinToUint8Array(newContents);
+};
+const validateSerializable = (newContents) => {
+  const invalidItem = newContents.find((item) => typeof item !== "string" && !isUint8Array(item));
+  if (invalidItem !== void 0) {
+    throw new TypeError(`The \`stdin\` option is invalid: when passing objects as input, a transform must be used to serialize them to strings or Uint8Arrays: ${invalidItem}.`);
+  }
+};
+const shouldLogOutput = ({ stdioItems, encoding, verboseInfo, fdNumber }) => fdNumber !== "all" && isFullVerbose(verboseInfo, fdNumber) && !BINARY_ENCODINGS.has(encoding) && fdUsesVerbose(fdNumber) && (stdioItems.some(({ type, value }) => type === "native" && PIPED_STDIO_VALUES.has(value)) || stdioItems.every(({ type }) => TRANSFORM_TYPES.has(type)));
+const fdUsesVerbose = (fdNumber) => fdNumber === 1 || fdNumber === 2;
+const PIPED_STDIO_VALUES = /* @__PURE__ */ new Set(["pipe", "overlapped"]);
+const logLines = async (linesIterable, stream, fdNumber, verboseInfo) => {
+  for await (const line of linesIterable) {
+    if (!isPipingStream(stream)) {
+      logLine(line, fdNumber, verboseInfo);
+    }
+  }
+};
+const logLinesSync = (linesArray, fdNumber, verboseInfo) => {
+  for (const line of linesArray) {
+    logLine(line, fdNumber, verboseInfo);
+  }
+};
+const isPipingStream = (stream) => stream._readableState.pipes.length > 0;
+const logLine = (line, fdNumber, verboseInfo) => {
+  const verboseMessage = serializeVerboseMessage(line);
+  verboseLog({
     type: "output",
-    verboseMessage: r,
-    fdNumber: t,
-    verboseInfo: n
+    verboseMessage,
+    fdNumber,
+    verboseInfo
   });
-}, xw = ({ fileDescriptors: e, syncResult: { output: t }, options: n, isMaxBuffer: r, verboseInfo: o }) => {
-  if (t === null)
+};
+const transformOutputSync = ({ fileDescriptors, syncResult: { output }, options, isMaxBuffer, verboseInfo }) => {
+  if (output === null) {
     return { output: Array.from({ length: 3 }) };
-  const i = {}, s = /* @__PURE__ */ new Set([]);
-  return { output: t.map((c, u) => Rw({
-    result: c,
-    fileDescriptors: e,
-    fdNumber: u,
-    state: i,
-    outputFiles: s,
-    isMaxBuffer: r,
-    verboseInfo: o
-  }, n)), ...i };
-}, Rw = ({ result: e, fileDescriptors: t, fdNumber: n, state: r, outputFiles: o, isMaxBuffer: i, verboseInfo: s }, { buffer: a, encoding: c, lines: u, stripFinalNewline: l, maxBuffer: f }) => {
-  if (e === null)
+  }
+  const state = {};
+  const outputFiles = /* @__PURE__ */ new Set([]);
+  const transformedOutput = output.map((result, fdNumber) => transformOutputResultSync({
+    result,
+    fileDescriptors,
+    fdNumber,
+    state,
+    outputFiles,
+    isMaxBuffer,
+    verboseInfo
+  }, options));
+  return { output: transformedOutput, ...state };
+};
+const transformOutputResultSync = ({ result, fileDescriptors, fdNumber, state, outputFiles, isMaxBuffer, verboseInfo }, { buffer, encoding, lines, stripFinalNewline: stripFinalNewline2, maxBuffer }) => {
+  if (result === null) {
     return;
-  const d = yp(e, i, f), h = at(d), { stdioItems: m, objectMode: y } = t[n], g = Pw([h], m, c, r), { serializedResult: S, finalResult: E = S } = Aw({
-    chunks: g,
-    objectMode: y,
-    encoding: c,
-    lines: u,
-    stripFinalNewline: l,
-    fdNumber: n
-  });
-  Cw({
-    serializedResult: S,
-    fdNumber: n,
-    state: r,
-    verboseInfo: s,
-    encoding: c,
-    stdioItems: m,
-    objectMode: y
-  });
-  const v = a[n] ? E : void 0;
-  try {
-    return r.error === void 0 && Fw(S, m, o), v;
-  } catch (M) {
-    return r.error = M, v;
   }
-}, Pw = (e, t, n, r) => {
+  const truncatedResult = truncateMaxBufferSync(result, isMaxBuffer, maxBuffer);
+  const uint8ArrayResult = bufferToUint8Array(truncatedResult);
+  const { stdioItems, objectMode } = fileDescriptors[fdNumber];
+  const chunks = runOutputGeneratorsSync([uint8ArrayResult], stdioItems, encoding, state);
+  const { serializedResult, finalResult = serializedResult } = serializeChunks({
+    chunks,
+    objectMode,
+    encoding,
+    lines,
+    stripFinalNewline: stripFinalNewline2,
+    fdNumber
+  });
+  logOutputSync({
+    serializedResult,
+    fdNumber,
+    state,
+    verboseInfo,
+    encoding,
+    stdioItems,
+    objectMode
+  });
+  const returnedResult = buffer[fdNumber] ? finalResult : void 0;
   try {
-    return wa(e, t, n, !1);
-  } catch (o) {
-    return r.error = o, e;
+    if (state.error === void 0) {
+      writeToFiles(serializedResult, stdioItems, outputFiles);
+    }
+    return returnedResult;
+  } catch (error) {
+    state.error = error;
+    return returnedResult;
   }
-}, Aw = ({ chunks: e, objectMode: t, encoding: n, lines: r, stripFinalNewline: o, fdNumber: i }) => {
-  if (t)
-    return { serializedResult: e };
-  if (n === "buffer")
-    return { serializedResult: Jn(e) };
-  const s = cf(e, n);
-  return r[i] ? { serializedResult: s, finalResult: ha(s, !o[i], t) } : { serializedResult: s };
-}, Cw = ({ serializedResult: e, fdNumber: t, state: n, verboseInfo: r, encoding: o, stdioItems: i, objectMode: s }) => {
-  if (!Sa({
-    stdioItems: i,
-    encoding: o,
-    verboseInfo: r,
-    fdNumber: t
-  }))
+};
+const runOutputGeneratorsSync = (chunks, stdioItems, encoding, state) => {
+  try {
+    return runGeneratorsSync(chunks, stdioItems, encoding, false);
+  } catch (error) {
+    state.error = error;
+    return chunks;
+  }
+};
+const serializeChunks = ({ chunks, objectMode, encoding, lines, stripFinalNewline: stripFinalNewline2, fdNumber }) => {
+  if (objectMode) {
+    return { serializedResult: chunks };
+  }
+  if (encoding === "buffer") {
+    return { serializedResult: joinToUint8Array(chunks) };
+  }
+  const serializedResult = joinToString(chunks, encoding);
+  if (lines[fdNumber]) {
+    return { serializedResult, finalResult: splitLinesSync(serializedResult, !stripFinalNewline2[fdNumber], objectMode) };
+  }
+  return { serializedResult };
+};
+const logOutputSync = ({ serializedResult, fdNumber, state, verboseInfo, encoding, stdioItems, objectMode }) => {
+  if (!shouldLogOutput({
+    stdioItems,
+    encoding,
+    verboseInfo,
+    fdNumber
+  })) {
     return;
-  const a = ha(e, !1, s);
+  }
+  const linesArray = splitLinesSync(serializedResult, false, objectMode);
   try {
-    Dw(a, t, r);
-  } catch (c) {
-    n.error ?? (n.error = c);
+    logLinesSync(linesArray, fdNumber, verboseInfo);
+  } catch (error) {
+    state.error ?? (state.error = error);
   }
-}, Fw = (e, t, n) => {
-  for (const { path: r, append: o } of t.filter(({ type: i }) => ta.has(i))) {
-    const i = typeof r == "string" ? r : r.toString();
-    o || n.has(i) ? Pc(r, e) : (n.add(i), Ac(r, e));
+};
+const writeToFiles = (serializedResult, stdioItems, outputFiles) => {
+  for (const { path: path2, append } of stdioItems.filter(({ type }) => FILE_TYPES.has(type))) {
+    const pathString = typeof path2 === "string" ? path2 : path2.toString();
+    if (append || outputFiles.has(pathString)) {
+      appendFileSync(path2, serializedResult);
+    } else {
+      outputFiles.add(pathString);
+      writeFileSync$1(path2, serializedResult);
+    }
   }
-}, Lw = ([, e, t], n) => {
-  if (n.all)
-    return e === void 0 ? t : t === void 0 ? e : Array.isArray(e) ? Array.isArray(t) ? [...e, ...t] : [...e, ze(t, n, "all")] : Array.isArray(t) ? [ze(e, n, "all"), ...t] : te(e) && te(t) ? Ui([e, t]) : `${e}${t}`;
-}, Mw = async (e, t) => {
-  const [n, r] = await kw(e);
-  return t.isForcefullyTerminated ?? (t.isForcefullyTerminated = !1), [n, r];
-}, kw = async (e) => {
-  const [t, n] = await Promise.allSettled([
-    Y(e, "spawn"),
-    Y(e, "exit")
+};
+const getAllSync = ([, stdout, stderr], options) => {
+  if (!options.all) {
+    return;
+  }
+  if (stdout === void 0) {
+    return stderr;
+  }
+  if (stderr === void 0) {
+    return stdout;
+  }
+  if (Array.isArray(stdout)) {
+    return Array.isArray(stderr) ? [...stdout, ...stderr] : [...stdout, stripNewline(stderr, options, "all")];
+  }
+  if (Array.isArray(stderr)) {
+    return [stripNewline(stdout, options, "all"), ...stderr];
+  }
+  if (isUint8Array(stdout) && isUint8Array(stderr)) {
+    return concatUint8Arrays([stdout, stderr]);
+  }
+  return `${stdout}${stderr}`;
+};
+const waitForExit = async (subprocess, context) => {
+  const [exitCode, signal] = await waitForExitOrError(subprocess);
+  context.isForcefullyTerminated ?? (context.isForcefullyTerminated = false);
+  return [exitCode, signal];
+};
+const waitForExitOrError = async (subprocess) => {
+  const [spawnPayload, exitPayload] = await Promise.allSettled([
+    once(subprocess, "spawn"),
+    once(subprocess, "exit")
   ]);
-  return t.status === "rejected" ? [] : n.status === "rejected" ? Ea(e) : n.value;
-}, Ea = async (e) => {
-  try {
-    return await Y(e, "exit");
-  } catch {
-    return Ea(e);
+  if (spawnPayload.status === "rejected") {
+    return [];
   }
-}, _w = async (e) => {
-  const [t, n] = await e;
-  if (!jw(t, n) && Ta(t, n))
-    throw new pt();
-  return [t, n];
-}, jw = (e, t) => e === void 0 && t === void 0, Ta = (e, t) => e !== 0 || t !== null, Bw = ({ error: e, status: t, signal: n, output: r }, { maxBuffer: o }) => {
-  const i = Uw(e, t, n), s = (i == null ? void 0 : i.code) === "ETIMEDOUT", a = pp(i, r, o);
-  return {
-    resultError: i,
-    exitCode: t,
-    signal: n,
-    timedOut: s,
-    isMaxBuffer: a
-  };
-}, Uw = (e, t, n) => e !== void 0 ? e : Ta(t, n) ? new pt() : void 0, Nw = (e, t, n) => {
-  const { file: r, commandArguments: o, command: i, escapedCommand: s, startTime: a, verboseInfo: c, options: u, fileDescriptors: l } = Gw(e, t, n), f = Vw({
-    file: r,
-    commandArguments: o,
-    options: u,
-    command: i,
-    escapedCommand: s,
-    verboseInfo: c,
-    fileDescriptors: l,
-    startTime: a
-  });
-  return $r(f, c, u);
-}, Gw = (e, t, n) => {
-  const { command: r, escapedCommand: o, startTime: i, verboseInfo: s } = Ki(e, t, n), a = Ww(n), { file: c, commandArguments: u, options: l } = As(e, t, a);
-  zw(l);
-  const f = Hy(l, s);
-  return {
-    file: c,
-    commandArguments: u,
-    command: r,
-    escapedCommand: o,
-    startTime: i,
-    verboseInfo: s,
-    options: l,
-    fileDescriptors: f
-  };
-}, Ww = (e) => e.node && !e.ipc ? { ...e, ipc: !1 } : e, zw = ({ ipc: e, ipcInput: t, detached: n, cancelSignal: r }) => {
-  t && Ot("ipcInput"), e && Ot("ipc: true"), n && Ot("detached: true"), r && Ot("cancelSignal");
-}, Ot = (e) => {
-  throw new TypeError(`The "${e}" option cannot be used with synchronous methods.`);
-}, Vw = ({ file: e, commandArguments: t, options: n, command: r, escapedCommand: o, verboseInfo: i, fileDescriptors: s, startTime: a }) => {
-  const c = Hw({
-    file: e,
-    commandArguments: t,
-    options: n,
-    command: r,
-    escapedCommand: o,
-    fileDescriptors: s,
-    startTime: a
-  });
-  if (c.failed)
-    return c;
-  const { resultError: u, exitCode: l, signal: f, timedOut: d, isMaxBuffer: h } = Bw(c, n), { output: m, error: y = u } = xw({
-    fileDescriptors: s,
-    syncResult: c,
-    options: n,
-    isMaxBuffer: h,
-    verboseInfo: i
-  }), g = m.map((E, v) => ze(E, n, v)), S = ze(Lw(m, n), n, "all");
-  return Yw({
-    error: y,
-    exitCode: l,
-    signal: f,
-    timedOut: d,
-    isMaxBuffer: h,
-    stdio: g,
-    all: S,
-    options: n,
-    command: r,
-    escapedCommand: o,
-    startTime: a
-  });
-}, Hw = ({ file: e, commandArguments: t, options: n, command: r, escapedCommand: o, fileDescriptors: i, startTime: s }) => {
+  return exitPayload.status === "rejected" ? waitForSubprocessExit(subprocess) : exitPayload.value;
+};
+const waitForSubprocessExit = async (subprocess) => {
   try {
-    gw(i, n);
-    const a = qw(n);
-    return pc(...Cs(e, t, a));
-  } catch (a) {
-    return Er({
-      error: a,
-      command: r,
-      escapedCommand: o,
-      fileDescriptors: i,
-      options: n,
-      startTime: s,
-      isSync: !0
+    return await once(subprocess, "exit");
+  } catch {
+    return waitForSubprocessExit(subprocess);
+  }
+};
+const waitForSuccessfulExit = async (exitPromise) => {
+  const [exitCode, signal] = await exitPromise;
+  if (!isSubprocessErrorExit(exitCode, signal) && isFailedExit(exitCode, signal)) {
+    throw new DiscardedError();
+  }
+  return [exitCode, signal];
+};
+const isSubprocessErrorExit = (exitCode, signal) => exitCode === void 0 && signal === void 0;
+const isFailedExit = (exitCode, signal) => exitCode !== 0 || signal !== null;
+const getExitResultSync = ({ error, status: exitCode, signal, output }, { maxBuffer }) => {
+  const resultError = getResultError(error, exitCode, signal);
+  const timedOut = (resultError == null ? void 0 : resultError.code) === "ETIMEDOUT";
+  const isMaxBuffer = isMaxBufferSync(resultError, output, maxBuffer);
+  return {
+    resultError,
+    exitCode,
+    signal,
+    timedOut,
+    isMaxBuffer
+  };
+};
+const getResultError = (error, exitCode, signal) => {
+  if (error !== void 0) {
+    return error;
+  }
+  return isFailedExit(exitCode, signal) ? new DiscardedError() : void 0;
+};
+const execaCoreSync = (rawFile, rawArguments, rawOptions) => {
+  const { file: file2, commandArguments, command, escapedCommand, startTime, verboseInfo, options, fileDescriptors } = handleSyncArguments(rawFile, rawArguments, rawOptions);
+  const result = spawnSubprocessSync({
+    file: file2,
+    commandArguments,
+    options,
+    command,
+    escapedCommand,
+    verboseInfo,
+    fileDescriptors,
+    startTime
+  });
+  return handleResult(result, verboseInfo, options);
+};
+const handleSyncArguments = (rawFile, rawArguments, rawOptions) => {
+  const { command, escapedCommand, startTime, verboseInfo } = handleCommand(rawFile, rawArguments, rawOptions);
+  const syncOptions = normalizeSyncOptions(rawOptions);
+  const { file: file2, commandArguments, options } = normalizeOptions(rawFile, rawArguments, syncOptions);
+  validateSyncOptions(options);
+  const fileDescriptors = handleStdioSync(options, verboseInfo);
+  return {
+    file: file2,
+    commandArguments,
+    command,
+    escapedCommand,
+    startTime,
+    verboseInfo,
+    options,
+    fileDescriptors
+  };
+};
+const normalizeSyncOptions = (options) => options.node && !options.ipc ? { ...options, ipc: false } : options;
+const validateSyncOptions = ({ ipc, ipcInput, detached, cancelSignal }) => {
+  if (ipcInput) {
+    throwInvalidSyncOption("ipcInput");
+  }
+  if (ipc) {
+    throwInvalidSyncOption("ipc: true");
+  }
+  if (detached) {
+    throwInvalidSyncOption("detached: true");
+  }
+  if (cancelSignal) {
+    throwInvalidSyncOption("cancelSignal");
+  }
+};
+const throwInvalidSyncOption = (value) => {
+  throw new TypeError(`The "${value}" option cannot be used with synchronous methods.`);
+};
+const spawnSubprocessSync = ({ file: file2, commandArguments, options, command, escapedCommand, verboseInfo, fileDescriptors, startTime }) => {
+  const syncResult = runSubprocessSync({
+    file: file2,
+    commandArguments,
+    options,
+    command,
+    escapedCommand,
+    fileDescriptors,
+    startTime
+  });
+  if (syncResult.failed) {
+    return syncResult;
+  }
+  const { resultError, exitCode, signal, timedOut, isMaxBuffer } = getExitResultSync(syncResult, options);
+  const { output, error = resultError } = transformOutputSync({
+    fileDescriptors,
+    syncResult,
+    options,
+    isMaxBuffer,
+    verboseInfo
+  });
+  const stdio = output.map((stdioOutput, fdNumber) => stripNewline(stdioOutput, options, fdNumber));
+  const all = stripNewline(getAllSync(output, options), options, "all");
+  return getSyncResult({
+    error,
+    exitCode,
+    signal,
+    timedOut,
+    isMaxBuffer,
+    stdio,
+    all,
+    options,
+    command,
+    escapedCommand,
+    startTime
+  });
+};
+const runSubprocessSync = ({ file: file2, commandArguments, options, command, escapedCommand, fileDescriptors, startTime }) => {
+  try {
+    addInputOptionsSync(fileDescriptors, options);
+    const normalizedOptions = normalizeSpawnSyncOptions(options);
+    return spawnSync$1(...concatenateShell(file2, commandArguments, normalizedOptions));
+  } catch (error) {
+    return makeEarlyError({
+      error,
+      command,
+      escapedCommand,
+      fileDescriptors,
+      options,
+      startTime,
+      isSync: true
     });
   }
-}, qw = ({ encoding: e, maxBuffer: t, ...n }) => ({ ...n, encoding: "buffer", maxBuffer: br(t) }), Yw = ({ error: e, exitCode: t, signal: n, timedOut: r, isMaxBuffer: o, stdio: i, all: s, options: a, command: c, escapedCommand: u, startTime: l }) => e === void 0 ? qs({
-  command: c,
-  escapedCommand: u,
-  stdio: i,
-  all: s,
+};
+const normalizeSpawnSyncOptions = ({ encoding, maxBuffer, ...options }) => ({ ...options, encoding: "buffer", maxBuffer: getMaxBufferSync(maxBuffer) });
+const getSyncResult = ({ error, exitCode, signal, timedOut, isMaxBuffer, stdio, all, options, command, escapedCommand, startTime }) => error === void 0 ? makeSuccessResult({
+  command,
+  escapedCommand,
+  stdio,
+  all,
   ipcOutput: [],
-  options: a,
-  startTime: l
-}) : Tr({
-  error: e,
-  command: c,
-  escapedCommand: u,
-  timedOut: r,
-  isCanceled: !1,
-  isGracefullyCanceled: !1,
-  isMaxBuffer: o,
-  isForcefullyTerminated: !1,
-  exitCode: t,
-  signal: n,
-  stdio: i,
-  all: s,
+  options,
+  startTime
+}) : makeError({
+  error,
+  command,
+  escapedCommand,
+  timedOut,
+  isCanceled: false,
+  isGracefullyCanceled: false,
+  isMaxBuffer,
+  isForcefullyTerminated: false,
+  exitCode,
+  signal,
+  stdio,
+  all,
   ipcOutput: [],
-  options: a,
-  startTime: l,
-  isSync: !0
-}), Jw = ({ anyProcess: e, channel: t, isSubprocess: n, ipc: r }, { reference: o = !0, filter: i } = {}) => (fr({
-  methodName: "getOneMessage",
-  isSubprocess: n,
-  ipc: r,
-  isConnected: vs(e)
-}), Kw({
-  anyProcess: e,
-  channel: t,
-  isSubprocess: n,
-  filter: i,
-  reference: o
-})), Kw = async ({ anyProcess: e, channel: t, isSubprocess: n, filter: r, reference: o }) => {
-  Ts(t, o);
-  const i = Yt(e, t, n), s = new AbortController();
+  options,
+  startTime,
+  isSync: true
+});
+const getOneMessage = ({ anyProcess, channel, isSubprocess, ipc }, { reference = true, filter } = {}) => {
+  validateIpcMethod({
+    methodName: "getOneMessage",
+    isSubprocess,
+    ipc,
+    isConnected: isConnected(anyProcess)
+  });
+  return getOneMessageAsync({
+    anyProcess,
+    channel,
+    isSubprocess,
+    filter,
+    reference
+  });
+};
+const getOneMessageAsync = async ({ anyProcess, channel, isSubprocess, filter, reference }) => {
+  addReference(channel, reference);
+  const ipcEmitter = getIpcEmitter(anyProcess, channel, isSubprocess);
+  const controller = new AbortController();
   try {
     return await Promise.race([
-      Xw(i, r, s),
-      Qw(i, n, s),
-      Zw(i, n, s)
+      getMessage(ipcEmitter, filter, controller),
+      throwOnDisconnect(ipcEmitter, isSubprocess, controller),
+      throwOnStrictError(ipcEmitter, isSubprocess, controller)
     ]);
-  } catch (a) {
-    throw dr(e), a;
+  } catch (error) {
+    disconnect(anyProcess);
+    throw error;
   } finally {
-    s.abort(), $s(t, o);
+    controller.abort();
+    removeReference(channel, reference);
   }
-}, Xw = async (e, t, { signal: n }) => {
-  if (t === void 0) {
-    const [r] = await Y(e, "message", { signal: n });
-    return r;
+};
+const getMessage = async (ipcEmitter, filter, { signal }) => {
+  if (filter === void 0) {
+    const [message] = await once(ipcEmitter, "message", { signal });
+    return message;
   }
-  for await (const [r] of Wt(e, "message", { signal: n }))
-    if (t(r))
-      return r;
-}, Qw = async (e, t, { signal: n }) => {
-  await Y(e, "disconnect", { signal: n }), Oh(t);
-}, Zw = async (e, t, { signal: n }) => {
-  const [r] = await Y(e, "strict:error", { signal: n });
-  throw ws(r, t);
-}, eg = ({ anyProcess: e, channel: t, isSubprocess: n, ipc: r }, { reference: o = !0 } = {}) => $a({
-  anyProcess: e,
-  channel: t,
-  isSubprocess: n,
-  ipc: r,
-  shouldAwait: !n,
-  reference: o
-}), $a = ({ anyProcess: e, channel: t, isSubprocess: n, ipc: r, shouldAwait: o, reference: i }) => {
-  fr({
+  for await (const [message] of on(ipcEmitter, "message", { signal })) {
+    if (filter(message)) {
+      return message;
+    }
+  }
+};
+const throwOnDisconnect = async (ipcEmitter, isSubprocess, { signal }) => {
+  await once(ipcEmitter, "disconnect", { signal });
+  throwOnEarlyDisconnect(isSubprocess);
+};
+const throwOnStrictError = async (ipcEmitter, isSubprocess, { signal }) => {
+  const [error] = await once(ipcEmitter, "strict:error", { signal });
+  throw getStrictResponseError(error, isSubprocess);
+};
+const getEachMessage = ({ anyProcess, channel, isSubprocess, ipc }, { reference = true } = {}) => loopOnMessages({
+  anyProcess,
+  channel,
+  isSubprocess,
+  ipc,
+  shouldAwait: !isSubprocess,
+  reference
+});
+const loopOnMessages = ({ anyProcess, channel, isSubprocess, ipc, shouldAwait, reference }) => {
+  validateIpcMethod({
     methodName: "getEachMessage",
-    isSubprocess: n,
-    ipc: r,
-    isConnected: vs(e)
-  }), Ts(t, i);
-  const s = Yt(e, t, n), a = new AbortController(), c = {};
-  return tg(e, s, a), ng({
-    ipcEmitter: s,
-    isSubprocess: n,
-    controller: a,
-    state: c
-  }), rg({
-    anyProcess: e,
-    channel: t,
-    ipcEmitter: s,
-    isSubprocess: n,
-    shouldAwait: o,
-    controller: a,
-    state: c,
-    reference: i
+    isSubprocess,
+    ipc,
+    isConnected: isConnected(anyProcess)
   });
-}, tg = async (e, t, n) => {
+  addReference(channel, reference);
+  const ipcEmitter = getIpcEmitter(anyProcess, channel, isSubprocess);
+  const controller = new AbortController();
+  const state = {};
+  stopOnDisconnect(anyProcess, ipcEmitter, controller);
+  abortOnStrictError({
+    ipcEmitter,
+    isSubprocess,
+    controller,
+    state
+  });
+  return iterateOnMessages({
+    anyProcess,
+    channel,
+    ipcEmitter,
+    isSubprocess,
+    shouldAwait,
+    controller,
+    state,
+    reference
+  });
+};
+const stopOnDisconnect = async (anyProcess, ipcEmitter, controller) => {
   try {
-    await Y(t, "disconnect", { signal: n.signal }), n.abort();
+    await once(ipcEmitter, "disconnect", { signal: controller.signal });
+    controller.abort();
   } catch {
   }
-}, ng = async ({ ipcEmitter: e, isSubprocess: t, controller: n, state: r }) => {
+};
+const abortOnStrictError = async ({ ipcEmitter, isSubprocess, controller, state }) => {
   try {
-    const [o] = await Y(e, "strict:error", { signal: n.signal });
-    r.error = ws(o, t), n.abort();
+    const [error] = await once(ipcEmitter, "strict:error", { signal: controller.signal });
+    state.error = getStrictResponseError(error, isSubprocess);
+    controller.abort();
   } catch {
   }
-}, rg = async function* ({ anyProcess: e, channel: t, ipcEmitter: n, isSubprocess: r, shouldAwait: o, controller: i, state: s, reference: a }) {
+};
+const iterateOnMessages = async function* ({ anyProcess, channel, ipcEmitter, isSubprocess, shouldAwait, controller, state, reference }) {
   try {
-    for await (const [c] of Wt(n, "message", { signal: i.signal }))
-      xo(s), yield c;
+    for await (const [message] of on(ipcEmitter, "message", { signal: controller.signal })) {
+      throwIfStrictError(state);
+      yield message;
+    }
   } catch {
-    xo(s);
+    throwIfStrictError(state);
   } finally {
-    i.abort(), $s(t, a), r || dr(e), o && await e;
+    controller.abort();
+    removeReference(channel, reference);
+    if (!isSubprocess) {
+      disconnect(anyProcess);
+    }
+    if (shouldAwait) {
+      await anyProcess;
+    }
   }
-}, xo = ({ error: e }) => {
-  if (e)
-    throw e;
-}, og = (e, { ipc: t }) => {
-  Object.assign(e, va(e, !1, t));
-}, ig = () => {
-  const e = G, t = !0, n = G.channel !== void 0;
+};
+const throwIfStrictError = ({ error }) => {
+  if (error) {
+    throw error;
+  }
+};
+const addIpcMethods = (subprocess, { ipc }) => {
+  Object.assign(subprocess, getIpcMethods(subprocess, false, ipc));
+};
+const getIpcExport = () => {
+  const anyProcess = process$2;
+  const isSubprocess = true;
+  const ipc = process$2.channel !== void 0;
   return {
-    ...va(e, t, n),
-    getCancelSignal: im.bind(void 0, {
-      anyProcess: e,
-      channel: e.channel,
-      isSubprocess: t,
-      ipc: n
+    ...getIpcMethods(anyProcess, isSubprocess, ipc),
+    getCancelSignal: getCancelSignal.bind(void 0, {
+      anyProcess,
+      channel: anyProcess.channel,
+      isSubprocess,
+      ipc
     })
   };
-}, va = (e, t, n) => ({
-  sendMessage: Ds.bind(void 0, {
-    anyProcess: e,
-    channel: e.channel,
-    isSubprocess: t,
-    ipc: n
+};
+const getIpcMethods = (anyProcess, isSubprocess, ipc) => ({
+  sendMessage: sendMessage.bind(void 0, {
+    anyProcess,
+    channel: anyProcess.channel,
+    isSubprocess,
+    ipc
   }),
-  getOneMessage: Jw.bind(void 0, {
-    anyProcess: e,
-    channel: e.channel,
-    isSubprocess: t,
-    ipc: n
+  getOneMessage: getOneMessage.bind(void 0, {
+    anyProcess,
+    channel: anyProcess.channel,
+    isSubprocess,
+    ipc
   }),
-  getEachMessage: eg.bind(void 0, {
-    anyProcess: e,
-    channel: e.channel,
-    isSubprocess: t,
-    ipc: n
+  getEachMessage: getEachMessage.bind(void 0, {
+    anyProcess,
+    channel: anyProcess.channel,
+    isSubprocess,
+    ipc
   })
-}), sg = ({ error: e, command: t, escapedCommand: n, fileDescriptors: r, options: o, startTime: i, verboseInfo: s }) => {
-  la(r);
-  const a = new Wo();
-  ag(a, r), Object.assign(a, { readable: cg, writable: lg, duplex: ug });
-  const c = Er({
-    error: e,
-    command: t,
-    escapedCommand: n,
-    fileDescriptors: r,
-    options: o,
-    startTime: i,
-    isSync: !1
-  }), u = fg(c, s, o);
-  return { subprocess: a, promise: u };
-}, ag = (e, t) => {
-  const n = Qe(), r = Qe(), o = Qe(), i = Array.from({ length: t.length - 3 }, Qe), s = Qe(), a = [n, r, o, ...i];
-  Object.assign(e, {
-    stdin: n,
-    stdout: r,
-    stderr: o,
-    all: s,
-    stdio: a
+});
+const handleEarlyError = ({ error, command, escapedCommand, fileDescriptors, options, startTime, verboseInfo }) => {
+  cleanupCustomStreams(fileDescriptors);
+  const subprocess = new ChildProcess();
+  createDummyStreams(subprocess, fileDescriptors);
+  Object.assign(subprocess, { readable, writable, duplex });
+  const earlyError = makeEarlyError({
+    error,
+    command,
+    escapedCommand,
+    fileDescriptors,
+    options,
+    startTime,
+    isSync: false
   });
-}, Qe = () => {
-  const e = new Qo();
-  return e.end(), e;
-}, cg = () => new be({ read() {
-} }), lg = () => new jn({ write() {
-} }), ug = () => new _n({ read() {
+  const promise = handleDummyPromise(earlyError, verboseInfo, options);
+  return { subprocess, promise };
+};
+const createDummyStreams = (subprocess, fileDescriptors) => {
+  const stdin = createDummyStream();
+  const stdout = createDummyStream();
+  const stderr = createDummyStream();
+  const extraStdio = Array.from({ length: fileDescriptors.length - 3 }, createDummyStream);
+  const all = createDummyStream();
+  const stdio = [stdin, stdout, stderr, ...extraStdio];
+  Object.assign(subprocess, {
+    stdin,
+    stdout,
+    stderr,
+    all,
+    stdio
+  });
+};
+const createDummyStream = () => {
+  const stream = new PassThrough();
+  stream.end();
+  return stream;
+};
+const readable = () => new Readable({ read() {
+} });
+const writable = () => new Writable({ write() {
+} });
+const duplex = () => new Duplex({ read() {
 }, write() {
-} }), fg = async (e, t, n) => $r(e, t, n), dg = (e, t) => ca(hg, e, t, !1), Ze = ({ type: e, optionName: t }) => {
-  throw new TypeError(`The \`${t}\` option cannot be ${Qt[e]}.`);
-}, Ro = {
-  fileNumber: Ze,
-  generator: Io,
-  asyncGenerator: Io,
-  nodeStream: ({ value: e }) => ({ stream: e }),
-  webTransform({ value: { transform: e, writableObjectMode: t, readableObjectMode: n } }) {
-    const r = t || n;
-    return { stream: _n.fromWeb(e, { objectMode: r }) };
+} });
+const handleDummyPromise = async (error, verboseInfo, options) => handleResult(error, verboseInfo, options);
+const handleStdioAsync = (options, verboseInfo) => handleStdio(addPropertiesAsync, options, verboseInfo, false);
+const forbiddenIfAsync = ({ type, optionName }) => {
+  throw new TypeError(`The \`${optionName}\` option cannot be ${TYPE_TO_MESSAGE[type]}.`);
+};
+const addProperties = {
+  fileNumber: forbiddenIfAsync,
+  generator: generatorToStream,
+  asyncGenerator: generatorToStream,
+  nodeStream: ({ value }) => ({ stream: value }),
+  webTransform({ value: { transform, writableObjectMode, readableObjectMode } }) {
+    const objectMode = writableObjectMode || readableObjectMode;
+    const stream = Duplex.fromWeb(transform, { objectMode });
+    return { stream };
   },
-  duplex: ({ value: { transform: e } }) => ({ stream: e }),
+  duplex: ({ value: { transform } }) => ({ stream: transform }),
   native() {
   }
-}, hg = {
+};
+const addPropertiesAsync = {
   input: {
-    ...Ro,
-    fileUrl: ({ value: e }) => ({ stream: Lr(e) }),
-    filePath: ({ value: { file: e } }) => ({ stream: Lr(e) }),
-    webStream: ({ value: e }) => ({ stream: be.fromWeb(e) }),
-    iterable: ({ value: e }) => ({ stream: be.from(e) }),
-    asyncIterable: ({ value: e }) => ({ stream: be.from(e) }),
-    string: ({ value: e }) => ({ stream: be.from(e) }),
-    uint8Array: ({ value: e }) => ({ stream: be.from(Bn.from(e)) })
+    ...addProperties,
+    fileUrl: ({ value }) => ({ stream: createReadStream(value) }),
+    filePath: ({ value: { file: file2 } }) => ({ stream: createReadStream(file2) }),
+    webStream: ({ value }) => ({ stream: Readable.fromWeb(value) }),
+    iterable: ({ value }) => ({ stream: Readable.from(value) }),
+    asyncIterable: ({ value }) => ({ stream: Readable.from(value) }),
+    string: ({ value }) => ({ stream: Readable.from(value) }),
+    uint8Array: ({ value }) => ({ stream: Readable.from(Buffer$1.from(value)) })
   },
   output: {
-    ...Ro,
-    fileUrl: ({ value: e }) => ({ stream: Fr(e) }),
-    filePath: ({ value: { file: e, append: t } }) => ({ stream: Fr(e, t ? { flags: "a" } : {}) }),
-    webStream: ({ value: e }) => ({ stream: jn.fromWeb(e) }),
-    iterable: Ze,
-    asyncIterable: Ze,
-    string: Ze,
-    uint8Array: Ze
+    ...addProperties,
+    fileUrl: ({ value }) => ({ stream: createWriteStream(value) }),
+    filePath: ({ value: { file: file2, append } }) => ({ stream: createWriteStream(file2, append ? { flags: "a" } : {}) }),
+    webStream: ({ value }) => ({ stream: Writable.fromWeb(value) }),
+    iterable: forbiddenIfAsync,
+    asyncIterable: forbiddenIfAsync,
+    string: forbiddenIfAsync,
+    uint8Array: forbiddenIfAsync
   }
 };
-function Rr(e) {
-  if (!Array.isArray(e))
-    throw new TypeError(`Expected an array, got \`${typeof e}\`.`);
-  for (const o of e)
-    Rn(o);
-  const t = e.some(({ readableObjectMode: o }) => o), n = mg(e, t), r = new pg({
-    objectMode: t,
-    writableHighWaterMark: n,
-    readableHighWaterMark: n
+function mergeStreams(streams) {
+  if (!Array.isArray(streams)) {
+    throw new TypeError(`Expected an array, got \`${typeof streams}\`.`);
+  }
+  for (const stream of streams) {
+    validateStream(stream);
+  }
+  const objectMode = streams.some(({ readableObjectMode }) => readableObjectMode);
+  const highWaterMark = getHighWaterMark(streams, objectMode);
+  const passThroughStream = new MergedStream({
+    objectMode,
+    writableHighWaterMark: highWaterMark,
+    readableHighWaterMark: highWaterMark
   });
-  for (const o of e)
-    r.add(o);
-  return r;
+  for (const stream of streams) {
+    passThroughStream.add(stream);
+  }
+  return passThroughStream;
 }
-const mg = (e, t) => {
-  if (e.length === 0)
-    return At(t);
-  const n = e.filter(({ readableObjectMode: r }) => r === t).map(({ readableHighWaterMark: r }) => r);
-  return Math.max(...n);
+const getHighWaterMark = (streams, objectMode) => {
+  if (streams.length === 0) {
+    return getDefaultHighWaterMark(objectMode);
+  }
+  const highWaterMarks = streams.filter(({ readableObjectMode }) => readableObjectMode === objectMode).map(({ readableHighWaterMark }) => readableHighWaterMark);
+  return Math.max(...highWaterMarks);
 };
-var me, Ut, Nt, ut, ft, _e;
-class pg extends Qo {
+class MergedStream extends PassThrough {
   constructor() {
     super(...arguments);
-    C(this, me, /* @__PURE__ */ new Set([]));
-    C(this, Ut, /* @__PURE__ */ new Set([]));
-    C(this, Nt, /* @__PURE__ */ new Set([]));
-    C(this, ut);
-    C(this, ft, Symbol("unpipe"));
-    C(this, _e, /* @__PURE__ */ new WeakMap());
+    __privateAdd(this, _streams, /* @__PURE__ */ new Set([]));
+    __privateAdd(this, _ended, /* @__PURE__ */ new Set([]));
+    __privateAdd(this, _aborted, /* @__PURE__ */ new Set([]));
+    __privateAdd(this, _onFinished);
+    __privateAdd(this, _unpipeEvent, Symbol("unpipe"));
+    __privateAdd(this, _streamPromises, /* @__PURE__ */ new WeakMap());
   }
-  add(n) {
-    if (Rn(n), p(this, me).has(n))
+  add(stream) {
+    validateStream(stream);
+    if (__privateGet(this, _streams).has(stream)) {
       return;
-    p(this, me).add(n), p(this, ut) ?? W(this, ut, yg(this, p(this, me), p(this, ft)));
-    const r = Sg({
+    }
+    __privateGet(this, _streams).add(stream);
+    __privateGet(this, _onFinished) ?? __privateSet(this, _onFinished, onMergedStreamFinished(this, __privateGet(this, _streams), __privateGet(this, _unpipeEvent)));
+    const streamPromise = endWhenStreamsDone({
       passThroughStream: this,
-      stream: n,
-      streams: p(this, me),
-      ended: p(this, Ut),
-      aborted: p(this, Nt),
-      onFinished: p(this, ut),
-      unpipeEvent: p(this, ft)
+      stream,
+      streams: __privateGet(this, _streams),
+      ended: __privateGet(this, _ended),
+      aborted: __privateGet(this, _aborted),
+      onFinished: __privateGet(this, _onFinished),
+      unpipeEvent: __privateGet(this, _unpipeEvent)
     });
-    p(this, _e).set(n, r), n.pipe(this, { end: !1 });
+    __privateGet(this, _streamPromises).set(stream, streamPromise);
+    stream.pipe(this, { end: false });
   }
-  async remove(n) {
-    if (Rn(n), !p(this, me).has(n))
-      return !1;
-    const r = p(this, _e).get(n);
-    return r === void 0 ? !1 : (p(this, _e).delete(n), n.unpipe(this), await r, !0);
+  async remove(stream) {
+    validateStream(stream);
+    if (!__privateGet(this, _streams).has(stream)) {
+      return false;
+    }
+    const streamPromise = __privateGet(this, _streamPromises).get(stream);
+    if (streamPromise === void 0) {
+      return false;
+    }
+    __privateGet(this, _streamPromises).delete(stream);
+    stream.unpipe(this);
+    await streamPromise;
+    return true;
   }
 }
-me = new WeakMap(), Ut = new WeakMap(), Nt = new WeakMap(), ut = new WeakMap(), ft = new WeakMap(), _e = new WeakMap();
-const yg = async (e, t, n) => {
-  _t(e, Po);
-  const r = new AbortController();
+_streams = new WeakMap();
+_ended = new WeakMap();
+_aborted = new WeakMap();
+_onFinished = new WeakMap();
+_unpipeEvent = new WeakMap();
+_streamPromises = new WeakMap();
+const onMergedStreamFinished = async (passThroughStream, streams, unpipeEvent) => {
+  updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_COUNT);
+  const controller = new AbortController();
   try {
     await Promise.race([
-      wg(e, r),
-      gg(e, t, n, r)
+      onMergedStreamEnd(passThroughStream, controller),
+      onInputStreamsUnpipe(passThroughStream, streams, unpipeEvent, controller)
     ]);
   } finally {
-    r.abort(), _t(e, -Po);
+    controller.abort();
+    updateMaxListeners(passThroughStream, -PASSTHROUGH_LISTENERS_COUNT);
   }
-}, wg = async (e, { signal: t }) => {
+};
+const onMergedStreamEnd = async (passThroughStream, { signal }) => {
   try {
-    await we(e, { signal: t, cleanup: !0 });
-  } catch (n) {
-    throw Oa(e, n), n;
+    await finished(passThroughStream, { signal, cleanup: true });
+  } catch (error) {
+    errorOrAbortStream(passThroughStream, error);
+    throw error;
   }
-}, gg = async (e, t, n, { signal: r }) => {
-  for await (const [o] of Wt(e, "unpipe", { signal: r }))
-    t.has(o) && o.emit(n);
-}, Rn = (e) => {
-  if (typeof (e == null ? void 0 : e.pipe) != "function")
-    throw new TypeError(`Expected a readable stream, got: \`${typeof e}\`.`);
-}, Sg = async ({ passThroughStream: e, stream: t, streams: n, ended: r, aborted: o, onFinished: i, unpipeEvent: s }) => {
-  _t(e, Ao);
-  const a = new AbortController();
+};
+const onInputStreamsUnpipe = async (passThroughStream, streams, unpipeEvent, { signal }) => {
+  for await (const [unpipedStream] of on(passThroughStream, "unpipe", { signal })) {
+    if (streams.has(unpipedStream)) {
+      unpipedStream.emit(unpipeEvent);
+    }
+  }
+};
+const validateStream = (stream) => {
+  if (typeof (stream == null ? void 0 : stream.pipe) !== "function") {
+    throw new TypeError(`Expected a readable stream, got: \`${typeof stream}\`.`);
+  }
+};
+const endWhenStreamsDone = async ({ passThroughStream, stream, streams, ended, aborted: aborted2, onFinished, unpipeEvent }) => {
+  updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_PER_STREAM);
+  const controller = new AbortController();
   try {
     await Promise.race([
-      bg(i, t, a),
-      Eg({
-        passThroughStream: e,
-        stream: t,
-        streams: n,
-        ended: r,
-        aborted: o,
-        controller: a
+      afterMergedStreamFinished(onFinished, stream, controller),
+      onInputStreamEnd({
+        passThroughStream,
+        stream,
+        streams,
+        ended,
+        aborted: aborted2,
+        controller
       }),
-      Tg({
-        stream: t,
-        streams: n,
-        ended: r,
-        aborted: o,
-        unpipeEvent: s,
-        controller: a
+      onInputStreamUnpipe({
+        stream,
+        streams,
+        ended,
+        aborted: aborted2,
+        unpipeEvent,
+        controller
       })
     ]);
   } finally {
-    a.abort(), _t(e, -Ao);
+    controller.abort();
+    updateMaxListeners(passThroughStream, -PASSTHROUGH_LISTENERS_PER_STREAM);
   }
-  n.size > 0 && n.size === r.size + o.size && (r.size === 0 && o.size > 0 ? Pr(e) : $g(e));
-}, bg = async (e, t, { signal: n }) => {
-  try {
-    await e, n.aborted || Pr(t);
-  } catch (r) {
-    n.aborted || Oa(t, r);
-  }
-}, Eg = async ({ passThroughStream: e, stream: t, streams: n, ended: r, aborted: o, controller: { signal: i } }) => {
-  try {
-    await we(t, {
-      signal: i,
-      cleanup: !0,
-      readable: !0,
-      writable: !1
-    }), n.has(t) && r.add(t);
-  } catch (s) {
-    if (i.aborted || !n.has(t))
-      return;
-    Da(s) ? o.add(t) : Ia(e, s);
-  }
-}, Tg = async ({ stream: e, streams: t, ended: n, aborted: r, unpipeEvent: o, controller: { signal: i } }) => {
-  if (await Y(e, o, { signal: i }), !e.readable)
-    return Y(i, "abort", { signal: i });
-  t.delete(e), n.delete(e), r.delete(e);
-}, $g = (e) => {
-  e.writable && e.end();
-}, Oa = (e, t) => {
-  Da(t) ? Pr(e) : Ia(e, t);
-}, Da = (e) => (e == null ? void 0 : e.code) === "ERR_STREAM_PREMATURE_CLOSE", Pr = (e) => {
-  (e.readable || e.writable) && e.destroy();
-}, Ia = (e, t) => {
-  e.destroyed || (e.once("error", vg), e.destroy(t));
-}, vg = () => {
-}, _t = (e, t) => {
-  const n = e.getMaxListeners();
-  n !== 0 && n !== Number.POSITIVE_INFINITY && e.setMaxListeners(n + t);
-}, Po = 2, Ao = 1, jt = (e, t) => {
-  e.pipe(t), Og(e, t), Dg(e, t);
-}, Og = async (e, t) => {
-  if (!(ve(e) || ve(t))) {
-    try {
-      await we(e, { cleanup: !0, readable: !0, writable: !1 });
-    } catch {
+  if (streams.size > 0 && streams.size === ended.size + aborted2.size) {
+    if (ended.size === 0 && aborted2.size > 0) {
+      abortStream(passThroughStream);
+    } else {
+      endStream(passThroughStream);
     }
-    xa(t);
   }
-}, xa = (e) => {
-  e.writable && e.end();
-}, Dg = async (e, t) => {
-  if (!(ve(e) || ve(t))) {
-    try {
-      await we(t, { cleanup: !0, readable: !1, writable: !0 });
-    } catch {
+};
+const afterMergedStreamFinished = async (onFinished, stream, { signal }) => {
+  try {
+    await onFinished;
+    if (!signal.aborted) {
+      abortStream(stream);
     }
-    Ra(e);
+  } catch (error) {
+    if (!signal.aborted) {
+      errorOrAbortStream(stream, error);
+    }
   }
-}, Ra = (e) => {
-  e.readable && e.destroy();
-}, Ig = (e, t, n) => {
-  const r = /* @__PURE__ */ new Map();
-  for (const [o, { stdioItems: i, direction: s }] of Object.entries(t)) {
-    for (const { stream: a } of i.filter(({ type: c }) => De.has(c)))
-      xg(e, a, s, o);
-    for (const { stream: a } of i.filter(({ type: c }) => !De.has(c)))
-      Pg({
-        subprocess: e,
-        stream: a,
-        direction: s,
-        fdNumber: o,
-        pipeGroups: r,
-        controller: n
-      });
-  }
-  for (const [o, i] of r.entries()) {
-    const s = i.length === 1 ? i[0] : Rr(i);
-    jt(s, o);
-  }
-}, xg = (e, t, n, r) => {
-  n === "output" ? jt(e.stdio[r], t) : jt(t, e.stdio[r]);
-  const o = Rg[r];
-  o !== void 0 && (e[o] = t), e.stdio[r] = t;
-}, Rg = ["stdin", "stdout", "stderr"], Pg = ({ subprocess: e, stream: t, direction: n, fdNumber: r, pipeGroups: o, controller: i }) => {
-  if (t === void 0)
-    return;
-  Ag(t, i);
-  const [s, a] = n === "output" ? [t, e.stdio[r]] : [e.stdio[r], t], c = o.get(s) ?? [];
-  o.set(s, [...c, a]);
-}, Ag = (e, { signal: t }) => {
-  ve(e) && Mt(e, Cg, t);
-}, Cg = 2, ke = [];
-ke.push("SIGHUP", "SIGINT", "SIGTERM");
-process.platform !== "win32" && ke.push(
-  "SIGALRM",
-  "SIGABRT",
-  "SIGVTALRM",
-  "SIGXCPU",
-  "SIGXFSZ",
-  "SIGUSR2",
-  "SIGTRAP",
-  "SIGSYS",
-  "SIGQUIT",
-  "SIGIOT"
-  // should detect profiler and enable/disable accordingly.
-  // see #21
-  // 'SIGPROF'
-);
-process.platform === "linux" && ke.push("SIGIO", "SIGPOLL", "SIGPWR", "SIGSTKFLT");
-const Pt = (e) => !!e && typeof e == "object" && typeof e.removeListener == "function" && typeof e.emit == "function" && typeof e.reallyExit == "function" && typeof e.listeners == "function" && typeof e.kill == "function" && typeof e.pid == "number" && typeof e.on == "function", fn = Symbol.for("signal-exit emitter"), dn = globalThis, Fg = Object.defineProperty.bind(Object);
-class Lg {
-  constructor() {
-    Ae(this, "emitted", {
-      afterExit: !1,
-      exit: !1
+};
+const onInputStreamEnd = async ({ passThroughStream, stream, streams, ended, aborted: aborted2, controller: { signal } }) => {
+  try {
+    await finished(stream, {
+      signal,
+      cleanup: true,
+      readable: true,
+      writable: false
     });
-    Ae(this, "listeners", {
+    if (streams.has(stream)) {
+      ended.add(stream);
+    }
+  } catch (error) {
+    if (signal.aborted || !streams.has(stream)) {
+      return;
+    }
+    if (isAbortError(error)) {
+      aborted2.add(stream);
+    } else {
+      errorStream(passThroughStream, error);
+    }
+  }
+};
+const onInputStreamUnpipe = async ({ stream, streams, ended, aborted: aborted2, unpipeEvent, controller: { signal } }) => {
+  await once(stream, unpipeEvent, { signal });
+  if (!stream.readable) {
+    return once(signal, "abort", { signal });
+  }
+  streams.delete(stream);
+  ended.delete(stream);
+  aborted2.delete(stream);
+};
+const endStream = (stream) => {
+  if (stream.writable) {
+    stream.end();
+  }
+};
+const errorOrAbortStream = (stream, error) => {
+  if (isAbortError(error)) {
+    abortStream(stream);
+  } else {
+    errorStream(stream, error);
+  }
+};
+const isAbortError = (error) => (error == null ? void 0 : error.code) === "ERR_STREAM_PREMATURE_CLOSE";
+const abortStream = (stream) => {
+  if (stream.readable || stream.writable) {
+    stream.destroy();
+  }
+};
+const errorStream = (stream, error) => {
+  if (!stream.destroyed) {
+    stream.once("error", noop);
+    stream.destroy(error);
+  }
+};
+const noop = () => {
+};
+const updateMaxListeners = (passThroughStream, increment2) => {
+  const maxListeners = passThroughStream.getMaxListeners();
+  if (maxListeners !== 0 && maxListeners !== Number.POSITIVE_INFINITY) {
+    passThroughStream.setMaxListeners(maxListeners + increment2);
+  }
+};
+const PASSTHROUGH_LISTENERS_COUNT = 2;
+const PASSTHROUGH_LISTENERS_PER_STREAM = 1;
+const pipeStreams = (source, destination) => {
+  source.pipe(destination);
+  onSourceFinish(source, destination);
+  onDestinationFinish(source, destination);
+};
+const onSourceFinish = async (source, destination) => {
+  if (isStandardStream(source) || isStandardStream(destination)) {
+    return;
+  }
+  try {
+    await finished(source, { cleanup: true, readable: true, writable: false });
+  } catch {
+  }
+  endDestinationStream(destination);
+};
+const endDestinationStream = (destination) => {
+  if (destination.writable) {
+    destination.end();
+  }
+};
+const onDestinationFinish = async (source, destination) => {
+  if (isStandardStream(source) || isStandardStream(destination)) {
+    return;
+  }
+  try {
+    await finished(destination, { cleanup: true, readable: false, writable: true });
+  } catch {
+  }
+  abortSourceStream(source);
+};
+const abortSourceStream = (source) => {
+  if (source.readable) {
+    source.destroy();
+  }
+};
+const pipeOutputAsync = (subprocess, fileDescriptors, controller) => {
+  const pipeGroups = /* @__PURE__ */ new Map();
+  for (const [fdNumber, { stdioItems, direction }] of Object.entries(fileDescriptors)) {
+    for (const { stream } of stdioItems.filter(({ type }) => TRANSFORM_TYPES.has(type))) {
+      pipeTransform(subprocess, stream, direction, fdNumber);
+    }
+    for (const { stream } of stdioItems.filter(({ type }) => !TRANSFORM_TYPES.has(type))) {
+      pipeStdioItem({
+        subprocess,
+        stream,
+        direction,
+        fdNumber,
+        pipeGroups,
+        controller
+      });
+    }
+  }
+  for (const [outputStream, inputStreams] of pipeGroups.entries()) {
+    const inputStream = inputStreams.length === 1 ? inputStreams[0] : mergeStreams(inputStreams);
+    pipeStreams(inputStream, outputStream);
+  }
+};
+const pipeTransform = (subprocess, stream, direction, fdNumber) => {
+  if (direction === "output") {
+    pipeStreams(subprocess.stdio[fdNumber], stream);
+  } else {
+    pipeStreams(stream, subprocess.stdio[fdNumber]);
+  }
+  const streamProperty = SUBPROCESS_STREAM_PROPERTIES[fdNumber];
+  if (streamProperty !== void 0) {
+    subprocess[streamProperty] = stream;
+  }
+  subprocess.stdio[fdNumber] = stream;
+};
+const SUBPROCESS_STREAM_PROPERTIES = ["stdin", "stdout", "stderr"];
+const pipeStdioItem = ({ subprocess, stream, direction, fdNumber, pipeGroups, controller }) => {
+  if (stream === void 0) {
+    return;
+  }
+  setStandardStreamMaxListeners(stream, controller);
+  const [inputStream, outputStream] = direction === "output" ? [stream, subprocess.stdio[fdNumber]] : [subprocess.stdio[fdNumber], stream];
+  const outputStreams = pipeGroups.get(inputStream) ?? [];
+  pipeGroups.set(inputStream, [...outputStreams, outputStream]);
+};
+const setStandardStreamMaxListeners = (stream, { signal }) => {
+  if (isStandardStream(stream)) {
+    incrementMaxListeners(stream, MAX_LISTENERS_INCREMENT, signal);
+  }
+};
+const MAX_LISTENERS_INCREMENT = 2;
+const signals = [];
+signals.push("SIGHUP", "SIGINT", "SIGTERM");
+if (process.platform !== "win32") {
+  signals.push(
+    "SIGALRM",
+    "SIGABRT",
+    "SIGVTALRM",
+    "SIGXCPU",
+    "SIGXFSZ",
+    "SIGUSR2",
+    "SIGTRAP",
+    "SIGSYS",
+    "SIGQUIT",
+    "SIGIOT"
+    // should detect profiler and enable/disable accordingly.
+    // see #21
+    // 'SIGPROF'
+  );
+}
+if (process.platform === "linux") {
+  signals.push("SIGIO", "SIGPOLL", "SIGPWR", "SIGSTKFLT");
+}
+const processOk = (process2) => !!process2 && typeof process2 === "object" && typeof process2.removeListener === "function" && typeof process2.emit === "function" && typeof process2.reallyExit === "function" && typeof process2.listeners === "function" && typeof process2.kill === "function" && typeof process2.pid === "number" && typeof process2.on === "function";
+const kExitEmitter = Symbol.for("signal-exit emitter");
+const global$1 = globalThis;
+const ObjectDefineProperty = Object.defineProperty.bind(Object);
+class Emitter {
+  constructor() {
+    __publicField(this, "emitted", {
+      afterExit: false,
+      exit: false
+    });
+    __publicField(this, "listeners", {
       afterExit: [],
       exit: []
     });
-    Ae(this, "count", 0);
-    Ae(this, "id", Math.random());
-    if (dn[fn])
-      return dn[fn];
-    Fg(dn, fn, {
+    __publicField(this, "count", 0);
+    __publicField(this, "id", Math.random());
+    if (global$1[kExitEmitter]) {
+      return global$1[kExitEmitter];
+    }
+    ObjectDefineProperty(global$1, kExitEmitter, {
       value: this,
-      writable: !1,
-      enumerable: !1,
-      configurable: !1
+      writable: false,
+      enumerable: false,
+      configurable: false
     });
   }
-  on(t, n) {
-    this.listeners[t].push(n);
+  on(ev, fn) {
+    this.listeners[ev].push(fn);
   }
-  removeListener(t, n) {
-    const r = this.listeners[t], o = r.indexOf(n);
-    o !== -1 && (o === 0 && r.length === 1 ? r.length = 0 : r.splice(o, 1));
+  removeListener(ev, fn) {
+    const list = this.listeners[ev];
+    const i2 = list.indexOf(fn);
+    if (i2 === -1) {
+      return;
+    }
+    if (i2 === 0 && list.length === 1) {
+      list.length = 0;
+    } else {
+      list.splice(i2, 1);
+    }
   }
-  emit(t, n, r) {
-    if (this.emitted[t])
-      return !1;
-    this.emitted[t] = !0;
-    let o = !1;
-    for (const i of this.listeners[t])
-      o = i(n, r) === !0 || o;
-    return t === "exit" && (o = this.emit("afterExit", n, r) || o), o;
+  emit(ev, code, signal) {
+    if (this.emitted[ev]) {
+      return false;
+    }
+    this.emitted[ev] = true;
+    let ret = false;
+    for (const fn of this.listeners[ev]) {
+      ret = fn(code, signal) === true || ret;
+    }
+    if (ev === "exit") {
+      ret = this.emit("afterExit", code, signal) || ret;
+    }
+    return ret;
   }
 }
-class Pa {
+class SignalExitBase {
 }
-const Mg = (e) => ({
-  onExit(t, n) {
-    return e.onExit(t, n);
-  },
-  load() {
-    return e.load();
-  },
-  unload() {
-    return e.unload();
-  }
-});
-class kg extends Pa {
+const signalExitWrap = (handler) => {
+  return {
+    onExit(cb, opts) {
+      return handler.onExit(cb, opts);
+    },
+    load() {
+      return handler.load();
+    },
+    unload() {
+      return handler.unload();
+    }
+  };
+};
+class SignalExitFallback extends SignalExitBase {
   onExit() {
     return () => {
     };
@@ -5135,82 +7339,132 @@ class kg extends Pa {
   unload() {
   }
 }
-var Gt, J, P, je, Be, Ee, pe, He, Aa, Ca;
-class _g extends Pa {
-  constructor(n) {
+class SignalExit extends SignalExitBase {
+  constructor(process2) {
     super();
-    C(this, He);
+    __privateAdd(this, _SignalExit_instances);
     // "SIGHUP" throws an `ENOSYS` error on Windows,
     // so use a supported signal instead
     /* c8 ignore start */
-    C(this, Gt, Pn.platform === "win32" ? "SIGINT" : "SIGHUP");
+    __privateAdd(this, _hupSig, process$1.platform === "win32" ? "SIGINT" : "SIGHUP");
     /* c8 ignore stop */
-    C(this, J, new Lg());
-    C(this, P);
-    C(this, je);
-    C(this, Be);
-    C(this, Ee, {});
-    C(this, pe, !1);
-    W(this, P, n), W(this, Ee, {});
-    for (const r of ke)
-      p(this, Ee)[r] = () => {
-        const o = p(this, P).listeners(r);
-        let { count: i } = p(this, J);
-        const s = n;
-        if (typeof s.__signal_exit_emitter__ == "object" && typeof s.__signal_exit_emitter__.count == "number" && (i += s.__signal_exit_emitter__.count), o.length === i) {
+    __privateAdd(this, _emitter, new Emitter());
+    __privateAdd(this, _process);
+    __privateAdd(this, _originalProcessEmit);
+    __privateAdd(this, _originalProcessReallyExit);
+    __privateAdd(this, _sigListeners, {});
+    __privateAdd(this, _loaded, false);
+    __privateSet(this, _process, process2);
+    __privateSet(this, _sigListeners, {});
+    for (const sig of signals) {
+      __privateGet(this, _sigListeners)[sig] = () => {
+        const listeners = __privateGet(this, _process).listeners(sig);
+        let { count: count2 } = __privateGet(this, _emitter);
+        const p = process2;
+        if (typeof p.__signal_exit_emitter__ === "object" && typeof p.__signal_exit_emitter__.count === "number") {
+          count2 += p.__signal_exit_emitter__.count;
+        }
+        if (listeners.length === count2) {
           this.unload();
-          const a = p(this, J).emit("exit", null, r), c = r === "SIGHUP" ? p(this, Gt) : r;
-          a || n.kill(n.pid, c);
+          const ret = __privateGet(this, _emitter).emit("exit", null, sig);
+          const s = sig === "SIGHUP" ? __privateGet(this, _hupSig) : sig;
+          if (!ret)
+            process2.kill(process2.pid, s);
         }
       };
-    W(this, Be, n.reallyExit), W(this, je, n.emit);
+    }
+    __privateSet(this, _originalProcessReallyExit, process2.reallyExit);
+    __privateSet(this, _originalProcessEmit, process2.emit);
   }
-  onExit(n, r) {
-    if (!Pt(p(this, P)))
+  onExit(cb, opts) {
+    if (!processOk(__privateGet(this, _process))) {
       return () => {
       };
-    p(this, pe) === !1 && this.load();
-    const o = r != null && r.alwaysLast ? "afterExit" : "exit";
-    return p(this, J).on(o, n), () => {
-      p(this, J).removeListener(o, n), p(this, J).listeners.exit.length === 0 && p(this, J).listeners.afterExit.length === 0 && this.unload();
+    }
+    if (__privateGet(this, _loaded) === false) {
+      this.load();
+    }
+    const ev = (opts == null ? void 0 : opts.alwaysLast) ? "afterExit" : "exit";
+    __privateGet(this, _emitter).on(ev, cb);
+    return () => {
+      __privateGet(this, _emitter).removeListener(ev, cb);
+      if (__privateGet(this, _emitter).listeners["exit"].length === 0 && __privateGet(this, _emitter).listeners["afterExit"].length === 0) {
+        this.unload();
+      }
     };
   }
   load() {
-    if (!p(this, pe)) {
-      W(this, pe, !0), p(this, J).count += 1;
-      for (const n of ke)
-        try {
-          const r = p(this, Ee)[n];
-          r && p(this, P).on(n, r);
-        } catch {
-        }
-      p(this, P).emit = (n, ...r) => Xe(this, He, Ca).call(this, n, ...r), p(this, P).reallyExit = (n) => Xe(this, He, Aa).call(this, n);
+    if (__privateGet(this, _loaded)) {
+      return;
     }
+    __privateSet(this, _loaded, true);
+    __privateGet(this, _emitter).count += 1;
+    for (const sig of signals) {
+      try {
+        const fn = __privateGet(this, _sigListeners)[sig];
+        if (fn)
+          __privateGet(this, _process).on(sig, fn);
+      } catch (_) {
+      }
+    }
+    __privateGet(this, _process).emit = (ev, ...a2) => {
+      return __privateMethod(this, _SignalExit_instances, processEmit_fn).call(this, ev, ...a2);
+    };
+    __privateGet(this, _process).reallyExit = (code) => {
+      return __privateMethod(this, _SignalExit_instances, processReallyExit_fn).call(this, code);
+    };
   }
   unload() {
-    p(this, pe) && (W(this, pe, !1), ke.forEach((n) => {
-      const r = p(this, Ee)[n];
-      if (!r)
-        throw new Error("Listener not defined for signal: " + n);
-      try {
-        p(this, P).removeListener(n, r);
-      } catch {
+    if (!__privateGet(this, _loaded)) {
+      return;
+    }
+    __privateSet(this, _loaded, false);
+    signals.forEach((sig) => {
+      const listener = __privateGet(this, _sigListeners)[sig];
+      if (!listener) {
+        throw new Error("Listener not defined for signal: " + sig);
       }
-    }), p(this, P).emit = p(this, je), p(this, P).reallyExit = p(this, Be), p(this, J).count -= 1);
+      try {
+        __privateGet(this, _process).removeListener(sig, listener);
+      } catch (_) {
+      }
+    });
+    __privateGet(this, _process).emit = __privateGet(this, _originalProcessEmit);
+    __privateGet(this, _process).reallyExit = __privateGet(this, _originalProcessReallyExit);
+    __privateGet(this, _emitter).count -= 1;
   }
 }
-Gt = new WeakMap(), J = new WeakMap(), P = new WeakMap(), je = new WeakMap(), Be = new WeakMap(), Ee = new WeakMap(), pe = new WeakMap(), He = new WeakSet(), Aa = function(n) {
-  return Pt(p(this, P)) ? (p(this, P).exitCode = n || 0, p(this, J).emit("exit", p(this, P).exitCode, null), p(this, Be).call(p(this, P), p(this, P).exitCode)) : 0;
-}, Ca = function(n, ...r) {
-  const o = p(this, je);
-  if (n === "exit" && Pt(p(this, P))) {
-    typeof r[0] == "number" && (p(this, P).exitCode = r[0]);
-    const i = o.call(p(this, P), n, ...r);
-    return p(this, J).emit("exit", p(this, P).exitCode, null), i;
-  } else
-    return o.call(p(this, P), n, ...r);
+_hupSig = new WeakMap();
+_emitter = new WeakMap();
+_process = new WeakMap();
+_originalProcessEmit = new WeakMap();
+_originalProcessReallyExit = new WeakMap();
+_sigListeners = new WeakMap();
+_loaded = new WeakMap();
+_SignalExit_instances = new WeakSet();
+processReallyExit_fn = function(code) {
+  if (!processOk(__privateGet(this, _process))) {
+    return 0;
+  }
+  __privateGet(this, _process).exitCode = code || 0;
+  __privateGet(this, _emitter).emit("exit", __privateGet(this, _process).exitCode, null);
+  return __privateGet(this, _originalProcessReallyExit).call(__privateGet(this, _process), __privateGet(this, _process).exitCode);
 };
-const Pn = globalThis.process, {
+processEmit_fn = function(ev, ...args) {
+  const og = __privateGet(this, _originalProcessEmit);
+  if (ev === "exit" && processOk(__privateGet(this, _process))) {
+    if (typeof args[0] === "number") {
+      __privateGet(this, _process).exitCode = args[0];
+    }
+    const ret = og.call(__privateGet(this, _process), ev, ...args);
+    __privateGet(this, _emitter).emit("exit", __privateGet(this, _process).exitCode, null);
+    return ret;
+  } else {
+    return og.call(__privateGet(this, _process), ev, ...args);
+  }
+};
+const process$1 = globalThis.process;
+const {
   /**
    * Called when the process is exiting, whether via signal, explicit
    * exit, or running out of stuff to do.
@@ -5220,1108 +7474,1562 @@ const Pn = globalThis.process, {
    *
    * Returns a function that may be used to unload signal-exit.
    */
-  onExit: jg
-} = Mg(Pt(Pn) ? new _g(Pn) : new kg()), Bg = (e, { cleanup: t, detached: n }, { signal: r }) => {
-  if (!t || n)
+  onExit
+} = signalExitWrap(processOk(process$1) ? new SignalExit(process$1) : new SignalExitFallback());
+const cleanupOnExit = (subprocess, { cleanup, detached }, { signal }) => {
+  if (!cleanup || detached) {
     return;
-  const o = jg(() => {
-    e.kill();
+  }
+  const removeExitHandler = onExit(() => {
+    subprocess.kill();
   });
-  Xo(r, () => {
-    o();
+  addAbortListener(signal, () => {
+    removeExitHandler();
   });
-}, Ug = ({ source: e, sourcePromise: t, boundOptions: n, createNested: r }, ...o) => {
-  const i = Yi(), {
-    destination: s,
-    destinationStream: a,
-    destinationError: c,
-    from: u,
-    unpipeSignal: l
-  } = Ng(n, r, o), { sourceStream: f, sourceError: d } = Wg(e, u), { options: h, fileDescriptors: m } = Oe.get(e);
+};
+const normalizePipeArguments = ({ source, sourcePromise, boundOptions, createNested }, ...pipeArguments) => {
+  const startTime = getStartTime();
+  const {
+    destination,
+    destinationStream,
+    destinationError,
+    from,
+    unpipeSignal
+  } = getDestinationStream(boundOptions, createNested, pipeArguments);
+  const { sourceStream, sourceError } = getSourceStream(source, from);
+  const { options: sourceOptions, fileDescriptors } = SUBPROCESS_OPTIONS.get(source);
   return {
-    sourcePromise: t,
-    sourceStream: f,
-    sourceOptions: h,
-    sourceError: d,
-    destination: s,
-    destinationStream: a,
-    destinationError: c,
-    unpipeSignal: l,
-    fileDescriptors: m,
-    startTime: i
+    sourcePromise,
+    sourceStream,
+    sourceOptions,
+    sourceError,
+    destination,
+    destinationStream,
+    destinationError,
+    unpipeSignal,
+    fileDescriptors,
+    startTime
   };
-}, Ng = (e, t, n) => {
+};
+const getDestinationStream = (boundOptions, createNested, pipeArguments) => {
   try {
     const {
-      destination: r,
-      pipeOptions: { from: o, to: i, unpipeSignal: s } = {}
-    } = Gg(e, t, ...n), a = gs(r, i);
+      destination,
+      pipeOptions: { from, to, unpipeSignal } = {}
+    } = getDestination(boundOptions, createNested, ...pipeArguments);
+    const destinationStream = getToStream(destination, to);
     return {
-      destination: r,
-      destinationStream: a,
-      from: o,
-      unpipeSignal: s
+      destination,
+      destinationStream,
+      from,
+      unpipeSignal
     };
-  } catch (r) {
-    return { destinationError: r };
+  } catch (error) {
+    return { destinationError: error };
   }
-}, Gg = (e, t, n, ...r) => {
-  if (Array.isArray(n))
-    return { destination: t(Co, e)(n, ...r), pipeOptions: e };
-  if (typeof n == "string" || n instanceof URL || Li(n)) {
-    if (Object.keys(e).length > 0)
+};
+const getDestination = (boundOptions, createNested, firstArgument, ...pipeArguments) => {
+  if (Array.isArray(firstArgument)) {
+    const destination = createNested(mapDestinationArguments, boundOptions)(firstArgument, ...pipeArguments);
+    return { destination, pipeOptions: boundOptions };
+  }
+  if (typeof firstArgument === "string" || firstArgument instanceof URL || isDenoExecPath(firstArgument)) {
+    if (Object.keys(boundOptions).length > 0) {
       throw new TypeError('Please use .pipe("file", ..., options) or .pipe(execa("file", ..., options)) instead of .pipe(options)("file", ...).');
-    const [o, i, s] = ki(n, ...r);
-    return { destination: t(Co)(o, i, s), pipeOptions: s };
+    }
+    const [rawFile, rawArguments, rawOptions] = normalizeParameters(firstArgument, ...pipeArguments);
+    const destination = createNested(mapDestinationArguments)(rawFile, rawArguments, rawOptions);
+    return { destination, pipeOptions: rawOptions };
   }
-  if (Oe.has(n)) {
-    if (Object.keys(e).length > 0)
+  if (SUBPROCESS_OPTIONS.has(firstArgument)) {
+    if (Object.keys(boundOptions).length > 0) {
       throw new TypeError("Please use .pipe(options)`command` or .pipe($(options)`command`) instead of .pipe(options)($`command`).");
-    return { destination: n, pipeOptions: r[0] };
+    }
+    return { destination: firstArgument, pipeOptions: pipeArguments[0] };
   }
-  throw new TypeError(`The first argument must be a template string, an options object, or an Execa subprocess: ${n}`);
-}, Co = ({ options: e }) => ({ options: { ...e, stdin: "pipe", piped: !0 } }), Wg = (e, t) => {
+  throw new TypeError(`The first argument must be a template string, an options object, or an Execa subprocess: ${firstArgument}`);
+};
+const mapDestinationArguments = ({ options }) => ({ options: { ...options, stdin: "pipe", piped: true } });
+const getSourceStream = (source, from) => {
   try {
-    return { sourceStream: hr(e, t) };
-  } catch (n) {
-    return { sourceError: n };
+    const sourceStream = getFromStream(source, from);
+    return { sourceStream };
+  } catch (error) {
+    return { sourceError: error };
   }
-}, zg = ({
-  sourceStream: e,
-  sourceError: t,
-  destinationStream: n,
-  destinationError: r,
-  fileDescriptors: o,
-  sourceOptions: i,
-  startTime: s
+};
+const handlePipeArgumentsError = ({
+  sourceStream,
+  sourceError,
+  destinationStream,
+  destinationError,
+  fileDescriptors,
+  sourceOptions,
+  startTime
 }) => {
-  const a = Vg({
-    sourceStream: e,
-    sourceError: t,
-    destinationStream: n,
-    destinationError: r
+  const error = getPipeArgumentsError({
+    sourceStream,
+    sourceError,
+    destinationStream,
+    destinationError
   });
-  if (a !== void 0)
-    throw Fa({
-      error: a,
-      fileDescriptors: o,
-      sourceOptions: i,
-      startTime: s
+  if (error !== void 0) {
+    throw createNonCommandError({
+      error,
+      fileDescriptors,
+      sourceOptions,
+      startTime
     });
-}, Vg = ({ sourceStream: e, sourceError: t, destinationStream: n, destinationError: r }) => {
-  if (t !== void 0 && r !== void 0)
-    return r;
-  if (r !== void 0)
-    return Ra(e), r;
-  if (t !== void 0)
-    return xa(n), t;
-}, Fa = ({ error: e, fileDescriptors: t, sourceOptions: n, startTime: r }) => Er({
-  error: e,
-  command: Fo,
-  escapedCommand: Fo,
-  fileDescriptors: t,
-  options: n,
-  startTime: r,
-  isSync: !1
-}), Fo = "source.pipe(destination)", Hg = async (e) => {
+  }
+};
+const getPipeArgumentsError = ({ sourceStream, sourceError, destinationStream, destinationError }) => {
+  if (sourceError !== void 0 && destinationError !== void 0) {
+    return destinationError;
+  }
+  if (destinationError !== void 0) {
+    abortSourceStream(sourceStream);
+    return destinationError;
+  }
+  if (sourceError !== void 0) {
+    endDestinationStream(destinationStream);
+    return sourceError;
+  }
+};
+const createNonCommandError = ({ error, fileDescriptors, sourceOptions, startTime }) => makeEarlyError({
+  error,
+  command: PIPE_COMMAND_MESSAGE,
+  escapedCommand: PIPE_COMMAND_MESSAGE,
+  fileDescriptors,
+  options: sourceOptions,
+  startTime,
+  isSync: false
+});
+const PIPE_COMMAND_MESSAGE = "source.pipe(destination)";
+const waitForBothSubprocesses = async (subprocessPromises) => {
   const [
-    { status: t, reason: n, value: r = n },
-    { status: o, reason: i, value: s = i }
-  ] = await e;
-  if (s.pipedFrom.includes(r) || s.pipedFrom.push(r), o === "rejected")
-    throw s;
-  if (t === "rejected")
-    throw r;
-  return s;
-}, qg = (e, t, n) => {
-  const r = Zt.has(t) ? Jg(e, t) : Yg(e, t);
-  return Mt(e, Xg, n.signal), Mt(t, Qg, n.signal), Kg(t), r;
-}, Yg = (e, t) => {
-  const n = Rr([e]);
-  return jt(n, t), Zt.set(t, n), n;
-}, Jg = (e, t) => {
-  const n = Zt.get(t);
-  return n.add(e), n;
-}, Kg = async (e) => {
+    { status: sourceStatus, reason: sourceReason, value: sourceResult = sourceReason },
+    { status: destinationStatus, reason: destinationReason, value: destinationResult = destinationReason }
+  ] = await subprocessPromises;
+  if (!destinationResult.pipedFrom.includes(sourceResult)) {
+    destinationResult.pipedFrom.push(sourceResult);
+  }
+  if (destinationStatus === "rejected") {
+    throw destinationResult;
+  }
+  if (sourceStatus === "rejected") {
+    throw sourceResult;
+  }
+  return destinationResult;
+};
+const pipeSubprocessStream = (sourceStream, destinationStream, maxListenersController) => {
+  const mergedStream = MERGED_STREAMS.has(destinationStream) ? pipeMoreSubprocessStream(sourceStream, destinationStream) : pipeFirstSubprocessStream(sourceStream, destinationStream);
+  incrementMaxListeners(sourceStream, SOURCE_LISTENERS_PER_PIPE, maxListenersController.signal);
+  incrementMaxListeners(destinationStream, DESTINATION_LISTENERS_PER_PIPE, maxListenersController.signal);
+  cleanupMergedStreamsMap(destinationStream);
+  return mergedStream;
+};
+const pipeFirstSubprocessStream = (sourceStream, destinationStream) => {
+  const mergedStream = mergeStreams([sourceStream]);
+  pipeStreams(mergedStream, destinationStream);
+  MERGED_STREAMS.set(destinationStream, mergedStream);
+  return mergedStream;
+};
+const pipeMoreSubprocessStream = (sourceStream, destinationStream) => {
+  const mergedStream = MERGED_STREAMS.get(destinationStream);
+  mergedStream.add(sourceStream);
+  return mergedStream;
+};
+const cleanupMergedStreamsMap = async (destinationStream) => {
   try {
-    await we(e, { cleanup: !0, readable: !1, writable: !0 });
+    await finished(destinationStream, { cleanup: true, readable: false, writable: true });
   } catch {
   }
-  Zt.delete(e);
-}, Zt = /* @__PURE__ */ new WeakMap(), Xg = 2, Qg = 1, Zg = (e, t) => e === void 0 ? [] : [eS(e, t)], eS = async (e, { sourceStream: t, mergedStream: n, fileDescriptors: r, sourceOptions: o, startTime: i }) => {
-  await Sc(e, t), await n.remove(t);
-  const s = new Error("Pipe canceled by `unpipeSignal` option.");
-  throw Fa({
-    error: s,
-    fileDescriptors: r,
-    sourceOptions: o,
-    startTime: i
+  MERGED_STREAMS.delete(destinationStream);
+};
+const MERGED_STREAMS = /* @__PURE__ */ new WeakMap();
+const SOURCE_LISTENERS_PER_PIPE = 2;
+const DESTINATION_LISTENERS_PER_PIPE = 1;
+const unpipeOnAbort = (unpipeSignal, unpipeContext) => unpipeSignal === void 0 ? [] : [unpipeOnSignalAbort(unpipeSignal, unpipeContext)];
+const unpipeOnSignalAbort = async (unpipeSignal, { sourceStream, mergedStream, fileDescriptors, sourceOptions, startTime }) => {
+  await aborted(unpipeSignal, sourceStream);
+  await mergedStream.remove(sourceStream);
+  const error = new Error("Pipe canceled by `unpipeSignal` option.");
+  throw createNonCommandError({
+    error,
+    fileDescriptors,
+    sourceOptions,
+    startTime
   });
-}, An = (e, ...t) => {
-  if (X(t[0]))
-    return An.bind(void 0, {
-      ...e,
-      boundOptions: { ...e.boundOptions, ...t[0] }
+};
+const pipeToSubprocess = (sourceInfo, ...pipeArguments) => {
+  if (isPlainObject(pipeArguments[0])) {
+    return pipeToSubprocess.bind(void 0, {
+      ...sourceInfo,
+      boundOptions: { ...sourceInfo.boundOptions, ...pipeArguments[0] }
     });
-  const { destination: n, ...r } = Ug(e, ...t), o = tS({ ...r, destination: n });
-  return o.pipe = An.bind(void 0, {
-    ...e,
-    source: n,
-    sourcePromise: o,
+  }
+  const { destination, ...normalizedInfo } = normalizePipeArguments(sourceInfo, ...pipeArguments);
+  const promise = handlePipePromise({ ...normalizedInfo, destination });
+  promise.pipe = pipeToSubprocess.bind(void 0, {
+    ...sourceInfo,
+    source: destination,
+    sourcePromise: promise,
     boundOptions: {}
-  }), o;
-}, tS = async ({
-  sourcePromise: e,
-  sourceStream: t,
-  sourceOptions: n,
-  sourceError: r,
-  destination: o,
-  destinationStream: i,
-  destinationError: s,
-  unpipeSignal: a,
-  fileDescriptors: c,
-  startTime: u
-}) => {
-  const l = nS(e, o);
-  zg({
-    sourceStream: t,
-    sourceError: r,
-    destinationStream: i,
-    destinationError: s,
-    fileDescriptors: c,
-    sourceOptions: n,
-    startTime: u
   });
-  const f = new AbortController();
+  return promise;
+};
+const handlePipePromise = async ({
+  sourcePromise,
+  sourceStream,
+  sourceOptions,
+  sourceError,
+  destination,
+  destinationStream,
+  destinationError,
+  unpipeSignal,
+  fileDescriptors,
+  startTime
+}) => {
+  const subprocessPromises = getSubprocessPromises(sourcePromise, destination);
+  handlePipeArgumentsError({
+    sourceStream,
+    sourceError,
+    destinationStream,
+    destinationError,
+    fileDescriptors,
+    sourceOptions,
+    startTime
+  });
+  const maxListenersController = new AbortController();
   try {
-    const d = qg(t, i, f);
+    const mergedStream = pipeSubprocessStream(sourceStream, destinationStream, maxListenersController);
     return await Promise.race([
-      Hg(l),
-      ...Zg(a, {
-        sourceStream: t,
-        mergedStream: d,
-        sourceOptions: n,
-        fileDescriptors: c,
-        startTime: u
+      waitForBothSubprocesses(subprocessPromises),
+      ...unpipeOnAbort(unpipeSignal, {
+        sourceStream,
+        mergedStream,
+        sourceOptions,
+        fileDescriptors,
+        startTime
       })
     ]);
   } finally {
-    f.abort();
+    maxListenersController.abort();
   }
-}, nS = (e, t) => Promise.allSettled([e, t]), La = ({ subprocessStdout: e, subprocess: t, binary: n, shouldEncode: r, encoding: o, preserveNewlines: i }) => {
-  const s = new AbortController();
-  return rS(t, s), ka({
-    stream: e,
-    controller: s,
-    binary: n,
-    shouldEncode: !e.readableObjectMode && r,
-    encoding: o,
-    shouldSplit: !e.readableObjectMode,
-    preserveNewlines: i
+};
+const getSubprocessPromises = (sourcePromise, destination) => Promise.allSettled([sourcePromise, destination]);
+const iterateOnSubprocessStream = ({ subprocessStdout, subprocess, binary, shouldEncode, encoding, preserveNewlines }) => {
+  const controller = new AbortController();
+  stopReadingOnExit(subprocess, controller);
+  return iterateOnStream({
+    stream: subprocessStdout,
+    controller,
+    binary,
+    shouldEncode: !subprocessStdout.readableObjectMode && shouldEncode,
+    encoding,
+    shouldSplit: !subprocessStdout.readableObjectMode,
+    preserveNewlines
   });
-}, rS = async (e, t) => {
+};
+const stopReadingOnExit = async (subprocess, controller) => {
   try {
-    await e;
+    await subprocess;
   } catch {
   } finally {
-    t.abort();
+    controller.abort();
   }
-}, Ma = ({ stream: e, onStreamEnd: t, lines: n, encoding: r, stripFinalNewline: o, allMixed: i }) => {
-  const s = new AbortController();
-  oS(t, s, e);
-  const a = e.readableObjectMode && !i;
-  return ka({
-    stream: e,
-    controller: s,
-    binary: r === "buffer",
-    shouldEncode: !a,
-    encoding: r,
-    shouldSplit: !a && n,
-    preserveNewlines: !o
+};
+const iterateForResult = ({ stream, onStreamEnd, lines, encoding, stripFinalNewline: stripFinalNewline2, allMixed }) => {
+  const controller = new AbortController();
+  stopReadingOnStreamEnd(onStreamEnd, controller, stream);
+  const objectMode = stream.readableObjectMode && !allMixed;
+  return iterateOnStream({
+    stream,
+    controller,
+    binary: encoding === "buffer",
+    shouldEncode: !objectMode,
+    encoding,
+    shouldSplit: !objectMode && lines,
+    preserveNewlines: !stripFinalNewline2
   });
-}, oS = async (e, t, n) => {
+};
+const stopReadingOnStreamEnd = async (onStreamEnd, controller, stream) => {
   try {
-    await e;
+    await onStreamEnd;
   } catch {
-    n.destroy();
+    stream.destroy();
   } finally {
-    t.abort();
+    controller.abort();
   }
-}, ka = ({ stream: e, controller: t, binary: n, shouldEncode: r, encoding: o, shouldSplit: i, preserveNewlines: s }) => {
-  const a = Wt(e, "data", {
-    signal: t.signal,
-    highWaterMark: Lo,
+};
+const iterateOnStream = ({ stream, controller, binary, shouldEncode, encoding, shouldSplit, preserveNewlines }) => {
+  const onStdoutChunk = on(stream, "data", {
+    signal: controller.signal,
+    highWaterMark: HIGH_WATER_MARK,
     // Backward compatibility with older name for this option
     // See https://github.com/nodejs/node/pull/52080#discussion_r1525227861
     // @todo Remove after removing support for Node 21
-    highWatermark: Lo
+    highWatermark: HIGH_WATER_MARK
   });
-  return iS({
-    onStdoutChunk: a,
-    controller: t,
-    binary: n,
-    shouldEncode: r,
-    encoding: o,
-    shouldSplit: i,
-    preserveNewlines: s
+  return iterateOnData({
+    onStdoutChunk,
+    controller,
+    binary,
+    shouldEncode,
+    encoding,
+    shouldSplit,
+    preserveNewlines
   });
-}, _a = At(!0), Lo = _a, iS = async function* ({ onStdoutChunk: e, controller: t, binary: n, shouldEncode: r, encoding: o, shouldSplit: i, preserveNewlines: s }) {
-  const a = sS({
-    binary: n,
-    shouldEncode: r,
-    encoding: o,
-    shouldSplit: i,
-    preserveNewlines: s
+};
+const DEFAULT_OBJECT_HIGH_WATER_MARK = getDefaultHighWaterMark(true);
+const HIGH_WATER_MARK = DEFAULT_OBJECT_HIGH_WATER_MARK;
+const iterateOnData = async function* ({ onStdoutChunk, controller, binary, shouldEncode, encoding, shouldSplit, preserveNewlines }) {
+  const generators = getGenerators({
+    binary,
+    shouldEncode,
+    encoding,
+    shouldSplit,
+    preserveNewlines
   });
   try {
-    for await (const [c] of e)
-      yield* wt(c, a, 0);
-  } catch (c) {
-    if (!t.signal.aborted)
-      throw c;
+    for await (const [chunk] of onStdoutChunk) {
+      yield* transformChunkSync(chunk, generators, 0);
+    }
+  } catch (error) {
+    if (!controller.signal.aborted) {
+      throw error;
+    }
   } finally {
-    yield* xr(a);
+    yield* finalChunksSync(generators);
   }
-}, sS = ({ binary: e, shouldEncode: t, encoding: n, shouldSplit: r, preserveNewlines: o }) => [
-  ya(e, n, !t),
-  da(e, o, !r, {})
-].filter(Boolean), aS = async ({ stream: e, onStreamEnd: t, fdNumber: n, encoding: r, buffer: o, maxBuffer: i, lines: s, allMixed: a, stripFinalNewline: c, verboseInfo: u, streamInfo: l }) => {
-  const f = cS({
-    stream: e,
-    onStreamEnd: t,
-    fdNumber: n,
-    encoding: r,
-    allMixed: a,
-    verboseInfo: u,
-    streamInfo: l
+};
+const getGenerators = ({ binary, shouldEncode, encoding, shouldSplit, preserveNewlines }) => [
+  getEncodingTransformGenerator(binary, encoding, !shouldEncode),
+  getSplitLinesGenerator(binary, preserveNewlines, !shouldSplit, {})
+].filter(Boolean);
+const getStreamOutput = async ({ stream, onStreamEnd, fdNumber, encoding, buffer, maxBuffer, lines, allMixed, stripFinalNewline: stripFinalNewline2, verboseInfo, streamInfo }) => {
+  const logPromise = logOutputAsync({
+    stream,
+    onStreamEnd,
+    fdNumber,
+    encoding,
+    allMixed,
+    verboseInfo,
+    streamInfo
   });
-  if (!o) {
-    await Promise.all([lS(e), f]);
+  if (!buffer) {
+    await Promise.all([resumeStream(stream), logPromise]);
     return;
   }
-  const d = fa(c, n), h = Ma({
-    stream: e,
-    onStreamEnd: t,
-    lines: s,
-    encoding: r,
-    stripFinalNewline: d,
-    allMixed: a
-  }), [m] = await Promise.all([
-    uS({
-      stream: e,
-      iterable: h,
-      fdNumber: n,
-      encoding: r,
-      maxBuffer: i,
-      lines: s
+  const stripFinalNewlineValue = getStripFinalNewline(stripFinalNewline2, fdNumber);
+  const iterable = iterateForResult({
+    stream,
+    onStreamEnd,
+    lines,
+    encoding,
+    stripFinalNewline: stripFinalNewlineValue,
+    allMixed
+  });
+  const [output] = await Promise.all([
+    getStreamContents({
+      stream,
+      iterable,
+      fdNumber,
+      encoding,
+      maxBuffer,
+      lines
     }),
-    f
+    logPromise
   ]);
-  return m;
-}, cS = async ({ stream: e, onStreamEnd: t, fdNumber: n, encoding: r, allMixed: o, verboseInfo: i, streamInfo: { fileDescriptors: s } }) => {
-  var c;
-  if (!Sa({
-    stdioItems: (c = s[n]) == null ? void 0 : c.stdioItems,
-    encoding: r,
-    verboseInfo: i,
-    fdNumber: n
-  }))
+  return output;
+};
+const logOutputAsync = async ({ stream, onStreamEnd, fdNumber, encoding, allMixed, verboseInfo, streamInfo: { fileDescriptors } }) => {
+  var _a2;
+  if (!shouldLogOutput({
+    stdioItems: (_a2 = fileDescriptors[fdNumber]) == null ? void 0 : _a2.stdioItems,
+    encoding,
+    verboseInfo,
+    fdNumber
+  })) {
     return;
-  const a = Ma({
-    stream: e,
-    onStreamEnd: t,
-    lines: !0,
-    encoding: r,
-    stripFinalNewline: !0,
-    allMixed: o
+  }
+  const linesIterable = iterateForResult({
+    stream,
+    onStreamEnd,
+    lines: true,
+    encoding,
+    stripFinalNewline: true,
+    allMixed
   });
-  await Ow(a, e, n, i);
-}, lS = async (e) => {
-  await Oc(), e.readableFlowing === null && e.resume();
-}, uS = async ({ stream: e, stream: { readableObjectMode: t }, iterable: n, fdNumber: r, encoding: o, maxBuffer: i, lines: s }) => {
+  await logLines(linesIterable, stream, fdNumber, verboseInfo);
+};
+const resumeStream = async (stream) => {
+  await setImmediate();
+  if (stream.readableFlowing === null) {
+    stream.resume();
+  }
+};
+const getStreamContents = async ({ stream, stream: { readableObjectMode }, iterable, fdNumber, encoding, maxBuffer, lines }) => {
   try {
-    return t || s ? await Wm(n, { maxBuffer: i }) : o === "buffer" ? new Uint8Array(await Ym(n, { maxBuffer: i })) : await op(n, { maxBuffer: i });
-  } catch (a) {
-    return ja(up({
-      error: a,
-      stream: e,
-      readableObjectMode: t,
-      lines: s,
-      encoding: o,
-      fdNumber: r
+    if (readableObjectMode || lines) {
+      return await getStreamAsArray(iterable, { maxBuffer });
+    }
+    if (encoding === "buffer") {
+      return new Uint8Array(await getStreamAsArrayBuffer(iterable, { maxBuffer }));
+    }
+    return await getStreamAsString(iterable, { maxBuffer });
+  } catch (error) {
+    return handleBufferedData(handleMaxBuffer({
+      error,
+      stream,
+      readableObjectMode,
+      lines,
+      encoding,
+      fdNumber
     }));
   }
-}, Mo = async (e) => {
+};
+const getBufferedData = async (streamPromise) => {
   try {
-    return await e;
-  } catch (t) {
-    return ja(t);
+    return await streamPromise;
+  } catch (error) {
+    return handleBufferedData(error);
   }
-}, ja = ({ bufferedData: e }) => of(e) ? new Uint8Array(e) : e, Ar = async (e, t, n, { isSameDirection: r, stopOnExit: o = !1 } = {}) => {
-  const i = fS(e, n), s = new AbortController();
+};
+const handleBufferedData = ({ bufferedData }) => isArrayBuffer(bufferedData) ? new Uint8Array(bufferedData) : bufferedData;
+const waitForStream = async (stream, fdNumber, streamInfo, { isSameDirection, stopOnExit = false } = {}) => {
+  const state = handleStdinDestroy(stream, streamInfo);
+  const abortController = new AbortController();
   try {
     await Promise.race([
-      ...o ? [n.exitPromise] : [],
-      we(e, { cleanup: !0, signal: s.signal })
+      ...stopOnExit ? [streamInfo.exitPromise] : [],
+      finished(stream, { cleanup: true, signal: abortController.signal })
     ]);
-  } catch (a) {
-    i.stdinCleanedUp || mS(a, t, n, r);
+  } catch (error) {
+    if (!state.stdinCleanedUp) {
+      handleStreamError(error, fdNumber, streamInfo, isSameDirection);
+    }
   } finally {
-    s.abort();
+    abortController.abort();
   }
-}, fS = (e, { originalStreams: [t], subprocess: n }) => {
-  const r = { stdinCleanedUp: !1 };
-  return e === t && dS(e, n, r), r;
-}, dS = (e, t, n) => {
-  const { _destroy: r } = e;
-  e._destroy = (...o) => {
-    hS(t, n), r.call(e, ...o);
+};
+const handleStdinDestroy = (stream, { originalStreams: [originalStdin], subprocess }) => {
+  const state = { stdinCleanedUp: false };
+  if (stream === originalStdin) {
+    spyOnStdinDestroy(stream, subprocess, state);
+  }
+  return state;
+};
+const spyOnStdinDestroy = (subprocessStdin, subprocess, state) => {
+  const { _destroy } = subprocessStdin;
+  subprocessStdin._destroy = (...destroyArguments) => {
+    setStdinCleanedUp(subprocess, state);
+    _destroy.call(subprocessStdin, ...destroyArguments);
   };
-}, hS = ({ exitCode: e, signalCode: t }, n) => {
-  (e !== null || t !== null) && (n.stdinCleanedUp = !0);
-}, mS = (e, t, n, r) => {
-  if (!pS(e, t, n, r))
-    throw e;
-}, pS = (e, t, n, r = !0) => n.propagating ? ko(e) || Cn(e) : (n.propagating = !0, Ba(n, t) === r ? ko(e) : Cn(e)), Ba = ({ fileDescriptors: e }, t) => t !== "all" && e[t].direction === "input", Cn = (e) => (e == null ? void 0 : e.code) === "ERR_STREAM_PREMATURE_CLOSE", ko = (e) => (e == null ? void 0 : e.code) === "EPIPE", yS = ({ subprocess: e, encoding: t, buffer: n, maxBuffer: r, lines: o, stripFinalNewline: i, verboseInfo: s, streamInfo: a }) => e.stdio.map((c, u) => Ua({
-  stream: c,
-  fdNumber: u,
-  encoding: t,
-  buffer: n[u],
-  maxBuffer: r[u],
-  lines: o[u],
-  allMixed: !1,
-  stripFinalNewline: i,
-  verboseInfo: s,
-  streamInfo: a
-})), Ua = async ({ stream: e, fdNumber: t, encoding: n, buffer: r, maxBuffer: o, lines: i, allMixed: s, stripFinalNewline: a, verboseInfo: c, streamInfo: u }) => {
-  if (!e)
-    return;
-  const l = Ar(e, t, u);
-  if (Ba(u, t)) {
-    await l;
+};
+const setStdinCleanedUp = ({ exitCode, signalCode }, state) => {
+  if (exitCode !== null || signalCode !== null) {
+    state.stdinCleanedUp = true;
+  }
+};
+const handleStreamError = (error, fdNumber, streamInfo, isSameDirection) => {
+  if (!shouldIgnoreStreamError(error, fdNumber, streamInfo, isSameDirection)) {
+    throw error;
+  }
+};
+const shouldIgnoreStreamError = (error, fdNumber, streamInfo, isSameDirection = true) => {
+  if (streamInfo.propagating) {
+    return isStreamEpipe(error) || isStreamAbort(error);
+  }
+  streamInfo.propagating = true;
+  return isInputFileDescriptor(streamInfo, fdNumber) === isSameDirection ? isStreamEpipe(error) : isStreamAbort(error);
+};
+const isInputFileDescriptor = ({ fileDescriptors }, fdNumber) => fdNumber !== "all" && fileDescriptors[fdNumber].direction === "input";
+const isStreamAbort = (error) => (error == null ? void 0 : error.code) === "ERR_STREAM_PREMATURE_CLOSE";
+const isStreamEpipe = (error) => (error == null ? void 0 : error.code) === "EPIPE";
+const waitForStdioStreams = ({ subprocess, encoding, buffer, maxBuffer, lines, stripFinalNewline: stripFinalNewline2, verboseInfo, streamInfo }) => subprocess.stdio.map((stream, fdNumber) => waitForSubprocessStream({
+  stream,
+  fdNumber,
+  encoding,
+  buffer: buffer[fdNumber],
+  maxBuffer: maxBuffer[fdNumber],
+  lines: lines[fdNumber],
+  allMixed: false,
+  stripFinalNewline: stripFinalNewline2,
+  verboseInfo,
+  streamInfo
+}));
+const waitForSubprocessStream = async ({ stream, fdNumber, encoding, buffer, maxBuffer, lines, allMixed, stripFinalNewline: stripFinalNewline2, verboseInfo, streamInfo }) => {
+  if (!stream) {
     return;
   }
-  const [f] = await Promise.all([
-    aS({
-      stream: e,
-      onStreamEnd: l,
-      fdNumber: t,
-      encoding: n,
-      buffer: r,
-      maxBuffer: o,
-      lines: i,
-      allMixed: s,
-      stripFinalNewline: a,
-      verboseInfo: c,
-      streamInfo: u
+  const onStreamEnd = waitForStream(stream, fdNumber, streamInfo);
+  if (isInputFileDescriptor(streamInfo, fdNumber)) {
+    await onStreamEnd;
+    return;
+  }
+  const [output] = await Promise.all([
+    getStreamOutput({
+      stream,
+      onStreamEnd,
+      fdNumber,
+      encoding,
+      buffer,
+      maxBuffer,
+      lines,
+      allMixed,
+      stripFinalNewline: stripFinalNewline2,
+      verboseInfo,
+      streamInfo
     }),
-    l
+    onStreamEnd
   ]);
-  return f;
-}, wS = ({ stdout: e, stderr: t }, { all: n }) => n && (e || t) ? Rr([e, t].filter(Boolean)) : void 0, gS = ({ subprocess: e, encoding: t, buffer: n, maxBuffer: r, lines: o, stripFinalNewline: i, verboseInfo: s, streamInfo: a }) => Ua({
-  ...SS(e, n),
+  return output;
+};
+const makeAllStream = ({ stdout, stderr }, { all }) => all && (stdout || stderr) ? mergeStreams([stdout, stderr].filter(Boolean)) : void 0;
+const waitForAllStream = ({ subprocess, encoding, buffer, maxBuffer, lines, stripFinalNewline: stripFinalNewline2, verboseInfo, streamInfo }) => waitForSubprocessStream({
+  ...getAllStream(subprocess, buffer),
   fdNumber: "all",
-  encoding: t,
-  maxBuffer: r[1] + r[2],
-  lines: o[1] || o[2],
-  allMixed: bS(e),
-  stripFinalNewline: i,
-  verboseInfo: s,
-  streamInfo: a
-}), SS = ({ stdout: e, stderr: t, all: n }, [, r, o]) => {
-  const i = r || o;
-  return i ? r ? o ? { stream: n, buffer: i } : { stream: e, buffer: i } : { stream: t, buffer: i } : { stream: n, buffer: i };
-}, bS = ({ all: e, stdout: t, stderr: n }) => e && t && n && t.readableObjectMode !== n.readableObjectMode, ES = (e) => Qn(e, "ipc"), TS = (e, t) => {
-  const n = qi(e);
-  mt({
+  encoding,
+  maxBuffer: maxBuffer[1] + maxBuffer[2],
+  lines: lines[1] || lines[2],
+  allMixed: getAllMixed(subprocess),
+  stripFinalNewline: stripFinalNewline2,
+  verboseInfo,
+  streamInfo
+});
+const getAllStream = ({ stdout, stderr, all }, [, bufferStdout, bufferStderr]) => {
+  const buffer = bufferStdout || bufferStderr;
+  if (!buffer) {
+    return { stream: all, buffer };
+  }
+  if (!bufferStdout) {
+    return { stream: stderr, buffer };
+  }
+  if (!bufferStderr) {
+    return { stream: stdout, buffer };
+  }
+  return { stream: all, buffer };
+};
+const getAllMixed = ({ all, stdout, stderr }) => all && stdout && stderr && stdout.readableObjectMode !== stderr.readableObjectMode;
+const shouldLogIpc = (verboseInfo) => isFullVerbose(verboseInfo, "ipc");
+const logIpcOutput = (message, verboseInfo) => {
+  const verboseMessage = serializeVerboseMessage(message);
+  verboseLog({
     type: "ipc",
-    verboseMessage: n,
+    verboseMessage,
     fdNumber: "ipc",
-    verboseInfo: t
+    verboseInfo
   });
-}, $S = async ({
-  subprocess: e,
-  buffer: t,
-  maxBuffer: n,
-  ipc: r,
-  ipcOutput: o,
-  verboseInfo: i
+};
+const waitForIpcOutput = async ({
+  subprocess,
+  buffer: bufferArray,
+  maxBuffer: maxBufferArray,
+  ipc,
+  ipcOutput,
+  verboseInfo
 }) => {
-  if (!r)
-    return o;
-  const s = ES(i), a = ct(t, "ipc"), c = ct(n, "ipc");
-  for await (const u of $a({
-    anyProcess: e,
-    channel: e.channel,
-    isSubprocess: !1,
-    ipc: r,
-    shouldAwait: !1,
-    reference: !0
-  }))
-    a && (dp(e, o, c), o.push(u)), s && TS(u, i);
-  return o;
-}, vS = async (e, t) => (await Promise.allSettled([e]), t), OS = async ({
-  subprocess: e,
+  if (!ipc) {
+    return ipcOutput;
+  }
+  const isVerbose2 = shouldLogIpc(verboseInfo);
+  const buffer = getFdSpecificValue(bufferArray, "ipc");
+  const maxBuffer = getFdSpecificValue(maxBufferArray, "ipc");
+  for await (const message of loopOnMessages({
+    anyProcess: subprocess,
+    channel: subprocess.channel,
+    isSubprocess: false,
+    ipc,
+    shouldAwait: false,
+    reference: true
+  })) {
+    if (buffer) {
+      checkIpcMaxBuffer(subprocess, ipcOutput, maxBuffer);
+      ipcOutput.push(message);
+    }
+    if (isVerbose2) {
+      logIpcOutput(message, verboseInfo);
+    }
+  }
+  return ipcOutput;
+};
+const getBufferedIpcOutput = async (ipcOutputPromise, ipcOutput) => {
+  await Promise.allSettled([ipcOutputPromise]);
+  return ipcOutput;
+};
+const waitForSubprocessResult = async ({
+  subprocess,
   options: {
-    encoding: t,
-    buffer: n,
-    maxBuffer: r,
-    lines: o,
-    timeoutDuration: i,
-    cancelSignal: s,
-    gracefulCancel: a,
-    forceKillAfterDelay: c,
-    stripFinalNewline: u,
-    ipc: l,
-    ipcInput: f
+    encoding,
+    buffer,
+    maxBuffer,
+    lines,
+    timeoutDuration: timeout,
+    cancelSignal,
+    gracefulCancel,
+    forceKillAfterDelay,
+    stripFinalNewline: stripFinalNewline2,
+    ipc,
+    ipcInput
   },
-  context: d,
-  verboseInfo: h,
-  fileDescriptors: m,
-  originalStreams: y,
-  onInternalError: g,
-  controller: S
+  context,
+  verboseInfo,
+  fileDescriptors,
+  originalStreams,
+  onInternalError,
+  controller
 }) => {
-  const E = Mw(e, d), v = {
-    originalStreams: y,
-    fileDescriptors: m,
-    subprocess: e,
-    exitPromise: E,
-    propagating: !1
-  }, M = yS({
-    subprocess: e,
-    encoding: t,
-    buffer: n,
-    maxBuffer: r,
-    lines: o,
-    stripFinalNewline: u,
-    verboseInfo: h,
-    streamInfo: v
-  }), K = gS({
-    subprocess: e,
-    encoding: t,
-    buffer: n,
-    maxBuffer: r,
-    lines: o,
-    stripFinalNewline: u,
-    verboseInfo: h,
-    streamInfo: v
-  }), Q = [], ce = $S({
-    subprocess: e,
-    buffer: n,
-    maxBuffer: r,
-    ipc: l,
-    ipcOutput: Q,
-    verboseInfo: h
-  }), ne = DS(y, e, v), w = IS(m, v);
+  const exitPromise = waitForExit(subprocess, context);
+  const streamInfo = {
+    originalStreams,
+    fileDescriptors,
+    subprocess,
+    exitPromise,
+    propagating: false
+  };
+  const stdioPromises = waitForStdioStreams({
+    subprocess,
+    encoding,
+    buffer,
+    maxBuffer,
+    lines,
+    stripFinalNewline: stripFinalNewline2,
+    verboseInfo,
+    streamInfo
+  });
+  const allPromise = waitForAllStream({
+    subprocess,
+    encoding,
+    buffer,
+    maxBuffer,
+    lines,
+    stripFinalNewline: stripFinalNewline2,
+    verboseInfo,
+    streamInfo
+  });
+  const ipcOutput = [];
+  const ipcOutputPromise = waitForIpcOutput({
+    subprocess,
+    buffer,
+    maxBuffer,
+    ipc,
+    ipcOutput,
+    verboseInfo
+  });
+  const originalPromises = waitForOriginalStreams(originalStreams, subprocess, streamInfo);
+  const customStreamsEndPromises = waitForCustomStreamsEnd(fileDescriptors, streamInfo);
   try {
     return await Promise.race([
       Promise.all([
         {},
-        _w(E),
-        Promise.all(M),
-        K,
-        ce,
-        Em(e, f),
-        ...ne,
-        ...w
+        waitForSuccessfulExit(exitPromise),
+        Promise.all(stdioPromises),
+        allPromise,
+        ipcOutputPromise,
+        sendIpcInput(subprocess, ipcInput),
+        ...originalPromises,
+        ...customStreamsEndPromises
       ]),
-      g,
-      xS(e, S),
-      ...hm(e, i, d, S),
-      ...Th({
-        subprocess: e,
-        cancelSignal: s,
-        gracefulCancel: a,
-        context: d,
-        controller: S
+      onInternalError,
+      throwOnSubprocessError(subprocess, controller),
+      ...throwOnTimeout(subprocess, timeout, context, controller),
+      ...throwOnCancel({
+        subprocess,
+        cancelSignal,
+        gracefulCancel,
+        context,
+        controller
       }),
-      ...lm({
-        subprocess: e,
-        cancelSignal: s,
-        gracefulCancel: a,
-        forceKillAfterDelay: c,
-        context: d,
-        controller: S
+      ...throwOnGracefulCancel({
+        subprocess,
+        cancelSignal,
+        gracefulCancel,
+        forceKillAfterDelay,
+        context,
+        controller
       })
     ]);
-  } catch ($) {
-    return d.terminationReason ?? (d.terminationReason = "other"), Promise.all([
-      { error: $ },
-      E,
-      Promise.all(M.map((b) => Mo(b))),
-      Mo(K),
-      vS(ce, Q),
-      Promise.allSettled(ne),
-      Promise.allSettled(w)
+  } catch (error) {
+    context.terminationReason ?? (context.terminationReason = "other");
+    return Promise.all([
+      { error },
+      exitPromise,
+      Promise.all(stdioPromises.map((stdioPromise) => getBufferedData(stdioPromise))),
+      getBufferedData(allPromise),
+      getBufferedIpcOutput(ipcOutputPromise, ipcOutput),
+      Promise.allSettled(originalPromises),
+      Promise.allSettled(customStreamsEndPromises)
     ]);
   }
-}, DS = (e, t, n) => e.map((r, o) => r === t.stdio[o] ? void 0 : Ar(r, o, n)), IS = (e, t) => e.flatMap(({ stdioItems: n }, r) => n.filter(({ value: o, stream: i = o }) => Re(i, { checkOpen: !1 }) && !ve(i)).map(({ type: o, value: i, stream: s = i }) => Ar(s, r, t, {
-  isSameDirection: De.has(o),
-  stopOnExit: o === "native"
-}))), xS = async (e, { signal: t }) => {
-  const [n] = await Y(e, "error", { signal: t });
-  throw n;
-}, RS = () => ({
+};
+const waitForOriginalStreams = (originalStreams, subprocess, streamInfo) => originalStreams.map((stream, fdNumber) => stream === subprocess.stdio[fdNumber] ? void 0 : waitForStream(stream, fdNumber, streamInfo));
+const waitForCustomStreamsEnd = (fileDescriptors, streamInfo) => fileDescriptors.flatMap(({ stdioItems }, fdNumber) => stdioItems.filter(({ value, stream = value }) => isStream(stream, { checkOpen: false }) && !isStandardStream(stream)).map(({ type, value, stream = value }) => waitForStream(stream, fdNumber, streamInfo, {
+  isSameDirection: TRANSFORM_TYPES.has(type),
+  stopOnExit: type === "native"
+})));
+const throwOnSubprocessError = async (subprocess, { signal }) => {
+  const [error] = await once(subprocess, "error", { signal });
+  throw error;
+};
+const initializeConcurrentStreams = () => ({
   readableDestroy: /* @__PURE__ */ new WeakMap(),
   writableFinal: /* @__PURE__ */ new WeakMap(),
   writableDestroy: /* @__PURE__ */ new WeakMap()
-}), Fn = (e, t, n) => {
-  const r = e[n];
-  r.has(t) || r.set(t, []);
-  const o = r.get(t), i = yt();
-  return o.push(i), { resolve: i.resolve.bind(i), promises: o };
-}, Bt = async ({ resolve: e, promises: t }, n) => {
-  e();
-  const [r] = await Promise.race([
-    Promise.allSettled([!0, n]),
-    Promise.all([!1, ...t])
+});
+const addConcurrentStream = (concurrentStreams, stream, waitName) => {
+  const weakMap = concurrentStreams[waitName];
+  if (!weakMap.has(stream)) {
+    weakMap.set(stream, []);
+  }
+  const promises = weakMap.get(stream);
+  const promise = createDeferred();
+  promises.push(promise);
+  const resolve = promise.resolve.bind(promise);
+  return { resolve, promises };
+};
+const waitForConcurrentStreams = async ({ resolve, promises }, subprocess) => {
+  resolve();
+  const [isSubprocessExit] = await Promise.race([
+    Promise.allSettled([true, subprocess]),
+    Promise.all([false, ...promises])
   ]);
-  return !r;
-}, _o = async (e) => {
-  if (e !== void 0)
-    try {
-      await Na(e);
-    } catch {
-    }
-}, PS = async (e) => {
-  if (e !== void 0)
-    try {
-      await Ga(e);
-    } catch {
-    }
-}, Na = async (e) => {
-  await we(e, { cleanup: !0, readable: !1, writable: !0 });
-}, Ga = async (e) => {
-  await we(e, { cleanup: !0, readable: !0, writable: !1 });
-}, Wa = async (e, t) => {
-  if (await e, t)
-    throw t;
-}, za = (e, t, n) => {
-  n && !Cn(n) ? e.destroy(n) : t && e.destroy();
-}, AS = ({ subprocess: e, concurrentStreams: t, encoding: n }, { from: r, binary: o = !0, preserveNewlines: i = !0 } = {}) => {
-  const s = o || xe.has(n), { subprocessStdout: a, waitReadableDestroy: c } = Va(e, r, t), { readableEncoding: u, readableObjectMode: l, readableHighWaterMark: f } = Ha(a, s), { read: d, onStdoutDataDone: h } = qa({
-    subprocessStdout: a,
-    subprocess: e,
-    binary: s,
-    encoding: n,
-    preserveNewlines: i
-  }), m = new be({
-    read: d,
-    destroy: qe(Ja.bind(void 0, { subprocessStdout: a, subprocess: e, waitReadableDestroy: c })),
-    highWaterMark: f,
-    objectMode: l,
-    encoding: u
+  return !isSubprocessExit;
+};
+const safeWaitForSubprocessStdin = async (subprocessStdin) => {
+  if (subprocessStdin === void 0) {
+    return;
+  }
+  try {
+    await waitForSubprocessStdin(subprocessStdin);
+  } catch {
+  }
+};
+const safeWaitForSubprocessStdout = async (subprocessStdout) => {
+  if (subprocessStdout === void 0) {
+    return;
+  }
+  try {
+    await waitForSubprocessStdout(subprocessStdout);
+  } catch {
+  }
+};
+const waitForSubprocessStdin = async (subprocessStdin) => {
+  await finished(subprocessStdin, { cleanup: true, readable: false, writable: true });
+};
+const waitForSubprocessStdout = async (subprocessStdout) => {
+  await finished(subprocessStdout, { cleanup: true, readable: true, writable: false });
+};
+const waitForSubprocess = async (subprocess, error) => {
+  await subprocess;
+  if (error) {
+    throw error;
+  }
+};
+const destroyOtherStream = (stream, isOpen, error) => {
+  if (error && !isStreamAbort(error)) {
+    stream.destroy(error);
+  } else if (isOpen) {
+    stream.destroy();
+  }
+};
+const createReadable = ({ subprocess, concurrentStreams, encoding }, { from, binary: binaryOption = true, preserveNewlines = true } = {}) => {
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const { subprocessStdout, waitReadableDestroy } = getSubprocessStdout(subprocess, from, concurrentStreams);
+  const { readableEncoding, readableObjectMode, readableHighWaterMark } = getReadableOptions(subprocessStdout, binary);
+  const { read, onStdoutDataDone } = getReadableMethods({
+    subprocessStdout,
+    subprocess,
+    binary,
+    encoding,
+    preserveNewlines
   });
-  return Ya({
-    subprocessStdout: a,
-    onStdoutDataDone: h,
-    readable: m,
-    subprocess: e
-  }), m;
-}, Va = (e, t, n) => {
-  const r = hr(e, t), o = Fn(n, r, "readableDestroy");
-  return { subprocessStdout: r, waitReadableDestroy: o };
-}, Ha = ({ readableEncoding: e, readableObjectMode: t, readableHighWaterMark: n }, r) => r ? { readableEncoding: e, readableObjectMode: t, readableHighWaterMark: n } : { readableEncoding: e, readableObjectMode: !0, readableHighWaterMark: _a }, qa = ({ subprocessStdout: e, subprocess: t, binary: n, encoding: r, preserveNewlines: o }) => {
-  const i = yt(), s = La({
-    subprocessStdout: e,
-    subprocess: t,
-    binary: n,
-    shouldEncode: !n,
-    encoding: r,
-    preserveNewlines: o
+  const readable2 = new Readable({
+    read,
+    destroy: callbackify(onReadableDestroy.bind(void 0, { subprocessStdout, subprocess, waitReadableDestroy })),
+    highWaterMark: readableHighWaterMark,
+    objectMode: readableObjectMode,
+    encoding: readableEncoding
+  });
+  onStdoutFinished({
+    subprocessStdout,
+    onStdoutDataDone,
+    readable: readable2,
+    subprocess
+  });
+  return readable2;
+};
+const getSubprocessStdout = (subprocess, from, concurrentStreams) => {
+  const subprocessStdout = getFromStream(subprocess, from);
+  const waitReadableDestroy = addConcurrentStream(concurrentStreams, subprocessStdout, "readableDestroy");
+  return { subprocessStdout, waitReadableDestroy };
+};
+const getReadableOptions = ({ readableEncoding, readableObjectMode, readableHighWaterMark }, binary) => binary ? { readableEncoding, readableObjectMode, readableHighWaterMark } : { readableEncoding, readableObjectMode: true, readableHighWaterMark: DEFAULT_OBJECT_HIGH_WATER_MARK };
+const getReadableMethods = ({ subprocessStdout, subprocess, binary, encoding, preserveNewlines }) => {
+  const onStdoutDataDone = createDeferred();
+  const onStdoutData = iterateOnSubprocessStream({
+    subprocessStdout,
+    subprocess,
+    binary,
+    shouldEncode: !binary,
+    encoding,
+    preserveNewlines
   });
   return {
     read() {
-      CS(this, s, i);
+      onRead(this, onStdoutData, onStdoutDataDone);
     },
-    onStdoutDataDone: i
+    onStdoutDataDone
   };
-}, CS = async (e, t, n) => {
+};
+const onRead = async (readable2, onStdoutData, onStdoutDataDone) => {
   try {
-    const { value: r, done: o } = await t.next();
-    o ? n.resolve() : e.push(r);
+    const { value, done } = await onStdoutData.next();
+    if (done) {
+      onStdoutDataDone.resolve();
+    } else {
+      readable2.push(value);
+    }
   } catch {
   }
-}, Ya = async ({ subprocessStdout: e, onStdoutDataDone: t, readable: n, subprocess: r, subprocessStdin: o }) => {
+};
+const onStdoutFinished = async ({ subprocessStdout, onStdoutDataDone, readable: readable2, subprocess, subprocessStdin }) => {
   try {
-    await Ga(e), await r, await _o(o), await t, n.readable && n.push(null);
-  } catch (i) {
-    await _o(o), Ka(n, i);
+    await waitForSubprocessStdout(subprocessStdout);
+    await subprocess;
+    await safeWaitForSubprocessStdin(subprocessStdin);
+    await onStdoutDataDone;
+    if (readable2.readable) {
+      readable2.push(null);
+    }
+  } catch (error) {
+    await safeWaitForSubprocessStdin(subprocessStdin);
+    destroyOtherReadable(readable2, error);
   }
-}, Ja = async ({ subprocessStdout: e, subprocess: t, waitReadableDestroy: n }, r) => {
-  await Bt(n, t) && (Ka(e, r), await Wa(t, r));
-}, Ka = (e, t) => {
-  za(e, e.readable, t);
-}, FS = ({ subprocess: e, concurrentStreams: t }, { to: n } = {}) => {
-  const { subprocessStdin: r, waitWritableFinal: o, waitWritableDestroy: i } = Xa(e, n, t), s = new jn({
-    ...Qa(r, e, o),
-    destroy: qe(ec.bind(void 0, {
-      subprocessStdin: r,
-      subprocess: e,
-      waitWritableFinal: o,
-      waitWritableDestroy: i
+};
+const onReadableDestroy = async ({ subprocessStdout, subprocess, waitReadableDestroy }, error) => {
+  if (await waitForConcurrentStreams(waitReadableDestroy, subprocess)) {
+    destroyOtherReadable(subprocessStdout, error);
+    await waitForSubprocess(subprocess, error);
+  }
+};
+const destroyOtherReadable = (stream, error) => {
+  destroyOtherStream(stream, stream.readable, error);
+};
+const createWritable = ({ subprocess, concurrentStreams }, { to } = {}) => {
+  const { subprocessStdin, waitWritableFinal, waitWritableDestroy } = getSubprocessStdin(subprocess, to, concurrentStreams);
+  const writable2 = new Writable({
+    ...getWritableMethods(subprocessStdin, subprocess, waitWritableFinal),
+    destroy: callbackify(onWritableDestroy.bind(void 0, {
+      subprocessStdin,
+      subprocess,
+      waitWritableFinal,
+      waitWritableDestroy
     })),
-    highWaterMark: r.writableHighWaterMark,
-    objectMode: r.writableObjectMode
+    highWaterMark: subprocessStdin.writableHighWaterMark,
+    objectMode: subprocessStdin.writableObjectMode
   });
-  return Za(r, s), s;
-}, Xa = (e, t, n) => {
-  const r = gs(e, t), o = Fn(n, r, "writableFinal"), i = Fn(n, r, "writableDestroy");
-  return { subprocessStdin: r, waitWritableFinal: o, waitWritableDestroy: i };
-}, Qa = (e, t, n) => ({
-  write: LS.bind(void 0, e),
-  final: qe(MS.bind(void 0, e, t, n))
-}), LS = (e, t, n, r) => {
-  e.write(t, n) ? r() : e.once("drain", r);
-}, MS = async (e, t, n) => {
-  await Bt(n, t) && (e.writable && e.end(), await t);
-}, Za = async (e, t, n) => {
+  onStdinFinished(subprocessStdin, writable2);
+  return writable2;
+};
+const getSubprocessStdin = (subprocess, to, concurrentStreams) => {
+  const subprocessStdin = getToStream(subprocess, to);
+  const waitWritableFinal = addConcurrentStream(concurrentStreams, subprocessStdin, "writableFinal");
+  const waitWritableDestroy = addConcurrentStream(concurrentStreams, subprocessStdin, "writableDestroy");
+  return { subprocessStdin, waitWritableFinal, waitWritableDestroy };
+};
+const getWritableMethods = (subprocessStdin, subprocess, waitWritableFinal) => ({
+  write: onWrite.bind(void 0, subprocessStdin),
+  final: callbackify(onWritableFinal.bind(void 0, subprocessStdin, subprocess, waitWritableFinal))
+});
+const onWrite = (subprocessStdin, chunk, encoding, done) => {
+  if (subprocessStdin.write(chunk, encoding)) {
+    done();
+  } else {
+    subprocessStdin.once("drain", done);
+  }
+};
+const onWritableFinal = async (subprocessStdin, subprocess, waitWritableFinal) => {
+  if (await waitForConcurrentStreams(waitWritableFinal, subprocess)) {
+    if (subprocessStdin.writable) {
+      subprocessStdin.end();
+    }
+    await subprocess;
+  }
+};
+const onStdinFinished = async (subprocessStdin, writable2, subprocessStdout) => {
   try {
-    await Na(e), t.writable && t.end();
-  } catch (r) {
-    await PS(n), tc(t, r);
+    await waitForSubprocessStdin(subprocessStdin);
+    if (writable2.writable) {
+      writable2.end();
+    }
+  } catch (error) {
+    await safeWaitForSubprocessStdout(subprocessStdout);
+    destroyOtherWritable(writable2, error);
   }
-}, ec = async ({ subprocessStdin: e, subprocess: t, waitWritableFinal: n, waitWritableDestroy: r }, o) => {
-  await Bt(n, t), await Bt(r, t) && (tc(e, o), await Wa(t, o));
-}, tc = (e, t) => {
-  za(e, e.writable, t);
-}, kS = ({ subprocess: e, concurrentStreams: t, encoding: n }, { from: r, to: o, binary: i = !0, preserveNewlines: s = !0 } = {}) => {
-  const a = i || xe.has(n), { subprocessStdout: c, waitReadableDestroy: u } = Va(e, r, t), { subprocessStdin: l, waitWritableFinal: f, waitWritableDestroy: d } = Xa(e, o, t), { readableEncoding: h, readableObjectMode: m, readableHighWaterMark: y } = Ha(c, a), { read: g, onStdoutDataDone: S } = qa({
-    subprocessStdout: c,
-    subprocess: e,
-    binary: a,
-    encoding: n,
-    preserveNewlines: s
-  }), E = new _n({
-    read: g,
-    ...Qa(l, e, f),
-    destroy: qe(_S.bind(void 0, {
-      subprocessStdout: c,
-      subprocessStdin: l,
-      subprocess: e,
-      waitReadableDestroy: u,
-      waitWritableFinal: f,
-      waitWritableDestroy: d
-    })),
-    readableHighWaterMark: y,
-    writableHighWaterMark: l.writableHighWaterMark,
-    readableObjectMode: m,
-    writableObjectMode: l.writableObjectMode,
-    encoding: h
+};
+const onWritableDestroy = async ({ subprocessStdin, subprocess, waitWritableFinal, waitWritableDestroy }, error) => {
+  await waitForConcurrentStreams(waitWritableFinal, subprocess);
+  if (await waitForConcurrentStreams(waitWritableDestroy, subprocess)) {
+    destroyOtherWritable(subprocessStdin, error);
+    await waitForSubprocess(subprocess, error);
+  }
+};
+const destroyOtherWritable = (stream, error) => {
+  destroyOtherStream(stream, stream.writable, error);
+};
+const createDuplex = ({ subprocess, concurrentStreams, encoding }, { from, to, binary: binaryOption = true, preserveNewlines = true } = {}) => {
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const { subprocessStdout, waitReadableDestroy } = getSubprocessStdout(subprocess, from, concurrentStreams);
+  const { subprocessStdin, waitWritableFinal, waitWritableDestroy } = getSubprocessStdin(subprocess, to, concurrentStreams);
+  const { readableEncoding, readableObjectMode, readableHighWaterMark } = getReadableOptions(subprocessStdout, binary);
+  const { read, onStdoutDataDone } = getReadableMethods({
+    subprocessStdout,
+    subprocess,
+    binary,
+    encoding,
+    preserveNewlines
   });
-  return Ya({
-    subprocessStdout: c,
-    onStdoutDataDone: S,
-    readable: E,
-    subprocess: e,
-    subprocessStdin: l
-  }), Za(l, E, c), E;
-}, _S = async ({ subprocessStdout: e, subprocessStdin: t, subprocess: n, waitReadableDestroy: r, waitWritableFinal: o, waitWritableDestroy: i }, s) => {
+  const duplex2 = new Duplex({
+    read,
+    ...getWritableMethods(subprocessStdin, subprocess, waitWritableFinal),
+    destroy: callbackify(onDuplexDestroy.bind(void 0, {
+      subprocessStdout,
+      subprocessStdin,
+      subprocess,
+      waitReadableDestroy,
+      waitWritableFinal,
+      waitWritableDestroy
+    })),
+    readableHighWaterMark,
+    writableHighWaterMark: subprocessStdin.writableHighWaterMark,
+    readableObjectMode,
+    writableObjectMode: subprocessStdin.writableObjectMode,
+    encoding: readableEncoding
+  });
+  onStdoutFinished({
+    subprocessStdout,
+    onStdoutDataDone,
+    readable: duplex2,
+    subprocess,
+    subprocessStdin
+  });
+  onStdinFinished(subprocessStdin, duplex2, subprocessStdout);
+  return duplex2;
+};
+const onDuplexDestroy = async ({ subprocessStdout, subprocessStdin, subprocess, waitReadableDestroy, waitWritableFinal, waitWritableDestroy }, error) => {
   await Promise.all([
-    Ja({ subprocessStdout: e, subprocess: n, waitReadableDestroy: r }, s),
-    ec({
-      subprocessStdin: t,
-      subprocess: n,
-      waitWritableFinal: o,
-      waitWritableDestroy: i
-    }, s)
+    onReadableDestroy({ subprocessStdout, subprocess, waitReadableDestroy }, error),
+    onWritableDestroy({
+      subprocessStdin,
+      subprocess,
+      waitWritableFinal,
+      waitWritableDestroy
+    }, error)
   ]);
-}, jo = (e, t, {
-  from: n,
-  binary: r = !1,
-  preserveNewlines: o = !1
+};
+const createIterable = (subprocess, encoding, {
+  from,
+  binary: binaryOption = false,
+  preserveNewlines = false
 } = {}) => {
-  const i = r || xe.has(t), s = hr(e, n), a = La({
-    subprocessStdout: s,
-    subprocess: e,
-    binary: i,
-    shouldEncode: !0,
-    encoding: t,
-    preserveNewlines: o
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const subprocessStdout = getFromStream(subprocess, from);
+  const onStdoutData = iterateOnSubprocessStream({
+    subprocessStdout,
+    subprocess,
+    binary,
+    shouldEncode: true,
+    encoding,
+    preserveNewlines
   });
-  return jS(a, s, e);
-}, jS = async function* (e, t, n) {
+  return iterateOnStdoutData(onStdoutData, subprocessStdout, subprocess);
+};
+const iterateOnStdoutData = async function* (onStdoutData, subprocessStdout, subprocess) {
   try {
-    yield* e;
+    yield* onStdoutData;
   } finally {
-    t.readable && t.destroy(), await n;
+    if (subprocessStdout.readable) {
+      subprocessStdout.destroy();
+    }
+    await subprocess;
   }
-}, BS = (e, { encoding: t }) => {
-  const n = RS();
-  e.readable = AS.bind(void 0, { subprocess: e, concurrentStreams: n, encoding: t }), e.writable = FS.bind(void 0, { subprocess: e, concurrentStreams: n }), e.duplex = kS.bind(void 0, { subprocess: e, concurrentStreams: n, encoding: t }), e.iterable = jo.bind(void 0, e, t), e[Symbol.asyncIterator] = jo.bind(void 0, e, t, {});
-}, US = (e, t) => {
-  for (const [n, r] of GS) {
-    const o = r.value.bind(t);
-    Reflect.defineProperty(e, n, { ...r, value: o });
+};
+const addConvertedStreams = (subprocess, { encoding }) => {
+  const concurrentStreams = initializeConcurrentStreams();
+  subprocess.readable = createReadable.bind(void 0, { subprocess, concurrentStreams, encoding });
+  subprocess.writable = createWritable.bind(void 0, { subprocess, concurrentStreams });
+  subprocess.duplex = createDuplex.bind(void 0, { subprocess, concurrentStreams, encoding });
+  subprocess.iterable = createIterable.bind(void 0, subprocess, encoding);
+  subprocess[Symbol.asyncIterator] = createIterable.bind(void 0, subprocess, encoding, {});
+};
+const mergePromise = (subprocess, promise) => {
+  for (const [property, descriptor] of descriptors) {
+    const value = descriptor.value.bind(promise);
+    Reflect.defineProperty(subprocess, property, { ...descriptor, value });
   }
-}, NS = (async () => {
-})().constructor.prototype, GS = ["then", "catch", "finally"].map((e) => [
-  e,
-  Reflect.getOwnPropertyDescriptor(NS, e)
-]), WS = (e, t, n, r) => {
-  const { file: o, commandArguments: i, command: s, escapedCommand: a, startTime: c, verboseInfo: u, options: l, fileDescriptors: f } = zS(e, t, n), { subprocess: d, promise: h } = HS({
-    file: o,
-    commandArguments: i,
-    options: l,
-    startTime: c,
-    verboseInfo: u,
-    command: s,
-    escapedCommand: a,
-    fileDescriptors: f
+};
+const nativePromisePrototype = (async () => {
+})().constructor.prototype;
+const descriptors = ["then", "catch", "finally"].map((property) => [
+  property,
+  Reflect.getOwnPropertyDescriptor(nativePromisePrototype, property)
+]);
+const execaCoreAsync = (rawFile, rawArguments, rawOptions, createNested) => {
+  const { file: file2, commandArguments, command, escapedCommand, startTime, verboseInfo, options, fileDescriptors } = handleAsyncArguments(rawFile, rawArguments, rawOptions);
+  const { subprocess, promise } = spawnSubprocessAsync({
+    file: file2,
+    commandArguments,
+    options,
+    startTime,
+    verboseInfo,
+    command,
+    escapedCommand,
+    fileDescriptors
   });
-  return d.pipe = An.bind(void 0, {
-    source: d,
-    sourcePromise: h,
+  subprocess.pipe = pipeToSubprocess.bind(void 0, {
+    source: subprocess,
+    sourcePromise: promise,
     boundOptions: {},
-    createNested: r
-  }), US(d, h), Oe.set(d, { options: l, fileDescriptors: f }), d;
-}, zS = (e, t, n) => {
-  const { command: r, escapedCommand: o, startTime: i, verboseInfo: s } = Ki(e, t, n), { file: a, commandArguments: c, options: u } = As(e, t, n), l = VS(u), f = dg(l, s);
+    createNested
+  });
+  mergePromise(subprocess, promise);
+  SUBPROCESS_OPTIONS.set(subprocess, { options, fileDescriptors });
+  return subprocess;
+};
+const handleAsyncArguments = (rawFile, rawArguments, rawOptions) => {
+  const { command, escapedCommand, startTime, verboseInfo } = handleCommand(rawFile, rawArguments, rawOptions);
+  const { file: file2, commandArguments, options: normalizedOptions } = normalizeOptions(rawFile, rawArguments, rawOptions);
+  const options = handleAsyncOptions(normalizedOptions);
+  const fileDescriptors = handleStdioAsync(options, verboseInfo);
   return {
-    file: a,
-    commandArguments: c,
-    command: r,
-    escapedCommand: o,
-    startTime: i,
-    verboseInfo: s,
-    options: l,
-    fileDescriptors: f
+    file: file2,
+    commandArguments,
+    command,
+    escapedCommand,
+    startTime,
+    verboseInfo,
+    options,
+    fileDescriptors
   };
-}, VS = ({ timeout: e, signal: t, ...n }) => {
-  if (t !== void 0)
+};
+const handleAsyncOptions = ({ timeout, signal, ...options }) => {
+  if (signal !== void 0) {
     throw new TypeError('The "signal" option has been renamed to "cancelSignal" instead.');
-  return { ...n, timeoutDuration: e };
-}, HS = ({ file: e, commandArguments: t, options: n, startTime: r, verboseInfo: o, command: i, escapedCommand: s, fileDescriptors: a }) => {
-  let c;
+  }
+  return { ...options, timeoutDuration: timeout };
+};
+const spawnSubprocessAsync = ({ file: file2, commandArguments, options, startTime, verboseInfo, command, escapedCommand, fileDescriptors }) => {
+  let subprocess;
   try {
-    c = yc(...Cs(e, t, n));
-  } catch (m) {
-    return sg({
-      error: m,
-      command: i,
-      escapedCommand: s,
-      fileDescriptors: a,
-      options: n,
-      startTime: r,
-      verboseInfo: o
+    subprocess = spawn$1(...concatenateShell(file2, commandArguments, options));
+  } catch (error) {
+    return handleEarlyError({
+      error,
+      command,
+      escapedCommand,
+      fileDescriptors,
+      options,
+      startTime,
+      verboseInfo
     });
   }
-  const u = new AbortController();
-  Ic(Number.POSITIVE_INFINITY, u.signal);
-  const l = [...c.stdio];
-  Ig(c, a, u), Bg(c, n, u);
-  const f = {}, d = yt();
-  c.kill = wh.bind(void 0, {
-    kill: c.kill.bind(c),
-    options: n,
-    onInternalError: d,
-    context: f,
-    controller: u
-  }), c.all = wS(c, n), BS(c, n), og(c, n);
-  const h = qS({
-    subprocess: c,
-    options: n,
-    startTime: r,
-    verboseInfo: o,
-    fileDescriptors: a,
-    originalStreams: l,
-    command: i,
-    escapedCommand: s,
-    context: f,
-    onInternalError: d,
-    controller: u
+  const controller = new AbortController();
+  setMaxListeners(Number.POSITIVE_INFINITY, controller.signal);
+  const originalStreams = [...subprocess.stdio];
+  pipeOutputAsync(subprocess, fileDescriptors, controller);
+  cleanupOnExit(subprocess, options, controller);
+  const context = {};
+  const onInternalError = createDeferred();
+  subprocess.kill = subprocessKill.bind(void 0, {
+    kill: subprocess.kill.bind(subprocess),
+    options,
+    onInternalError,
+    context,
+    controller
   });
-  return { subprocess: c, promise: h };
-}, qS = async ({ subprocess: e, options: t, startTime: n, verboseInfo: r, fileDescriptors: o, originalStreams: i, command: s, escapedCommand: a, context: c, onInternalError: u, controller: l }) => {
+  subprocess.all = makeAllStream(subprocess, options);
+  addConvertedStreams(subprocess, options);
+  addIpcMethods(subprocess, options);
+  const promise = handlePromise({
+    subprocess,
+    options,
+    startTime,
+    verboseInfo,
+    fileDescriptors,
+    originalStreams,
+    command,
+    escapedCommand,
+    context,
+    onInternalError,
+    controller
+  });
+  return { subprocess, promise };
+};
+const handlePromise = async ({ subprocess, options, startTime, verboseInfo, fileDescriptors, originalStreams, command, escapedCommand, context, onInternalError, controller }) => {
   const [
-    f,
-    [d, h],
-    m,
-    y,
-    g
-  ] = await OS({
-    subprocess: e,
-    options: t,
-    context: c,
-    verboseInfo: r,
-    fileDescriptors: o,
-    originalStreams: i,
-    onInternalError: u,
-    controller: l
+    errorInfo,
+    [exitCode, signal],
+    stdioResults,
+    allResult,
+    ipcOutput
+  ] = await waitForSubprocessResult({
+    subprocess,
+    options,
+    context,
+    verboseInfo,
+    fileDescriptors,
+    originalStreams,
+    onInternalError,
+    controller
   });
-  l.abort(), u.resolve();
-  const S = m.map((M, K) => ze(M, t, K)), E = ze(y, t, "all"), v = YS({
-    errorInfo: f,
-    exitCode: d,
-    signal: h,
-    stdio: S,
-    all: E,
-    ipcOutput: g,
-    context: c,
-    options: t,
-    command: s,
-    escapedCommand: a,
-    startTime: n
+  controller.abort();
+  onInternalError.resolve();
+  const stdio = stdioResults.map((stdioResult, fdNumber) => stripNewline(stdioResult, options, fdNumber));
+  const all = stripNewline(allResult, options, "all");
+  const result = getAsyncResult({
+    errorInfo,
+    exitCode,
+    signal,
+    stdio,
+    all,
+    ipcOutput,
+    context,
+    options,
+    command,
+    escapedCommand,
+    startTime
   });
-  return $r(v, r, t);
-}, YS = ({ errorInfo: e, exitCode: t, signal: n, stdio: r, all: o, ipcOutput: i, context: s, options: a, command: c, escapedCommand: u, startTime: l }) => "error" in e ? Tr({
-  error: e.error,
-  command: c,
-  escapedCommand: u,
-  timedOut: s.terminationReason === "timeout",
-  isCanceled: s.terminationReason === "cancel" || s.terminationReason === "gracefulCancel",
-  isGracefullyCanceled: s.terminationReason === "gracefulCancel",
-  isMaxBuffer: e.error instanceof Xt,
-  isForcefullyTerminated: s.isForcefullyTerminated,
-  exitCode: t,
-  signal: n,
-  stdio: r,
-  all: o,
-  ipcOutput: i,
-  options: a,
-  startTime: l,
-  isSync: !1
-}) : qs({
-  command: c,
-  escapedCommand: u,
-  stdio: r,
-  all: o,
-  ipcOutput: i,
-  options: a,
-  startTime: l
-}), Ln = (e, t) => {
-  const n = Object.fromEntries(
-    Object.entries(t).map(([r, o]) => [
-      r,
-      JS(r, e[r], o)
+  return handleResult(result, verboseInfo, options);
+};
+const getAsyncResult = ({ errorInfo, exitCode, signal, stdio, all, ipcOutput, context, options, command, escapedCommand, startTime }) => "error" in errorInfo ? makeError({
+  error: errorInfo.error,
+  command,
+  escapedCommand,
+  timedOut: context.terminationReason === "timeout",
+  isCanceled: context.terminationReason === "cancel" || context.terminationReason === "gracefulCancel",
+  isGracefullyCanceled: context.terminationReason === "gracefulCancel",
+  isMaxBuffer: errorInfo.error instanceof MaxBufferError,
+  isForcefullyTerminated: context.isForcefullyTerminated,
+  exitCode,
+  signal,
+  stdio,
+  all,
+  ipcOutput,
+  options,
+  startTime,
+  isSync: false
+}) : makeSuccessResult({
+  command,
+  escapedCommand,
+  stdio,
+  all,
+  ipcOutput,
+  options,
+  startTime
+});
+const mergeOptions = (boundOptions, options) => {
+  const newOptions = Object.fromEntries(
+    Object.entries(options).map(([optionName, optionValue]) => [
+      optionName,
+      mergeOption(optionName, boundOptions[optionName], optionValue)
     ])
   );
-  return { ...e, ...n };
-}, JS = (e, t, n) => KS.has(e) && X(t) && X(n) ? { ...t, ...n } : n, KS = /* @__PURE__ */ new Set(["env", ...zi]), Pe = (e, t, n, r) => {
-  const o = (s, a, c) => Pe(s, a, n, c), i = (...s) => XS({
-    mapArguments: e,
-    deepOptions: n,
-    boundOptions: t,
-    setBoundExeca: r,
-    createNested: o
-  }, ...s);
-  return r !== void 0 && r(i, o, t), i;
-}, XS = ({ mapArguments: e, deepOptions: t = {}, boundOptions: n = {}, setBoundExeca: r, createNested: o }, i, ...s) => {
-  if (X(i))
-    return o(e, Ln(n, i), r);
-  const { file: a, commandArguments: c, options: u, isSync: l } = QS({
-    mapArguments: e,
-    firstArgument: i,
-    nextArguments: s,
-    deepOptions: t,
-    boundOptions: n
+  return { ...boundOptions, ...newOptions };
+};
+const mergeOption = (optionName, boundOptionValue, optionValue) => {
+  if (DEEP_OPTIONS.has(optionName) && isPlainObject(boundOptionValue) && isPlainObject(optionValue)) {
+    return { ...boundOptionValue, ...optionValue };
+  }
+  return optionValue;
+};
+const DEEP_OPTIONS = /* @__PURE__ */ new Set(["env", ...FD_SPECIFIC_OPTIONS]);
+const createExeca = (mapArguments, boundOptions, deepOptions, setBoundExeca) => {
+  const createNested = (mapArguments2, boundOptions2, setBoundExeca2) => createExeca(mapArguments2, boundOptions2, deepOptions, setBoundExeca2);
+  const boundExeca = (...execaArguments) => callBoundExeca({
+    mapArguments,
+    deepOptions,
+    boundOptions,
+    setBoundExeca,
+    createNested
+  }, ...execaArguments);
+  if (setBoundExeca !== void 0) {
+    setBoundExeca(boundExeca, createNested, boundOptions);
+  }
+  return boundExeca;
+};
+const callBoundExeca = ({ mapArguments, deepOptions = {}, boundOptions = {}, setBoundExeca, createNested }, firstArgument, ...nextArguments) => {
+  if (isPlainObject(firstArgument)) {
+    return createNested(mapArguments, mergeOptions(boundOptions, firstArgument), setBoundExeca);
+  }
+  const { file: file2, commandArguments, options, isSync } = parseArguments({
+    mapArguments,
+    firstArgument,
+    nextArguments,
+    deepOptions,
+    boundOptions
   });
-  return l ? Nw(a, c, u) : WS(a, c, u, o);
-}, QS = ({ mapArguments: e, firstArgument: t, nextArguments: n, deepOptions: r, boundOptions: o }) => {
-  const i = df(t) ? hf(t, n) : [t, ...n], [s, a, c] = ki(...i), u = Ln(Ln(r, o), c), {
-    file: l = s,
-    commandArguments: f = a,
-    options: d = u,
-    isSync: h = !1
-  } = e({ file: s, commandArguments: a, options: u });
+  return isSync ? execaCoreSync(file2, commandArguments, options) : execaCoreAsync(file2, commandArguments, options, createNested);
+};
+const parseArguments = ({ mapArguments, firstArgument, nextArguments, deepOptions, boundOptions }) => {
+  const callArguments = isTemplateString(firstArgument) ? parseTemplates(firstArgument, nextArguments) : [firstArgument, ...nextArguments];
+  const [initialFile, initialArguments, initialOptions] = normalizeParameters(...callArguments);
+  const mergedOptions = mergeOptions(mergeOptions(deepOptions, boundOptions), initialOptions);
+  const {
+    file: file2 = initialFile,
+    commandArguments = initialArguments,
+    options = mergedOptions,
+    isSync = false
+  } = mapArguments({ file: initialFile, commandArguments: initialArguments, options: mergedOptions });
   return {
-    file: l,
-    commandArguments: f,
-    options: d,
-    isSync: h
+    file: file2,
+    commandArguments,
+    options,
+    isSync
   };
-}, ZS = ({ file: e, commandArguments: t }) => nc(e, t), eb = ({ file: e, commandArguments: t }) => ({ ...nc(e, t), isSync: !0 }), nc = (e, t) => {
-  if (t.length > 0)
-    throw new TypeError(`The command and its arguments must be passed as a single string: ${e} ${t}.`);
-  const [n, ...r] = tb(e);
-  return { file: n, commandArguments: r };
-}, tb = (e) => {
-  if (typeof e != "string")
-    throw new TypeError(`The command must be a string: ${String(e)}.`);
-  const t = e.trim();
-  if (t === "")
+};
+const mapCommandAsync = ({ file: file2, commandArguments }) => parseCommand(file2, commandArguments);
+const mapCommandSync = ({ file: file2, commandArguments }) => ({ ...parseCommand(file2, commandArguments), isSync: true });
+const parseCommand = (command, unusedArguments) => {
+  if (unusedArguments.length > 0) {
+    throw new TypeError(`The command and its arguments must be passed as a single string: ${command} ${unusedArguments}.`);
+  }
+  const [file2, ...commandArguments] = parseCommandString(command);
+  return { file: file2, commandArguments };
+};
+const parseCommandString = (command) => {
+  if (typeof command !== "string") {
+    throw new TypeError(`The command must be a string: ${String(command)}.`);
+  }
+  const trimmedCommand = command.trim();
+  if (trimmedCommand === "") {
     return [];
-  const n = [];
-  for (const r of t.split(nb)) {
-    const o = n.at(-1);
-    o && o.endsWith("\\") ? n[n.length - 1] = `${o.slice(0, -1)} ${r}` : n.push(r);
   }
-  return n;
-}, nb = / +/g, rb = (e, t, n) => {
-  e.sync = t(ib, n), e.s = e.sync;
-}, ob = ({ options: e }) => rc(e), ib = ({ options: e }) => ({ ...rc(e), isSync: !0 }), rc = (e) => ({ options: { ...sb(e), ...e } }), sb = ({ input: e, inputFile: t, stdio: n }) => e === void 0 && t === void 0 && n === void 0 ? { stdin: "inherit" } : {}, ab = { preferLocal: !0 }, cb = Pe(() => ({}));
-Pe(() => ({ isSync: !0 }));
-Pe(ZS);
-Pe(eb);
-Pe(pm);
-Pe(ob, {}, ab, rb);
-ig();
-const lb = T.join(Ue.getPath("home"), ".config", "heroic"), ub = T.join(lb, "tools");
-async function fb() {
-  const e = [], t = ub;
-  if (!await F.pathExists(t))
-    return e;
-  const n = T.join(t, "proton");
-  if (await F.pathExists(n)) {
-    const o = await F.readdir(n);
-    for (const i of o) {
-      if (i.startsWith(".")) continue;
-      const s = T.join(n, i, "proton");
-      await F.pathExists(s) && e.push({
-        name: `Proton - ${i}`,
-        path: s,
-        type: "proton"
-      });
+  const tokens = [];
+  for (const token of trimmedCommand.split(SPACES_REGEXP)) {
+    const previousToken = tokens.at(-1);
+    if (previousToken && previousToken.endsWith("\\")) {
+      tokens[tokens.length - 1] = `${previousToken.slice(0, -1)} ${token}`;
+    } else {
+      tokens.push(token);
     }
   }
-  const r = T.join(t, "wine");
-  if (await F.pathExists(r)) {
-    const o = await F.readdir(r);
-    for (const i of o) {
-      if (i.startsWith(".")) continue;
-      const s = T.join(r, i, "bin", "wine");
-      await F.pathExists(s) && e.push({
-        name: `Wine - ${i}`,
-        path: s,
-        type: "wine"
-      });
+  return tokens;
+};
+const SPACES_REGEXP = / +/g;
+const setScriptSync = (boundExeca, createNested, boundOptions) => {
+  boundExeca.sync = createNested(mapScriptSync, boundOptions);
+  boundExeca.s = boundExeca.sync;
+};
+const mapScriptAsync = ({ options }) => getScriptOptions(options);
+const mapScriptSync = ({ options }) => ({ ...getScriptOptions(options), isSync: true });
+const getScriptOptions = (options) => ({ options: { ...getScriptStdinOption(options), ...options } });
+const getScriptStdinOption = ({ input, inputFile, stdio }) => input === void 0 && inputFile === void 0 && stdio === void 0 ? { stdin: "inherit" } : {};
+const deepScriptOptions = { preferLocal: true };
+const execa = createExeca(() => ({}));
+createExeca(() => ({ isSync: true }));
+createExeca(mapCommandAsync);
+createExeca(mapCommandSync);
+createExeca(mapNode);
+createExeca(mapScriptAsync, {}, deepScriptOptions, setScriptSync);
+getIpcExport();
+const HEROIC_CONFIG_PATH = path$f.join(app.getPath("home"), ".config", "heroic");
+const HEROIC_TOOLS_PATH = path$f.join(HEROIC_CONFIG_PATH, "tools");
+async function getRunners() {
+  const runners = [];
+  const toolsPath = HEROIC_TOOLS_PATH;
+  if (!await fs$1.pathExists(toolsPath)) {
+    return runners;
+  }
+  const protonPath = path$f.join(toolsPath, "proton");
+  if (await fs$1.pathExists(protonPath)) {
+    const dirs = await fs$1.readdir(protonPath);
+    for (const dir of dirs) {
+      if (dir.startsWith(".")) continue;
+      const binPath = path$f.join(protonPath, dir, "proton");
+      if (await fs$1.pathExists(binPath)) {
+        runners.push({
+          name: `Proton - ${dir}`,
+          path: binPath,
+          type: "proton"
+        });
+      }
     }
   }
-  return e;
+  const winePath = path$f.join(toolsPath, "wine");
+  if (await fs$1.pathExists(winePath)) {
+    const dirs = await fs$1.readdir(winePath);
+    for (const dir of dirs) {
+      if (dir.startsWith(".")) continue;
+      const binPath = path$f.join(winePath, dir, "bin", "wine");
+      if (await fs$1.pathExists(binPath)) {
+        runners.push({
+          name: `Wine - ${dir}`,
+          path: binPath,
+          type: "wine"
+        });
+      }
+    }
+  }
+  return runners;
 }
-async function db(e, t) {
-  const n = T.join(Ue.getPath("home"), "Games");
-  await F.ensureDir(n);
-  const r = T.join(n, t);
-  if (await F.pathExists(r))
-    throw new Error(`Destination already exists: ${r}`);
-  return await F.move(e, r), r;
+const SIDELOAD_LIBRARY_PATH = path$f.join(HEROIC_CONFIG_PATH, "sideload_apps", "library.json");
+async function moveGameFolder(sourcePath, gameName) {
+  const gamesDir = path$f.join(app.getPath("home"), "Games");
+  await fs$1.ensureDir(gamesDir);
+  const destPath = path$f.join(gamesDir, gameName);
+  if (await fs$1.pathExists(destPath)) {
+    throw new Error(`Destination already exists: ${destPath}. Please delete it or rename your game folder.`);
+  }
+  try {
+    await fs$1.move(sourcePath, destPath, { overwrite: true });
+  } catch (err) {
+    if (err.code === "EXDEV") {
+      await fs$1.copy(sourcePath, destPath, { overwrite: true });
+      await fs$1.remove(sourcePath);
+    } else {
+      throw err;
+    }
+  }
+  return destPath;
 }
-async function hb(e, t, n) {
-  const r = {
+async function addToHeroic(gameName, gamePath, executablePath, runner, pfxPath) {
+  const entry = {
+    title: gameName,
+    appName: `Sideload-${gameName.replace(/\s+/g, "_")}-${Date.now()}`,
+    install: {
+      version: "1.0.0",
+      executable: executablePath,
+      // Full path usually preferred?
+      workingDir: gamePath,
+      platform: "windows"
+    },
+    runner: runner.path,
+    // Full path to runner binary
+    wineVersion: {
+      bin: runner.path,
+      name: runner.name,
+      type: runner.type
+      // winetricks?
+    },
+    pfx: pfxPath
+  };
+  let library = { games: [] };
+  try {
+    if (await fs$1.pathExists(SIDELOAD_LIBRARY_PATH)) {
+      library = await fs$1.readJson(SIDELOAD_LIBRARY_PATH);
+    }
+  } catch (e) {
+  }
+  library.games.push(entry);
+  await fs$1.writeJson(SIDELOAD_LIBRARY_PATH, library, { spaces: 2 });
+}
+async function runExecutable(executablePath, runner, pfxPath) {
+  var _a2, _b2;
+  const env = {
     ...process.env,
-    STEAM_COMPAT_DATA_PATH: n,
-    WINEPREFIX: T.join(n, "pfx")
+    STEAM_COMPAT_DATA_PATH: pfxPath,
+    WINEPREFIX: path$f.join(pfxPath, "pfx")
     // Proton uses this structure usually inside compatdata
   };
-  t.type === "wine" && (r.WINEPREFIX = n, delete r.STEAM_COMPAT_DATA_PATH);
-  const o = t.path;
-  let i = [];
-  return t.type === "proton" ? i = ["run", e] : i = [e], console.log(`Executing with ${t.name} (${t.type}): ${o} ${i.join(" ")}`), await F.ensureDir(n), cb(o, i, { env: r });
+  if (runner.type === "wine") {
+    env.WINEPREFIX = pfxPath;
+    delete env.STEAM_COMPAT_DATA_PATH;
+  }
+  if (runner.type === "proton") {
+    env.SteamGameId = "nonsteam";
+  }
+  const cmd = runner.path;
+  let args = [];
+  if (runner.type === "proton") {
+    args = ["run", executablePath];
+  } else {
+    args = [executablePath];
+  }
+  console.log(`Executing with ${runner.name} (${runner.type}): ${cmd} ${args.join(" ")}`);
+  await fs$1.ensureDir(pfxPath);
+  const subprocess = execa(cmd, args, { env });
+  (_a2 = subprocess.stdout) == null ? void 0 : _a2.pipe(process.stdout);
+  (_b2 = subprocess.stderr) == null ? void 0 : _b2.pipe(process.stderr);
+  return subprocess;
 }
-function mb() {
-  gt.handle("get-runners", async () => {
+function setupHandlers() {
+  ipcMain.handle("get-runners", async () => {
     try {
-      return await fb();
-    } catch (e) {
-      return console.error("Failed to get runners:", e), [];
+      return await getRunners();
+    } catch (error) {
+      console.error("Failed to get runners:", error);
+      return [];
     }
-  }), gt.handle("select-directory", async () => {
-    const e = await lc.showOpenDialog({
+  });
+  ipcMain.handle("select-directory", async () => {
+    const result = await dialog.showOpenDialog({
       properties: ["openDirectory"]
     });
-    if (e.canceled || e.filePaths.length === 0)
+    if (result.canceled || result.filePaths.length === 0) {
       return null;
-    const t = e.filePaths[0], n = T.basename(t), r = await pb(t), o = await wb(t);
+    }
+    const dirPath = result.filePaths[0];
+    const name = path$f.basename(dirPath).replace(/[^\w\s.-]/g, "");
+    const executables = await findExecutables(dirPath);
+    const readme = await findReadme(dirPath);
     return {
-      path: t,
-      name: n,
-      executables: r,
-      readme: o
+      path: dirPath,
+      name,
+      executables,
+      readme
     };
-  }), gt.handle("install-game", async (e, { sourcePath: t, gameName: n, executable: r, runner: o }) => {
+  });
+  ipcMain.handle("install-game", async (event, { sourcePath, gameName, executable, runner, addToHeroicLib }) => {
     try {
-      const i = e.sender;
-      i.send("install-progress", { stage: "moving", message: "Moving game files..." });
-      const s = await db(t, n), a = T.join(s, r);
-      i.send("install-progress", { stage: "configuring", message: "Configuring executables..." }), await F.pathExists(a) && await F.chmod(a, "755");
-      const c = T.join(s, "pfx");
-      await F.ensureDir(c), i.send("install-progress", { stage: "redist", message: "Searching for redistributables..." });
-      const u = T.join(s, "_CommonRedist"), l = T.join(s, "Redist"), f = [u, l], d = [];
-      for (const h of f)
-        if (await F.pathExists(h)) {
-          const m = await yb(h);
-          d.push(...m);
-        }
-      for (const h of d) {
-        i.send("install-progress", { stage: "redist", message: `Installing ${T.basename(h)}...` });
-        try {
-          await hb(h, o, c);
-        } catch (m) {
-          console.error(`Failed to run redist ${h}:`, m);
+      const sender = event.sender;
+      sender.send("install-progress", { stage: "moving", message: "Moving game files..." });
+      const destPath = await moveGameFolder(sourcePath, gameName);
+      const destExePath = path$f.join(destPath, executable);
+      sender.send("install-progress", { stage: "configuring", message: "Configuring executables..." });
+      if (await fs$1.pathExists(destExePath)) {
+        await fs$1.chmod(destExePath, "755");
+      }
+      const pfxPath = path$f.join(destPath, "pfx");
+      await fs$1.ensureDir(pfxPath);
+      sender.send("install-progress", { stage: "redist", message: "Searching for redistributables..." });
+      const commonRedistPath = path$f.join(destPath, "_CommonRedist");
+      const redistPath = path$f.join(destPath, "Redist");
+      const redistDirs = [commonRedistPath, redistPath];
+      const redistExes = [];
+      for (const rDir of redistDirs) {
+        if (await fs$1.pathExists(rDir)) {
+          const files = await FindRedistExecutables(rDir);
+          redistExes.push(...files);
         }
       }
-      return i.send("install-progress", { stage: "done", message: "Installation complete!" }), { success: !0, path: s };
-    } catch (i) {
-      throw console.error("Installation failed:", i), i;
+      for (const rExe of redistExes) {
+        const redistName = path$f.basename(rExe);
+        sender.send("install-progress", { stage: "redist", message: `Installing ${redistName} (Check window)...` });
+        sender.send("install-log", `> Running ${redistName}
+`);
+        try {
+          const subprocess = await runExecutable(rExe, runner, pfxPath);
+          if (subprocess.stdout) sender.send("install-log", subprocess.stdout + "\n");
+          if (subprocess.stderr) sender.send("install-log", subprocess.stderr + "\n");
+        } catch (e) {
+          console.error(`Failed to run redist ${rExe}:`, e);
+          sender.send("install-log", `[ERROR] Failed to run ${redistName}: ${e.message}
+`);
+        }
+      }
+      if (addToHeroicLib) {
+        sender.send("install-progress", { stage: "heroic", message: "Adding to Heroic Games Launcher..." });
+        try {
+          await addToHeroic(gameName, destPath, destExePath, runner, pfxPath);
+          sender.send("install-log", `> Added to Heroic Library successfully.
+`);
+        } catch (e) {
+          console.error("Failed to add to heroic:", e);
+          sender.send("install-log", `[ERROR] Failed to add to Heroic: ${e.message}
+`);
+        }
+      }
+      sender.send("install-progress", { stage: "done", message: "Installation complete!" });
+      return { success: true, path: destPath };
+    } catch (error) {
+      console.error("Installation failed:", error);
+      throw error;
     }
-  }), gt.handle("open-heroic", () => {
-    vc("heroic", (e) => {
-      e && console.error("Failed to launch heroic directly, trying generic open? No, heroic is command usually.");
+  });
+  ipcMain.handle("open-heroic", () => {
+    exec("helper-heroic-launch", () => {
+    });
+    import("child_process").then((cp2) => {
+      cp2.exec("heroic", (err) => {
+        if (err) console.error("Failed to launch heroic:", err);
+      });
     });
   });
 }
-async function pb(e) {
-  const t = [];
-  async function n(r) {
-    const o = await F.readdir(r, { withFileTypes: !0 });
-    for (const i of o) {
-      const s = T.join(r, i.name);
-      if (i.isDirectory()) {
-        if (i.name === "pfx" || i.name === "_CommonRedist" || i.name === "Redist") continue;
-        await n(s);
-      } else i.isFile() && i.name.toLowerCase().endsWith(".exe") && t.push(T.relative(e, s));
+async function findExecutables(dir) {
+  const exes = [];
+  async function search(currentDir) {
+    const entries = await fs$1.readdir(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path$f.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "pfx" || entry.name === "_CommonRedist" || entry.name === "Redist") continue;
+        await search(fullPath);
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".exe")) {
+        exes.push(path$f.relative(dir, fullPath));
+      }
     }
   }
-  return await n(e), t;
+  await search(dir);
+  return exes;
 }
-async function yb(e) {
-  const t = [];
-  async function n(r) {
-    const o = await F.readdir(r, { withFileTypes: !0 });
-    for (const i of o) {
-      const s = T.join(r, i.name);
-      i.isDirectory() ? await n(s) : i.isFile() && i.name.toLowerCase().endsWith(".exe") && t.push(s);
+async function FindRedistExecutables(dir) {
+  const exes = [];
+  async function search(currentDir) {
+    const entries = await fs$1.readdir(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path$f.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        await search(fullPath);
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".exe")) {
+        exes.push(fullPath);
+      }
     }
   }
-  return await n(e), t;
+  await search(dir);
+  return exes;
 }
-async function wb(e) {
-  const t = ["Read_Me_Instructions.txt", "README.txt", "readme.txt"];
-  for (const n of t) {
-    const r = T.join(e, n);
-    if (await F.pathExists(r))
-      return F.readFile(r, "utf-8");
+async function findReadme(dir) {
+  const candidates = ["Read_Me_Instructions.txt", "README.txt", "readme.txt"];
+  for (const c2 of candidates) {
+    const p = path$f.join(dir, c2);
+    if (await fs$1.pathExists(p)) {
+      return fs$1.readFile(p, "utf-8");
+    }
   }
   return null;
 }
-const oc = A.dirname(kn(import.meta.url));
-process.env.APP_ROOT = A.join(oc, "..");
-const Mn = process.env.VITE_DEV_SERVER_URL, Wb = A.join(process.env.APP_ROOT, "dist-electron"), ic = A.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = Mn ? A.join(process.env.APP_ROOT, "public") : ic;
-let fe;
-function sc() {
-  fe = new Go({
-    icon: A.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+const __dirname$1 = path$g.dirname(fileURLToPath(import.meta.url));
+process.env.APP_ROOT = path$g.join(__dirname$1, "..");
+const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
+const MAIN_DIST = path$g.join(process.env.APP_ROOT, "dist-electron");
+const RENDERER_DIST = path$g.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path$g.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
+let win;
+function createWindow() {
+  win = new BrowserWindow({
+    icon: path$g.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
-      preload: A.join(oc, "preload.mjs")
+      preload: path$g.join(__dirname$1, "preload.mjs")
     }
-  }), fe.webContents.on("did-finish-load", () => {
-    fe == null || fe.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  }), Mn ? fe.loadURL(Mn) : fe.loadFile(A.join(ic, "index.html"));
+  });
+  win.webContents.on("did-finish-load", () => {
+    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  });
+  if (VITE_DEV_SERVER_URL) {
+    win.loadURL(VITE_DEV_SERVER_URL);
+  } else {
+    win.loadFile(path$g.join(RENDERER_DIST, "index.html"));
+  }
 }
-Ue.on("window-all-closed", () => {
-  process.platform !== "darwin" && (Ue.quit(), fe = null);
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+    win = null;
+  }
 });
-Ue.on("activate", () => {
-  Go.getAllWindows().length === 0 && sc();
+app.on("activate", () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
 });
-Ue.whenReady().then(() => {
-  mb(), sc();
+app.whenReady().then(() => {
+  setupHandlers();
+  createWindow();
 });
 export {
-  Wb as MAIN_DIST,
-  ic as RENDERER_DIST,
-  Mn as VITE_DEV_SERVER_URL
+  MAIN_DIST,
+  RENDERER_DIST,
+  VITE_DEV_SERVER_URL
 };

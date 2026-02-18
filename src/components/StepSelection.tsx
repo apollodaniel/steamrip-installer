@@ -2,15 +2,15 @@ import { GameInfo } from "../types";
 import { FolderOpen } from "lucide-react";
 
 interface Props {
-  onGameSelected: (info: GameInfo) => void;
+  onNext: (info: GameInfo) => void;
 }
 
-export default function StepSelection({ onGameSelected }: Props) {
+export const StepSelection = ({ onNext }: Props) => {
   const handleSelect = async () => {
     try {
       const result = await window.api.selectDirectory();
       if (result) {
-        onGameSelected(result);
+        onNext(result);
       }
     } catch (e) {
       console.error(e);
@@ -41,4 +41,4 @@ export default function StepSelection({ onGameSelected }: Props) {
       </div>
     </div>
   );
-}
+};
