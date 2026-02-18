@@ -13,6 +13,7 @@ var _a, _b, _c, _d, _t, _n, _r, _e, _c_instances, s_fn, i_fn, _streams, _ended, 
 import { app, ipcMain, dialog, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path$g from "node:path";
+import require$$0$3, { exec } from "child_process";
 import path$f from "path";
 import require$$0$2 from "fs";
 import require$$0 from "constants";
@@ -24,7 +25,6 @@ import { StringDecoder } from "node:string_decoder";
 import { debuglog, stripVTControlCharacters, inspect, promisify, callbackify, aborted } from "node:util";
 import process$2, { platform as platform$1, hrtime, execPath, execArgv } from "node:process";
 import tty from "node:tty";
-import require$$0$3, { exec } from "child_process";
 import { setTimeout as setTimeout$1, scheduler, setImmediate } from "node:timers/promises";
 import { constants as constants$1 } from "node:os";
 import { once, addAbortListener, EventEmitter, on, setMaxListeners } from "node:events";
@@ -8779,19 +8779,24 @@ async function moveGameFolder(sourcePath, gameName) {
   await fs$1.ensureDir(gamesDir);
   const destPath = path$f.join(gamesDir, gameName);
   if (await fs$1.pathExists(destPath)) {
-    throw new Error(`Destination already exists: ${destPath}. Please delete it or rename your game folder.`);
+    const normalizedSource = path$f.resolve(sourcePath);
+    const normalizedDest = path$f.resolve(destPath);
+    if (normalizedSource === normalizedDest) {
+      return { status: "already-in-target", path: destPath };
+    }
+    return { status: "destination-exists", path: destPath };
   }
   try {
     await fs$1.move(sourcePath, destPath, { overwrite: true });
-  } catch (err) {
-    if (err.code === "EXDEV") {
+  } catch (error) {
+    if (isErrnoException(error) && error.code === "EXDEV") {
       await fs$1.copy(sourcePath, destPath, { overwrite: true });
       await fs$1.remove(sourcePath);
     } else {
-      throw err;
+      throw error;
     }
   }
-  return destPath;
+  return { status: "moved", path: destPath };
 }
 async function addToHeroic(gameName, gamePath, executablePath, runner, pfxPath) {
   const entry = {
@@ -8819,13 +8824,14 @@ async function addToHeroic(gameName, gamePath, executablePath, runner, pfxPath) 
     if (await fs$1.pathExists(SIDELOAD_LIBRARY_PATH)) {
       library = await fs$1.readJson(SIDELOAD_LIBRARY_PATH);
     }
-  } catch (e) {
+  } catch {
   }
   library.games.push(entry);
+  await fs$1.ensureDir(path$f.dirname(SIDELOAD_LIBRARY_PATH));
   await fs$1.writeJson(SIDELOAD_LIBRARY_PATH, library, { spaces: 2 });
 }
-async function runExecutable(executablePath, runner, pfxPath) {
-  var _a2, _b2;
+async function runExecutable(executablePath, runner, pfxPath, onOutput) {
+  var _a2;
   const env = {
     ...process.env,
     STEAM_COMPAT_DATA_PATH: pfxPath,
@@ -8848,10 +8854,17 @@ async function runExecutable(executablePath, runner, pfxPath) {
   }
   console.log(`Executing with ${runner.name} (${runner.type}): ${cmd} ${args.join(" ")}`);
   await fs$1.ensureDir(pfxPath);
-  const subprocess = execa(cmd, args, { env });
-  (_a2 = subprocess.stdout) == null ? void 0 : _a2.pipe(process.stdout);
-  (_b2 = subprocess.stderr) == null ? void 0 : _b2.pipe(process.stderr);
-  return subprocess;
+  const subprocess = execa(cmd, args, { env, all: true });
+  (_a2 = subprocess.all) == null ? void 0 : _a2.on("data", (chunk) => {
+    const text = chunk.toString();
+    if (text.length > 0) {
+      onOutput == null ? void 0 : onOutput(text);
+    }
+  });
+  await subprocess;
+}
+function isErrnoException(error) {
+  return typeof error === "object" && error !== null && "code" in error;
 }
 function setupHandlers() {
   ipcMain.handle("get-runners", async () => {
@@ -8880,70 +8893,118 @@ function setupHandlers() {
       readme
     };
   });
-  ipcMain.handle("install-game", async (event, { sourcePath, gameName, executable, runner, addToHeroicLib }) => {
-    try {
+  ipcMain.handle(
+    "install-game",
+    async (event, { sourcePath, gameName, executable, runner, addToHeroicLib }) => {
       const sender = event.sender;
-      sender.send("install-progress", { stage: "moving", message: "Moving game files..." });
-      const destPath = await moveGameFolder(sourcePath, gameName);
-      const destExePath = path$f.join(destPath, executable);
-      sender.send("install-progress", { stage: "configuring", message: "Configuring executables..." });
-      if (await fs$1.pathExists(destExePath)) {
+      try {
+        sender.send("install-progress", { stage: "moving", message: "Preparing game files..." });
+        const moveResult = await moveGameFolder(sourcePath, gameName);
+        if (moveResult.status === "destination-exists") {
+          return {
+            success: false,
+            error: {
+              code: "DESTINATION_EXISTS",
+              message: `Destination already exists: ${moveResult.path}`,
+              destinationPath: moveResult.path
+            }
+          };
+        }
+        const reusedExistingFolder = moveResult.status === "already-in-target";
+        const destPath = moveResult.path;
+        sender.send(
+          "install-log",
+          reusedExistingFolder ? `> Using existing folder: ${destPath}
+` : `> Moved game files to: ${destPath}
+`
+        );
+        sender.send("install-progress", { stage: "configuring", message: "Configuring executables..." });
+        const destExePath = path$f.join(destPath, executable);
+        if (!await fs$1.pathExists(destExePath)) {
+          return {
+            success: false,
+            error: {
+              code: "EXECUTABLE_NOT_FOUND",
+              message: `Selected executable not found after move: ${executable}`,
+              destinationPath: destPath
+            }
+          };
+        }
         await fs$1.chmod(destExePath, "755");
-      }
-      const pfxPath = path$f.join(destPath, "pfx");
-      await fs$1.ensureDir(pfxPath);
-      sender.send("install-progress", { stage: "redist", message: "Searching for redistributables..." });
-      const commonRedistPath = path$f.join(destPath, "_CommonRedist");
-      const redistPath = path$f.join(destPath, "Redist");
-      const redistDirs = [commonRedistPath, redistPath];
-      const redistExes = [];
-      for (const rDir of redistDirs) {
-        if (await fs$1.pathExists(rDir)) {
-          const files = await FindRedistExecutables(rDir);
-          redistExes.push(...files);
+        const pfxPath = path$f.join(destPath, "pfx");
+        await fs$1.ensureDir(pfxPath);
+        sender.send("install-progress", { stage: "redist", message: "Searching for redistributables..." });
+        const redistDirs = [
+          path$f.join(destPath, "_CommonRedist"),
+          path$f.join(destPath, "Redist")
+        ];
+        const redistExes = [];
+        for (const redistDir of redistDirs) {
+          if (await fs$1.pathExists(redistDir)) {
+            const files = await findRedistExecutables(redistDir);
+            redistExes.push(...files);
+          }
         }
-      }
-      for (const rExe of redistExes) {
-        const redistName = path$f.basename(rExe);
-        sender.send("install-progress", { stage: "redist", message: `Installing ${redistName} (Check window)...` });
-        sender.send("install-log", `> Running ${redistName}
-`);
-        try {
-          const subprocess = await runExecutable(rExe, runner, pfxPath);
-          if (subprocess.stdout) sender.send("install-log", subprocess.stdout + "\n");
-          if (subprocess.stderr) sender.send("install-log", subprocess.stderr + "\n");
-        } catch (e) {
-          console.error(`Failed to run redist ${rExe}:`, e);
-          sender.send("install-log", `[ERROR] Failed to run ${redistName}: ${e.message}
-`);
+        if (redistExes.length === 0) {
+          sender.send("install-log", "> No redistributables found.\n");
         }
-      }
-      if (addToHeroicLib) {
-        sender.send("install-progress", { stage: "heroic", message: "Adding to Heroic Games Launcher..." });
-        try {
-          await addToHeroic(gameName, destPath, destExePath, runner, pfxPath);
-          sender.send("install-log", `> Added to Heroic Library successfully.
+        for (const redistExe of redistExes) {
+          const redistName = path$f.basename(redistExe);
+          sender.send("install-progress", {
+            stage: "redist",
+            message: `Running ${redistName} (check spawned installer windows)...`
+          });
+          sender.send("install-log", `> Running ${redistName}
 `);
-        } catch (e) {
-          console.error("Failed to add to heroic:", e);
-          sender.send("install-log", `[ERROR] Failed to add to Heroic: ${e.message}
+          try {
+            await runExecutable(redistExe, runner, pfxPath, (chunk) => {
+              sender.send("install-log", chunk);
+            });
+            sender.send("install-log", `> Finished ${redistName}
 `);
+          } catch (error) {
+            const message = toErrorMessage(error);
+            console.error(`Failed to run redist ${redistExe}:`, error);
+            sender.send("install-log", `[ERROR] ${redistName} failed: ${message}
+`);
+          }
         }
+        if (addToHeroicLib) {
+          sender.send("install-progress", { stage: "heroic", message: "Adding to Heroic Games Launcher..." });
+          try {
+            await addToHeroic(gameName, destPath, destExePath, runner, pfxPath);
+            sender.send("install-log", "> Added to Heroic library.\n");
+          } catch (error) {
+            const message = toErrorMessage(error);
+            console.error("Failed to add to heroic:", error);
+            sender.send("install-log", `[ERROR] Failed to add to Heroic: ${message}
+`);
+          }
+        }
+        sender.send("install-progress", { stage: "done", message: "Installation complete!" });
+        return {
+          success: true,
+          path: destPath,
+          reusedExistingFolder
+        };
+      } catch (error) {
+        const message = toErrorMessage(error);
+        console.error("Installation failed:", error);
+        return {
+          success: false,
+          error: {
+            code: "INSTALL_FAILED",
+            message
+          }
+        };
       }
-      sender.send("install-progress", { stage: "done", message: "Installation complete!" });
-      return { success: true, path: destPath };
-    } catch (error) {
-      console.error("Installation failed:", error);
-      throw error;
     }
-  });
-  ipcMain.handle("open-heroic", () => {
-    exec("helper-heroic-launch", () => {
-    });
-    import("child_process").then((cp2) => {
-      cp2.exec("heroic", (err) => {
-        if (err) console.error("Failed to launch heroic:", err);
-      });
+  );
+  ipcMain.handle("open-heroic", async () => {
+    exec("heroic", (error) => {
+      if (error) {
+        console.error("Failed to launch Heroic:", error);
+      }
     });
   });
 }
@@ -8954,7 +9015,9 @@ async function findExecutables(dir) {
     for (const entry of entries) {
       const fullPath = path$f.join(currentDir, entry.name);
       if (entry.isDirectory()) {
-        if (entry.name === "pfx" || entry.name === "_CommonRedist" || entry.name === "Redist") continue;
+        if (entry.name === "pfx" || entry.name === "_CommonRedist" || entry.name === "Redist") {
+          continue;
+        }
         await search(fullPath);
       } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".exe")) {
         exes.push(path$f.relative(dir, fullPath));
@@ -8964,7 +9027,7 @@ async function findExecutables(dir) {
   await search(dir);
   return exes;
 }
-async function FindRedistExecutables(dir) {
+async function findRedistExecutables(dir) {
   const exes = [];
   async function search(currentDir) {
     const entries = await fs$1.readdir(currentDir, { withFileTypes: true });
@@ -8982,13 +9045,19 @@ async function FindRedistExecutables(dir) {
 }
 async function findReadme(dir) {
   const candidates = ["Read_Me_Instructions.txt", "README.txt", "readme.txt"];
-  for (const c2 of candidates) {
-    const p = path$f.join(dir, c2);
-    if (await fs$1.pathExists(p)) {
-      return fs$1.readFile(p, "utf-8");
+  for (const candidate of candidates) {
+    const filePath = path$f.join(dir, candidate);
+    if (await fs$1.pathExists(filePath)) {
+      return fs$1.readFile(filePath, "utf-8");
     }
   }
   return null;
+}
+function toErrorMessage(error) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return String(error);
 }
 const __dirname$1 = path$g.dirname(fileURLToPath(import.meta.url));
 process.env.APP_ROOT = path$g.join(__dirname$1, "..");

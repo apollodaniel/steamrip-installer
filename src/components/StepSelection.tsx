@@ -1,5 +1,7 @@
 import { GameInfo } from "../types";
 import { FolderOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Props {
   onNext: (info: GameInfo) => void;
@@ -14,30 +16,34 @@ export const StepSelection = ({ onNext }: Props) => {
       }
     } catch (e) {
       console.error(e);
-      alert("Failed to select directory");
+      // alert("Failed to select directory"); // Better to show error in UI, but alert ok for now
     }
   };
 
   return (
-    <div className="text-center space-y-6">
-      <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-500">
-        Select Game Folder
-      </h2>
-      <p className="text-gray-400">
-        Choose the folder containing the downloaded SteamRIP game.
-      </p>
+    <div className="flex flex-col items-center justify-center h-full space-y-8 animate-in fade-in zoom-in duration-500">
+      <CardHeader className="text-center space-y-2 p-0">
+        <CardTitle className="text-3xl font-bold tracking-tight">
+          Select Game Folder
+        </CardTitle>
+        <CardDescription className="text-lg">
+          Choose the folder containing your downloaded SteamRIP game
+        </CardDescription>
+      </CardHeader>
 
-      <button
+      <Button
         onClick={handleSelect}
-        className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-lg shadow-lg flex items-center justify-center gap-3 transition-all transform hover:scale-105 mx-auto"
+        size="lg"
+        className="h-24 px-12 text-xl gap-4 bg-blue-600 hover:bg-blue-500 transition-all hover:scale-105 shadow-xl shadow-blue-900/20"
       >
-        <FolderOpen className="w-6 h-6" />
-        <span className="font-medium text-lg">Browse Folder</span>
-      </button>
+        <FolderOpen className="w-8 h-8" />
+        Browse Folder
+      </Button>
 
-      <div className="mt-8 p-4 bg-gray-900/50 rounded border border-gray-700 max-w-sm mx-auto text-sm text-gray-500">
-        Supported formats: Folders containing an executable and typically a
-        _CommonRedist folder.
+      <div className="max-w-md text-sm text-zinc-500 text-center bg-zinc-900/50 p-4 rounded-lg border border-zinc-800">
+        <span className="font-semibold text-zinc-400">Tip:</span> Ensure the
+        folder contains the game executable and standard subfolders like{" "}
+        <code>_CommonRedist</code>.
       </div>
     </div>
   );

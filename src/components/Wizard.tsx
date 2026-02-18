@@ -4,6 +4,7 @@ import { StepConfig } from "./StepConfig";
 import { StepInstall } from "./StepInstall";
 import { StepFinish } from "./StepFinish";
 import { GameInfo, Runner } from "../types";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const Wizard = () => {
   const [step, setStep] = useState(1);
@@ -37,32 +38,34 @@ export const Wizard = () => {
   }, []);
 
   return (
-    <div className="w-full h-screen bg-gray-900 text-white flex flex-col p-8">
-      <div className="max-w-4xl mx-auto w-full flex-1">
-        <h1 className="text-3xl font-bold mb-8 text-center text-blue-400">
+    <div className="w-full h-screen bg-background text-foreground flex flex-col p-8">
+      <div className="w-full flex-1 flex flex-col">
+        <h1 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
           SteamRIP Installer
         </h1>
 
-        <div className="glass-panel bg-gray-800/50 rounded-lg p-8 shadow-xl border border-white/10 h-[600px] overflow-hidden relative backdrop-blur-md">
-          {step === 1 && <StepSelection onNext={handleSelectionNext} />}
+        <Card className="w-full flex-1 border-zinc-800 bg-zinc-900/50 backdrop-blur-xl relative overflow-hidden">
+          <CardContent className="h-full p-8 flex flex-col">
+            {step === 1 && <StepSelection onNext={handleSelectionNext} />}
 
-          {step === 2 && gameInfo && (
-            <StepConfig gameInfo={gameInfo} onNext={handleConfigNext} />
-          )}
+            {step === 2 && gameInfo && (
+              <StepConfig gameInfo={gameInfo} onNext={handleConfigNext} />
+            )}
 
-          {step === 3 && gameInfo && selectedRunner && (
-            <StepInstall
-              gamePath={gameInfo.path}
-              gameName={gameInfo.name}
-              executable={selectedExecutable}
-              runner={selectedRunner}
-              addToHeroicProp={addToHeroic}
-              onNext={handleInstallNext}
-            />
-          )}
+            {step === 3 && gameInfo && selectedRunner && (
+              <StepInstall
+                gamePath={gameInfo.path}
+                gameName={gameInfo.name}
+                executable={selectedExecutable}
+                runner={selectedRunner}
+                addToHeroicProp={addToHeroic}
+                onNext={handleInstallNext}
+              />
+            )}
 
-          {step === 4 && <StepFinish Path={installedPath} />}
-        </div>
+            {step === 4 && <StepFinish Path={installedPath} />}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

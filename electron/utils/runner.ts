@@ -63,32 +63,37 @@ export async function getRunners(): Promise<Runner[]> {
 
 const SIDELOAD_LIBRARY_PATH = path.join(HEROIC_CONFIG_PATH, 'sideload_apps', 'library.json');
 
-export async function moveGameFolder(sourcePath: string, gameName: string): Promise<string> {
+export type MoveGameFolderResult =
+  | { status: 'moved'; path: string }
+  | { status: 'already-in-target'; path: string }
+  | { status: 'destination-exists'; path: string };
+
+export async function moveGameFolder(sourcePath: string, gameName: string): Promise<MoveGameFolderResult> {
   const gamesDir = path.join(app.getPath('home'), 'Games');
   await fs.ensureDir(gamesDir);
   const destPath = path.join(gamesDir, gameName);
-  
+
   if (await fs.pathExists(destPath)) {
-    // If it exists, maybe we should ask user? Or overwrite? 
-    // For now, let's just append a timestamp or throw descriptive error.
-    // The user moved it "somehow", implying they might have retried.
-    // Let's try to identify if it's the SAME installation.
-    throw new Error(`Destination already exists: ${destPath}. Please delete it or rename your game folder.`);
+    const normalizedSource = path.resolve(sourcePath);
+    const normalizedDest = path.resolve(destPath);
+    if (normalizedSource === normalizedDest) {
+      return { status: 'already-in-target', path: destPath };
+    }
+    return { status: 'destination-exists', path: destPath };
   }
 
   try {
-      await fs.move(sourcePath, destPath, { overwrite: true });
-  } catch (err: any) {
-      if (err.code === 'EXDEV') {
-          // Cross-device move failed for some reason even with fs-extra? 
-          // Should not happen with fs.move but let's be explicit fallback
-          await fs.copy(sourcePath, destPath, { overwrite: true });
-          await fs.remove(sourcePath);
-      } else {
-          throw err;
-      }
+    await fs.move(sourcePath, destPath, { overwrite: true });
+  } catch (error: unknown) {
+    if (isErrnoException(error) && error.code === 'EXDEV') {
+      await fs.copy(sourcePath, destPath, { overwrite: true });
+      await fs.remove(sourcePath);
+    } else {
+      throw error;
+    }
   }
-  return destPath;
+
+  return { status: 'moved', path: destPath };
 }
 
 export async function addToHeroic(gameName: string, gamePath: string, executablePath: string, runner: Runner, pfxPath: string) {
@@ -117,12 +122,12 @@ export async function addToHeroic(gameName: string, gamePath: string, executable
     // Or it might need a separate file? current heroic versions use library.json in sideload_apps.
     
     // Read existing
-    let library: { games: any[] } = { games: [] };
+    let library: { games: unknown[] } = { games: [] };
     try {
         if (await fs.pathExists(SIDELOAD_LIBRARY_PATH)) {
             library = await fs.readJson(SIDELOAD_LIBRARY_PATH);
         }
-    } catch (e) {
+    } catch {
         // failed to read, start fresh
     }
 
@@ -130,11 +135,17 @@ export async function addToHeroic(gameName: string, gamePath: string, executable
     library.games.push(entry);
 
     // Save
+    await fs.ensureDir(path.dirname(SIDELOAD_LIBRARY_PATH));
     await fs.writeJson(SIDELOAD_LIBRARY_PATH, library, { spaces: 2 });
 }
 
 // Executable runner with Prefix support
-export async function runExecutable(executablePath: string, runner: Runner, pfxPath: string) {
+export async function runExecutable(
+  executablePath: string,
+  runner: Runner,
+  pfxPath: string,
+  onOutput?: (chunk: string) => void,
+) {
     const env: NodeJS.ProcessEnv = {
         ...process.env,
         STEAM_COMPAT_DATA_PATH: pfxPath,
@@ -166,11 +177,17 @@ export async function runExecutable(executablePath: string, runner: Runner, pfxP
     // ensure prefix dir exists
     await fs.ensureDir(pfxPath);
     
-    const subprocess = execa(cmd, args, { env });
-    
-    // Pipe output to console so we can debug
-    subprocess.stdout?.pipe(process.stdout);
-    subprocess.stderr?.pipe(process.stderr);
-    
-    return subprocess;
+    const subprocess = execa(cmd, args, { env, all: true });
+    subprocess.all?.on('data', (chunk: Buffer | string) => {
+      const text = chunk.toString();
+      if (text.length > 0) {
+        onOutput?.(text);
+      }
+    });
+
+    await subprocess;
+}
+
+function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
+  return typeof error === 'object' && error !== null && 'code' in error;
 }

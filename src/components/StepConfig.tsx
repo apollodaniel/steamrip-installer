@@ -8,6 +8,18 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface StepConfigProps {
   gameInfo: GameInfo;
@@ -50,108 +62,125 @@ export const StepConfig = ({ gameInfo, onNext }: StepConfigProps) => {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-8 duration-500">
-      <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-          Configuration
-        </h2>
-        <p className="text-gray-400">Setup compatibility and options</p>
-      </div>
+      <CardHeader className="text-center px-0">
+        <CardTitle className="text-2xl">Configuration</CardTitle>
+        <CardDescription>
+          Setup compatibility tools and library options
+        </CardDescription>
+      </CardHeader>
 
-      <div className="flex-1 overflow-y-auto space-y-6 pr-2">
-        {/* Executable Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-            <Play size={16} className="text-blue-400" /> Game Executable
-          </label>
-          <select
-            className="w-full bg-black/30 border border-white/10 rounded p-3 text-white focus:border-blue-500 focus:outline-none"
-            value={selectedExecutable}
-            onChange={(e) => setSelectedExecutable(e.target.value)}
-          >
-            {gameInfo.executables.map((exe) => (
-              <option key={exe} value={exe}>
-                {exe}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Runner Selection */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-            <Settings size={16} className="text-purple-400" /> Compatibility
-            Tool
-          </label>
-
-          {loadingRunners ? (
-            <div className="flex items-center gap-2 text-gray-400 p-3 bg-black/20 rounded">
-              <Loader2 className="animate-spin" size={16} /> Loading runners...
-            </div>
-          ) : (
-            <select
-              value={selectedRunnerId}
-              onChange={(e) => setSelectedRunnerId(e.target.value)}
-              className="w-full bg-black/30 border border-white/10 rounded p-3 text-white focus:border-purple-500 focus:outline-none"
+      <ScrollArea className="flex-1 pr-4 -mr-4">
+        <div className="space-y-8 py-4">
+          {/* Executable Selection */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-base">
+              <Play size={16} className="text-blue-400" /> Game Executable
+            </Label>
+            <Select
+              value={selectedExecutable}
+              onValueChange={setSelectedExecutable}
             >
-              {runners.map((r) => (
-                <option key={r.path} value={r.path}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
-          )}
+              <SelectTrigger className="w-full bg-zinc-900/50 border-zinc-700">
+                <SelectValue placeholder="Select Executable" />
+              </SelectTrigger>
+              <SelectContent>
+                {gameInfo.executables.map((exe) => (
+                  <SelectItem key={exe} value={exe}>
+                    {exe}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          {runners.length === 0 && !loadingRunners && (
-            <div className="text-red-400 text-xs flex items-center gap-1">
-              <AlertCircle size={12} /> No runners found. Please install Wine or
-              Proton (via Heroic/Steam).
-            </div>
-          )}
-        </div>
+          {/* Runner Selection */}
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-base">
+              <Settings size={16} className="text-purple-400" /> Compatibility
+              Tool
+            </Label>
 
-        {/* Heroic Option */}
-        <div className="bg-white/5 p-4 rounded-lg flex items-start gap-3 border border-white/5 hover:border-purple-500/50 transition-colors">
-          <input
-            type="checkbox"
-            id="heroicCheck"
-            checked={addToHeroic}
-            onChange={(e) => setAddToHeroic(e.target.checked)}
-            className="mt-1 w-5 h-5 rounded border-gray-600 bg-black/40 text-purple-600 focus:ring-purple-500"
-          />
-          <label
-            htmlFor="heroicCheck"
-            className="cursor-pointer select-none flex-1"
-          >
-            <div className="font-medium text-white">
-              Add to Heroic Games Launcher
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              Creates a sideload entry in your library automatically.
-            </div>
-          </label>
-        </div>
+            {loadingRunners ? (
+              <div className="flex items-center gap-2 text-zinc-400 p-3 bg-zinc-900/50 rounded border border-zinc-800">
+                <Loader2 className="animate-spin" size={16} /> Loading
+                runners...
+              </div>
+            ) : (
+              <Select
+                value={selectedRunnerId}
+                onValueChange={setSelectedRunnerId}
+              >
+                <SelectTrigger className="w-full bg-zinc-900/50 border-zinc-700">
+                  <SelectValue placeholder="Select Proton/Wine Runner" />
+                </SelectTrigger>
+                <SelectContent>
+                  {runners.map((r) => (
+                    <SelectItem key={r.path} value={r.path}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                  {runners.length === 0 && (
+                    <div className="p-2 text-xs text-red-400 flex items-center gap-1">
+                      <AlertCircle size={12} /> No runners found.
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
 
-        {/* Readme Section */}
-        {gameInfo.readme && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-300 flex items-center gap-2">
-              <FileText size={16} className="text-gray-400" /> Instructions
-            </label>
-            <div className="h-48 bg-black/40 rounded border border-white/10 p-3 text-xs font-mono text-gray-300 overflow-y-auto whitespace-pre-wrap">
-              {gameInfo.readme}
+            {runners.length === 0 && !loadingRunners && (
+              <p className="text-sm text-red-400 flex items-center gap-2">
+                <AlertCircle size={14} /> Please install Wine or Proton via
+                Heroic/Steam first.
+              </p>
+            )}
+          </div>
+
+          {/* Heroic Option */}
+          <div className="flex items-center space-x-4 bg-zinc-900/30 p-4 rounded-lg border border-zinc-800 hover:border-purple-500/30 transition-colors">
+            <Checkbox
+              id="heroicCheck"
+              checked={addToHeroic}
+              onCheckedChange={(c) => setAddToHeroic(c === true)}
+              className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+            />
+            <div className="grid gap-1.5 leading-none">
+              <Label
+                htmlFor="heroicCheck"
+                className="text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Add to Heroic Games Launcher
+              </Label>
+              <p className="text-xs text-zinc-400">
+                Automatically create a sideload entry in your specific library.
+              </p>
             </div>
           </div>
-        )}
-      </div>
 
-      <div className="mt-8 pt-4 border-t border-white/5 flex justify-end">
-        <button
+          {/* Readme Section */}
+          {gameInfo.readme && (
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 text-base">
+                <FileText size={16} className="text-zinc-400" /> Instructions
+              </Label>
+              <ScrollArea className="h-48 w-full rounded-md border border-zinc-800 bg-black/20 p-4">
+                <pre className="text-xs font-mono text-zinc-300 whitespace-pre-wrap font-sans">
+                  {gameInfo.readme}
+                </pre>
+              </ScrollArea>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      <div className="pt-6 border-t border-zinc-800 flex justify-end">
+        <Button
           onClick={handleNext}
           disabled={!selectedRunnerId || loadingRunners}
-          className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg shadow-lg shadow-purple-900/20 font-medium flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+          className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-purple-900/20"
         >
-          Install Game <ChevronRight size={18} />
-        </button>
+          Install Game <ChevronRight className="ml-2 h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
